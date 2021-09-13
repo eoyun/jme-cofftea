@@ -46,7 +46,7 @@ def plot_s_over_b(acc, outtag, hfestimatefile=None, distribution='mjj', region='
     # Compute the ratio per bin
     ratio = h_signal.values()[()] / np.sqrt(total_bkg)
     xcenters = h_signal.axis(distribution).centers()
-
+    xedges = h_signal.axis(distribution).edges()
 
     fig, ax = plt.subplots()
     plot_opts = {
@@ -68,6 +68,11 @@ def plot_s_over_b(acc, outtag, hfestimatefile=None, distribution='mjj', region='
     plt.close(fig)
     
     print(f'File saved: {outpath}')
+
+    # Save to output ROOT file if one is provided
+    outputrootpath = pjoin(outdir, 's_over_b.root')
+    outputrootfile = uproot.recreate(outputrootpath)
+    outputrootfile[f's_over_b_{year}'] = (ratio, xedges)
 
 def main():
     inpath = sys.argv[1]
