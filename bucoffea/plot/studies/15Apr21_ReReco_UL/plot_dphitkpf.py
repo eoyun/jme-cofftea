@@ -5,6 +5,10 @@ import sys
 import re
 import numpy as np
 import mplhep as hep
+import matplotlib
+
+# Use a different backend for matplotlib, otherwise HEP styling doesn't work for some reason
+matplotlib.use('tkagg')
 
 from matplotlib import pyplot as plt
 from matplotlib.ticker import MultipleLocator
@@ -16,6 +20,11 @@ from klepto.archives import dir_archive
 from pprint import pprint
 
 pjoin = os.path.join
+
+# Use default CMS styling
+plt.style.use(hep.style.CMS)
+font = { 'size' : 16 }
+matplotlib.rc('font', **font)
 
 def pretty_eta_label(etaslice):
     return f'${etaslice.start:.2f} < |\\eta_{{j0}}| < {etaslice.stop:.2f}$' 
@@ -198,21 +207,11 @@ def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4
                 handle.set_linestyle('-')
                 handle.set_edgecolor('k')
 
-    ax.legend(handles=handles, ncol=2)
+    ax.legend(handles=handles, ncol=2, prop={'size' : 12})
 
-    ax.text(0.,1.,pretty_eta_label(etaslice),
-        fontsize=14,
-        ha='left',
-        va='bottom',
-        transform=ax.transAxes
-    )
-
-    ax.text(1.,1.,year,
-        fontsize=14,
-        ha='right',
-        va='bottom',
-        transform=ax.transAxes
-    )
+    # CMS label & text
+    hep.cms.label(ax=ax, year=year, paper=True)
+    hep.cms.text(ax=ax)
 
     # Plot ratio
     h_mc = h[mc].integrate('dataset', mc)
