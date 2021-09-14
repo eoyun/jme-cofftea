@@ -54,6 +54,9 @@ def vbfhinv_accumulator(cfg):
     pt_ax_el = Bin("pt", r"$p_{T}$ (GeV)", [10,20,35,50,100,200,500])
     pt_ax_tau = Bin("pt", r"$p_{T}$ (GeV)", [18,20,25,30,35,40,500,1000])
 
+    dphitkpf_ax_coarse = Bin("dphi", r"$\Delta\phi$", [0, 0.5, 1, 1.5, 2, np.pi])
+    jet_abseta_ax_coarse = Bin("jeteta", r"Jet $|\eta|$", [0, 2.5, 3, 3.25, 5])
+
     ht_ax = Bin("ht", r"$H_{T}$ (GeV)", 100, 0, 4000)
     mt_ax = Bin("mt", r"$M_{T}$ (GeV)", 100, 0, 1000)
     eta_ax = Bin("eta", r"$\eta$", 50, -5, 5)
@@ -181,6 +184,8 @@ def vbfhinv_accumulator(cfg):
     items["vecdphi"] = Hist("Counts", dataset_ax, region_ax, vecdphi_ax)
     items["dphitkpf"] = Hist("Counts", dataset_ax, region_ax, dphi_ax)
     items["dPFTkMET"] = Hist("Counts", dataset_ax, region_ax, dpftk_ax)
+
+    items["dphitkpf_ak4_eta0"] = Hist("Counts", dataset_ax, region_ax, dphitkpf_ax_coarse, jet_abseta_ax_coarse)
 
     # Multiplicity histograms
     for cand in ['ak4', 'ak8', 'bjet', 'loose_ele', 'loose_muo', 'tight_ele', 'tight_muo', 'tau', 'photon','hlt_single_muon','muons_hltmatch']:
