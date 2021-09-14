@@ -18,22 +18,23 @@ def dump_run_event_lumi(inpath, region, year, outdir):
     infile = uproot.open(inpath)
     df = infile[region].pandas.df()
 
-    # Add discriminating variable
-    df['disc'] = 'mjj'
+    # Convert run,event,lumi to CSV
+    for item in ['run','event','lumi']:
+        df[item] = df[item].astype(int)
 
-    df.to_csv(outfile, index=False, columns=['run','lumi','event','disc'])
+    df.to_csv(outfile, index=False, columns=['run','lumi','event','mjj'])
     print(f'File saved: {outfile}')
 
 def main():
     indir = sys.argv[1]
 
     regions_files = {
-        'sr_vbf'    : pjoin(indir,'tree_MET_{year}_combined.root'),
-        'cr_1m_vbf' : pjoin(indir,'tree_MET_{year}_combined.root'),
-        'cr_2m_vbf' : pjoin(indir,'tree_MET_{year}_combined.root'),
-        'cr_1e_vbf' : pjoin(indir,'tree_EGamma_{year}_combined.root'),
-        'cr_2e_vbf' : pjoin(indir,'tree_EGamma_{year}_combined.root'),
-        'cr_g_vbf'  : pjoin(indir,'tree_EGamma_{year}_combined.root'),
+        'sr_vbf'    : pjoin(indir,'tree_MET_combined_{year}.root'),
+        'cr_1m_vbf' : pjoin(indir,'tree_MET_combined_{year}.root'),
+        'cr_2m_vbf' : pjoin(indir,'tree_MET_combined_{year}.root'),
+        'cr_1e_vbf' : pjoin(indir,'tree_EGamma_combined_{year}.root'),
+        'cr_2e_vbf' : pjoin(indir,'tree_EGamma_combined_{year}.root'),
+        'cr_g_vbf'  : pjoin(indir,'tree_EGamma_combined_{year}.root'),
     }
     
     # Set output directory based on the input directory
