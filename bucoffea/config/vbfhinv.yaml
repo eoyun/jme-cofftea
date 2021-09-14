@@ -233,6 +233,7 @@ default:
     regionregex: .*
     apply_hf_cuts: True
     hf_pt_thresh: 80
+    region_without_dijet_cuts: False
     apply_weights:
       hfmask: False
       endcap: False

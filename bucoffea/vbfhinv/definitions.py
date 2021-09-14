@@ -327,6 +327,8 @@ def vbfhinv_regions(cfg):
         regions['sr_vbf'].remove('hornveto')
         regions['sr_vbf'].remove('eemitigation')
 
+    if cfg.RUN.REGION_WITHOUT_DIJET_CUTS:
+        regions['sr_vbf_nodijetcut'] = [cut for cut in regions['sr_vbf'] if cut not in ['mjj','detajj','dphijj']]
 
     # SR without PU weights
     # regions['sr_vbf_no_pu'] = copy.deepcopy(regions['sr_vbf'])
