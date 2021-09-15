@@ -34,13 +34,6 @@ def preprocess(h, acc, etaslice):
     scale_xs_lumi(h)
     h = merge_datasets(h)
 
-    # Rebin dhitkpf (annoying but necessary)
-    # new_bins = [ibin.lo for ibin in h.identifiers('dphi') if ibin.lo < 1] + [1.12, 1.2600000000000002, 1.4000000000000001, 1.9600000000000002, 3.5]
-    new_bins = [0, 0.49000000000000005, 0.9800000000000001, 1.4700000000000002, 1.9600000000000002, 3.1500000000000004]
-    
-    new_ax = hist.Bin('dphi', r'$\Delta\phi_{TK,PF}$', new_bins)
-    h = h.rebin('dphi', new_ax)
-
     # Integrate out the eta slice
     h = h.integrate('jeteta', etaslice)
     return h
@@ -52,7 +45,7 @@ def get_qcd_estimation_for_etaslice(h, outtag, year, etaslice=slice(3, 3.25), ff
     h = h.integrate('region', region)
 
     data = f'MET_{year}'
-    mc = re.compile(f'(ZJetsToNuNu.*|EW.*|Top_FXFX.*|Diboson.*|DYJetsToLL_M-50_HT_MLM.*|WJetsToLNu.*HT.*).*{year}')
+    mc = re.compile(f'(ZNJetsToNuNu_M-50_LHEFilterPtZ-FXFX.*|EW.*|Top_FXFX.*|Diboson.*|DYJetsToLL_Pt.*FXFX.*|WJetsToLNu_Pt.*FXFX.*).*{year}')
 
     h_data = h.integrate('dataset', data)
     h_mc = h.integrate('dataset', mc)
@@ -114,7 +107,7 @@ def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4
     h = h.integrate('region', region)
 
     data = f'MET_{year}'
-    mc = re.compile(f'(ZJetsToNuNu.*|EW.*|Top_FXFX.*|Diboson.*|DYJetsToLL_M-50_HT_MLM.*|WJetsToLNu.*HT.*).*{year}')
+    mc = re.compile(f'(ZNJetsToNuNu_M-50_LHEFilterPtZ-FXFX.*|EW.*|Top_FXFX.*|Diboson.*|DYJetsToLL_Pt.*FXFX.*|WJetsToLNu_Pt.*FXFX.*).*{year}')
     datasets = list(map(str, h[mc].identifiers('dataset')))
     
     data_err_opts = {
@@ -213,6 +206,12 @@ def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4
     hep.cms.label(ax=ax, year=year, paper=True)
     hep.cms.text(ax=ax)
 
+    ax.text(0.95,0.15,pretty_eta_label(etaslice),
+        ha='right',
+        va='bottom',
+        transform=ax.transAxes
+    )
+
     # Plot ratio
     h_mc = h[mc].integrate('dataset', mc)
 
@@ -286,10 +285,10 @@ def main():
     outtag = re.findall('merged_.*', inpath)[0].replace('/','')
 
     etaslices = [
-        slice(0, 2.5),
-        slice(2.5, 3),
+        # slice(0, 2.5),
+        # slice(2.5, 3),
         slice(3, 3.25),
-        slice(3.25, 5),
+        # slice(3.25, 5),
     ]
     
     for year in [2017, 2018]:
