@@ -15,7 +15,7 @@ from matplotlib.ticker import MultipleLocator
 from coffea import hist
 from coffea.hist import poisson_interval
 from bucoffea.plot.util import merge_datasets, merge_extensions, merge_years, scale_xs_lumi, fig_ratio, lumi
-from bucoffea.plot.plotter import legend_labels, colors
+from bucoffea.plot.plotter import legend_labels, legend_labels_IC, colors, colors_IC
 from klepto.archives import dir_archive
 from pprint import pprint
 
@@ -103,7 +103,7 @@ def get_qcd_estimation_for_etaslice(h, outtag, year, etaslice=slice(3, 3.25), ff
     # Return the histogram containing the QCD template
     return h_data
 
-def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4_eta0', etaslice=slice(3, 3.25), fformat='pdf', logy=False, print_lastbin_yields=False):
+def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4_eta0', etaslice=slice(3, 3.25), fformat='pdf', logy=False, print_lastbin_yields=False, ic_theme=True):
     '''Plot dphitkpf distribution in data and MC in a stack plot, for the given eta slice for the leading jet.'''
     acc.load(distribution)
     h = preprocess(acc[distribution], acc, etaslice, year)
@@ -150,7 +150,7 @@ def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4
     sumw_qcd = h_qcd.values()[()]
     sumw_qcd[sumw_qcd < 0] = 0.
     if not (sumw_qcd == 0).all():
-        plot_info['label'].insert(0, 'HF Noise Estimate')
+        plot_info['label'].insert(0, 'HF noise')
         plot_info['sumw'].insert(0, sumw_qcd)
 
     xedges = h_data.axis('dphi').edges()
@@ -171,8 +171,9 @@ def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4
         signal = re.compile(f'VBF_HToInvisible.*withDipoleRecoil.*')
 
     signal_line_opts = {
-        'linestyle': '-',
-        'color': 'crimson',
+        'linestyle': '--',
+        'linewidth': 2.,
+        'color': (1,0,1),
     }
 
     if print_lastbin_yields:
@@ -197,25 +198,32 @@ def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4
     ax.set_ylabel('Events / Bin Width')
     ax.yaxis.set_ticks_position('both')
 
+    colors_to_look = colors_IC if ic_theme else colors
+    legend_labels_to_look = legend_labels_IC if ic_theme else legend_labels
+
     handles, labels = ax.get_legend_handles_labels()
     for handle, label in zip(handles, labels):
         if label == 'None':
             handle.set_label('Data')
-        for datasetregex, new_label in legend_labels.items():
+        for datasetregex, new_label in legend_labels_to_look.items():
             col = None
+            edgecol = None
             if re.match(datasetregex, label):
                 handle.set_label(new_label)
-            for k, v in colors.items():
+            for k, v in colors_to_look.items():
                 if re.match(k, label):
-                    col = v
+                    col = (v[0]/255, v[1]/255, v[2]/255, 0.8)
+                    edgecol = (v[0]/255, v[1]/255, v[2]/255, 0.99)
                     break
 
-            if col:
+            if col and edgecol:
                 handle.set_color(col)
                 handle.set_linestyle('-')
-                handle.set_edgecolor('k')
+                handle.set_linewidth(1.5)
+                handle.set_edgecolor(edgecol)
 
-    ax.legend(handles=handles, ncol=2, prop={'size' : 12})
+
+    ax.legend(handles=handles, ncol=2, prop={'size' : 11})
 
     # CMS label & text
     hep.cms.label(ax=ax, 
@@ -255,6 +263,7 @@ def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4
         **data_err_opts
     )
 
+    rax.set_xlabel('$\\Delta\\phi$')
     rax.set_ylabel('Data / MC')
     rax.set_ylim(0.5,1.5)
     loc1 = MultipleLocator(0.2)
@@ -311,13 +320,10 @@ def main():
         # slice(3.25, 5),
     ]
     
-    for year in [2017, 2018]:
+    for year in ['combined']:
         for etaslice in etaslices:
             for fformat in ['pdf']:
                 plot_dphitkpf(acc, outtag, year=year, etaslice=etaslice, fformat=fformat)
-
-    # Year combined plot
-    plot_dphitkpf(acc, outtag, year='combined', etaslice=slice(3,3.25))
 
 if __name__ == '__main__':
     main()

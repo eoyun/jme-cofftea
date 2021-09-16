@@ -102,6 +102,20 @@ legend_labels = {
     'VBF_HToInv.*' : "VBF H(inv)",
 }
 
+legend_labels_IC = {
+    'DY.*' : "$Z(\\ell\\ell)$ + jets (strong)",
+    'EWKZ.*ZToLL.*' : "$Z(\\ell\\ell)$ + jets (VBF)",
+    'WN*J.*LNu.*' : "$W(\\ell\\nu)$ + jets (strong)",
+    'EWKW.*LNu.*' : "$W(\\ell\\nu)$ + jets (VBF)",
+    'ZN*JetsToNuNu.*.*' : "$Z(\\nu\\nu)$ + jets (strong)",
+    'EWKZ.*ZToNuNu.*' : "$Z(\\nu\\nu)$ + jets (VBF)",
+    'QCD.*' : "QCD Estimation",
+    'Top.*' : "Top",
+    'Diboson.*' : "Dibosons",
+    'MET|Single(Electron|Photon|Muon)|EGamma.*' : "Data",
+    'VBF_HToInv.*' : "qqH, $B(H\\rightarrow inv.)=1.0$",
+}
+
 legend_titles = {
     'sr_vbf' : 'VBF Signal Region',
     'cr_1m_vbf' : r'VBF $1\mu$ Region',
@@ -118,7 +132,7 @@ colors = {
     'EWKZ.*ZToNuNu.*' : '#c4cae2',
     '.*Diboson.*' : '#4292c6',
     'Top.*' : '#6a51a3',
-    '.*HF Noise.*' : '#08306b',
+    '.*HF (N|n)oise.*' : '#08306b',
     '.*TT.*' : '#6a51a3',
     '.*ST.*' : '#9e9ac8',
     'ZN*JetsToNuNu.*' : '#31a354',
@@ -126,6 +140,18 @@ colors = {
     'GJets_(DR-0p4|HT).*' : '#fc4e2a',
     '(VBFGamma|GJets_SM.*EWK).*' : '#a76b51',
     'QCD.*' : '#a6bddb',
+}
+
+colors_IC = {
+    'ZNJetsToNuNu_M-50_LHEFilterPtZ-FXFX.*' : (122, 189, 255),
+    'EWKZ2Jets.*ZToNuNu.*' : (186, 242, 255),
+    'DYJetsToLL_Pt.*FXFX.*' : (71, 191, 57),
+    'EWKZ2Jets.*ZToLL.*' : (193, 255, 189),
+    'WJetsToLNu_Pt.*FXFX.*' : (255, 182, 23),
+    'EWKW2Jets.*WToLNu.*' : (252, 228, 159),
+    'Diboson.*' : (0, 128, 128),
+    'Top.*' : (148, 147, 146),
+    '.*HF (N|n)oise.*' : (174, 126, 230),
 }
 
 def plot_data_mc(acc, outtag, year, data, mc, data_region, mc_region, distribution='mjj', plot_signal=True, nlo=False, mcscale=1, fformat='pdf', qcd_file=None, jes_file=None, ulxs=True):

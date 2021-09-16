@@ -193,7 +193,7 @@ def merge_years(histogram):
         'EWKZ2Jets_ZToNuNu_M-50-mg_combined' : [x for x in all_datasets if re.match('EWKZ2Jets.*ZToNuNu.*mg.*', x)],
         'EWKZ2Jets_ZToLL_M-50-mg_combined' : [x for x in all_datasets if re.match('EWKZ2Jets.*ZToLL.*mg.*', x)],
         'EWKW2Jets_WToLNu_M-50-mg_combined' : [x for x in all_datasets if re.match('EWKW2Jets.*WToLNu.*mg.*', x)],
-        'Top_FXFX_combined' : [x for x in all_datasets if re.match('(TTJets-amcatnloFXFX|ST_((s|t)-channel|tW)).*', x)],
+        'Top_FXFX_combined' : [x for x in all_datasets if re.match('Top_FXFX.*', x)],
         'Diboson_combined' : [x for x in all_datasets if re.match('Diboson_.*', x)],
         'VBF_HToInvisible_M125_withDipoleRecoil_pow_combined' : [x for x in all_datasets if re.match('VBF_HToInvisible.*withDipoleRecoil.*', x)],
     }    
