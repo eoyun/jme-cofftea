@@ -14,7 +14,7 @@ from matplotlib import pyplot as plt
 from matplotlib.ticker import MultipleLocator
 from coffea import hist
 from coffea.hist import poisson_interval
-from bucoffea.plot.util import merge_datasets, merge_extensions, scale_xs_lumi, fig_ratio
+from bucoffea.plot.util import merge_datasets, merge_extensions, merge_years, scale_xs_lumi, fig_ratio, lumi
 from bucoffea.plot.plotter import legend_labels, colors
 from klepto.archives import dir_archive
 from pprint import pprint
@@ -29,10 +29,13 @@ matplotlib.rc('font', **font)
 def pretty_eta_label(etaslice):
     return f'${etaslice.start:.2f} < |\\eta_{{j0}}| < {etaslice.stop:.2f}$' 
 
-def preprocess(h, acc, etaslice):
+def preprocess(h, acc, etaslice, year):
     h = merge_extensions(h, acc)
     scale_xs_lumi(h)
     h = merge_datasets(h)
+
+    if year == 'combined':
+        h = merge_years(h)
 
     # Integrate out the eta slice
     h = h.integrate('jeteta', etaslice)
@@ -44,8 +47,12 @@ def get_qcd_estimation_for_etaslice(h, outtag, year, etaslice=slice(3, 3.25), ff
     region = 'cr_vbf_qcd'
     h = h.integrate('region', region)
 
-    data = f'MET_{year}'
-    mc = re.compile(f'(ZNJetsToNuNu_M-50_LHEFilterPtZ-FXFX.*|EW.*|Top_FXFX.*|Diboson.*|DYJetsToLL_Pt.*FXFX.*|WJetsToLNu_Pt.*FXFX.*).*{year}')
+    if year in [2017, 2018]:
+        data = f'MET_{year}'
+        mc = re.compile(f'(ZNJetsToNuNu_M-50_LHEFilterPtZ-FXFX.*|EW.*|Top_FXFX.*|Diboson.*|DYJetsToLL_Pt.*FXFX.*|WJetsToLNu_Pt.*FXFX.*).*{year}')
+    elif year == 'combined':
+        data = re.compile('MET.*')
+        mc = re.compile('(ZNJetsToNuNu_M-50_LHEFilterPtZ-FXFX.*|EW.*|Top_FXFX.*|Diboson.*|DYJetsToLL_Pt.*FXFX.*|WJetsToLNu_Pt.*FXFX.*).*')
 
     h_data = h.integrate('dataset', data)
     h_mc = h.integrate('dataset', mc)
@@ -99,15 +106,20 @@ def get_qcd_estimation_for_etaslice(h, outtag, year, etaslice=slice(3, 3.25), ff
 def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4_eta0', etaslice=slice(3, 3.25), fformat='pdf', logy=False, print_lastbin_yields=False):
     '''Plot dphitkpf distribution in data and MC in a stack plot, for the given eta slice for the leading jet.'''
     acc.load(distribution)
-    h = preprocess(acc[distribution], acc, etaslice)
+    h = preprocess(acc[distribution], acc, etaslice, year)
 
     # Get the QCD template
     h_qcd = get_qcd_estimation_for_etaslice(h, outtag, year, etaslice=etaslice, fformat=fformat)
 
     h = h.integrate('region', region)
 
-    data = f'MET_{year}'
-    mc = re.compile(f'(ZNJetsToNuNu_M-50_LHEFilterPtZ-FXFX.*|EW.*|Top_FXFX.*|Diboson.*|DYJetsToLL_Pt.*FXFX.*|WJetsToLNu_Pt.*FXFX.*).*{year}')
+    if year in [2017, 2018]:
+        data = f'MET_{year}'
+        mc = re.compile(f'(ZNJetsToNuNu_M-50_LHEFilterPtZ-FXFX.*|EW.*|Top_FXFX.*|Diboson.*|DYJetsToLL_Pt.*FXFX.*|WJetsToLNu_Pt.*FXFX.*).*{year}')
+    elif year == 'combined':
+        data = re.compile('MET.*')
+        mc = re.compile('(ZNJetsToNuNu_M-50_LHEFilterPtZ-FXFX.*|EW.*|Top_FXFX.*|Diboson.*|DYJetsToLL_Pt.*FXFX.*|WJetsToLNu_Pt.*FXFX.*).*')
+    
     datasets = list(map(str, h[mc].identifiers('dataset')))
     
     data_err_opts = {
@@ -153,7 +165,10 @@ def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4
         stack=True
         )
 
-    signal = re.compile(f'VBF_HToInvisible.*withDipoleRecoil.*{year}')
+    if year in [2017, 2018]:
+        signal = re.compile(f'VBF_HToInvisible.*withDipoleRecoil.*{year}')
+    elif year == 'combined':
+        signal = re.compile(f'VBF_HToInvisible.*withDipoleRecoil.*')
 
     signal_line_opts = {
         'linestyle': '-',
@@ -203,7 +218,12 @@ def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4
     ax.legend(handles=handles, ncol=2, prop={'size' : 12})
 
     # CMS label & text
-    hep.cms.label(ax=ax, year=year, paper=True)
+    hep.cms.label(ax=ax, 
+            lumi=lumi(year) if year in [2017, 2018] else 101, # Combined luminosity = 101 fb^-1
+            year=year if year in [2017, 2018] else '2017+2018', 
+            paper=True
+            )
+    
     hep.cms.text(ax=ax)
 
     ax.text(0.95,0.15,pretty_eta_label(etaslice),
@@ -293,8 +313,11 @@ def main():
     
     for year in [2017, 2018]:
         for etaslice in etaslices:
-            for fformat in ['pdf', 'png']:
+            for fformat in ['pdf']:
                 plot_dphitkpf(acc, outtag, year=year, etaslice=etaslice, fformat=fformat)
+
+    # Year combined plot
+    plot_dphitkpf(acc, outtag, year='combined', etaslice=slice(3,3.25))
 
 if __name__ == '__main__':
     main()

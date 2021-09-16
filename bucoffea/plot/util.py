@@ -181,6 +181,28 @@ def merge_extensions(histogram, acc, reweight_pu=True, noscale=False):
 
     return histogram
 
+def merge_years(histogram):
+    '''Combine the 2017 and 2018 datasets.'''
+    all_datasets = list(map(str, histogram.identifiers('dataset')))
+    
+    mapping = {
+        'MET_combined' : [x for x in all_datasets if re.match('MET_.*', x)],
+        'ZNJetsToNuNu_M-50_LHEFilterPtZ-FXFX_combined' : [x for x in all_datasets if re.match('ZNJetsToNuNu_M-50_LHEFilterPtZ-FXFX.*', x)],
+        'WJetsToLNu_Pt_FXFX_combined' : [x for x in all_datasets if re.match('WJetsToLNu_Pt.*FXFX.*', x)],
+        'DYJetsToLL_Pt_FXFX_combined' : [x for x in all_datasets if re.match('DYJetsToLL_Pt.*FXFX.*', x)],
+        'EWKZ2Jets_ZToNuNu_M-50-mg_combined' : [x for x in all_datasets if re.match('EWKZ2Jets.*ZToNuNu.*mg.*', x)],
+        'EWKZ2Jets_ZToLL_M-50-mg_combined' : [x for x in all_datasets if re.match('EWKZ2Jets.*ZToLL.*mg.*', x)],
+        'EWKW2Jets_WToLNu_M-50-mg_combined' : [x for x in all_datasets if re.match('EWKW2Jets.*WToLNu.*mg.*', x)],
+        'Top_FXFX_combined' : [x for x in all_datasets if re.match('(TTJets-amcatnloFXFX|ST_((s|t)-channel|tW)).*', x)],
+        'Diboson_combined' : [x for x in all_datasets if re.match('Diboson_.*', x)],
+        'VBF_HToInvisible_M125_withDipoleRecoil_pow_combined' : [x for x in all_datasets if re.match('VBF_HToInvisible.*withDipoleRecoil.*', x)],
+    }    
+
+    # Apply the mapping
+    histogram = histogram.group("dataset",hist.Cat("dataset", "Primary dataset"),  mapping)    
+
+    return histogram
+
 def create_dataset_mapping(all_datasets):
     '''
     Given the input of all datasets in the histogram, create a mapping
