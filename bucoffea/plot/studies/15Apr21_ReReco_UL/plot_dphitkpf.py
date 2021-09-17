@@ -226,10 +226,11 @@ def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4
     ax.legend(handles=handles, ncol=2, prop={'size' : 11})
 
     # CMS label & text
+    # NOTE: May need slight modifications for the src code when looking at 2017+2018
     hep.cms.label(ax=ax, 
+            llabel="", # Just "CMS" label on the left hand side
             lumi=lumi(year) if year in [2017, 2018] else 101, # Combined luminosity = 101 fb^-1
             year=year if year in [2017, 2018] else None, 
-            paper=True
             )
     
     ax.text(0.95,0.15,pretty_eta_label(etaslice),
