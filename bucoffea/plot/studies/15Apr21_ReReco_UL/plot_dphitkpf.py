@@ -228,12 +228,10 @@ def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4
     # CMS label & text
     hep.cms.label(ax=ax, 
             lumi=lumi(year) if year in [2017, 2018] else 101, # Combined luminosity = 101 fb^-1
-            year=year if year in [2017, 2018] else '2017+2018', 
+            year=year if year in [2017, 2018] else None, 
             paper=True
             )
     
-    hep.cms.text(ax=ax)
-
     ax.text(0.95,0.15,pretty_eta_label(etaslice),
         ha='right',
         va='bottom',
