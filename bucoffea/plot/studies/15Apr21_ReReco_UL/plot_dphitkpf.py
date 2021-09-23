@@ -103,6 +103,50 @@ def get_qcd_estimation_for_etaslice(h, outtag, year, etaslice=slice(3, 3.25), ff
     # Return the histogram containing the QCD template
     return h_data
 
+def plot_signal_over_total_bkg(h_signal, h_mc, h_qcd, outtag, year):
+    '''Plot signal in the given eta slice divided by the total background.'''
+    sumw_signal = h_signal.values()[()]
+    sumw_bkg = h_mc.values()[()] + h_qcd.values()[()]
+
+    ratio = sumw_signal / sumw_bkg
+    xcenters =  h_signal.axis('dphi').centers()
+
+    
+
+    fig, ax = plt.subplots()
+    opts = {
+        'linestyle':'none',
+        'marker': '.',
+        'markersize': 10.,
+        'color':'k',
+    }
+
+    ax.plot(xcenters, ratio, label='Signal/Bkg', **opts)
+
+    ax.set_xlabel(r'$\Delta\phi_{TK,PF}$')
+    ax.set_ylabel('S / B Ratio')
+    ax.set_xlim(0,np.pi)
+    ax.set_ylim(0,0.3)
+
+    avg = np.average(ratio)
+    ax.axhline(avg, xmin=0, xmax=1, color='red', lw=2, label=f'Average S/B: {avg*100:.2f}%')
+
+    ax.legend()
+ 
+    hep.cms.label(ax=ax, 
+            llabel="", # Just "CMS" label on the left hand side
+            lumi=lumi(year) if year in [2017, 2018] else 101, # Combined luminosity = 101 fb^-1
+            year=year if year in [2017, 2018] else None, 
+            )
+
+    outdir = f'./output/{outtag}/dphitkpf'
+    if not os.path.exists(outdir):
+        os.makedirs(outdir)
+
+    outpath = pjoin(outdir, 's_over_b.pdf')
+    fig.savefig(outpath)
+    plt.close(fig)
+
 def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4_eta0', etaslice=slice(3, 3.25), fformat='pdf', logy=False, print_lastbin_yields=False, ic_theme=True):
     '''Plot dphitkpf distribution in data and MC in a stack plot, for the given eta slice for the leading jet.'''
     acc.load(distribution)
@@ -190,7 +234,15 @@ def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4
         binwnorm=1,
         clear=False
     )
-    
+
+    plot_signal_over_total_bkg(
+        h[signal].integrate('dataset'),
+        h[mc].integrate('dataset'),
+        h_qcd,
+        outtag,
+        year
+    )
+
     if logy:
         ax.set_yscale('log')
         ax.set_ylim(1e-2,1e6)
@@ -282,8 +334,11 @@ def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4
         xedges,
         np.r_[denom_unc[0], denom_unc[0, -1]],
         np.r_[denom_unc[1], denom_unc[1, -1]],
+        label='MC Statistical Unc.',
         **opts
     )
+
+    rax.legend()
 
     rax.grid(axis='y',which='both',linestyle='--')
 
