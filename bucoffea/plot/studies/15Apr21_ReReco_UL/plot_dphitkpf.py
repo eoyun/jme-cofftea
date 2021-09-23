@@ -334,13 +334,11 @@ def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4
         xedges,
         np.r_[denom_unc[0], denom_unc[0, -1]],
         np.r_[denom_unc[1], denom_unc[1, -1]],
-        label='MC Statistical Unc.',
+        label='Bkg. uncert.',
         **opts
     )
 
-    rax.legend()
-
-    rax.grid(axis='y',which='both',linestyle='--')
+    rax.legend(loc='upper left')
 
     rax.axhline(1., xmin=0, xmax=1, color=(0,0,0,0.4), ls='--')
     
