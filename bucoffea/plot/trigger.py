@@ -18,7 +18,7 @@ from scipy.signal import savgol_filter
 
 from bucoffea.plot.style import markers, matplotlib_rc
 from bucoffea.plot.util import (acc_from_dir, fig_ratio, lumi, merge_datasets,
-                                merge_extensions, scale_xs_lumi)
+                                merge_extensions, scale_xs_lumi, URTH1)
 from bucoffea.helpers.paths import bucoffea_path
 
 from klepto.archives import dir_archive
@@ -110,7 +110,7 @@ def preprocess(h, acc, distribution, region_tag='1m', dataset='SingleMuon', nosc
 
     return hnum, hden
 
-def plot_recoil(acc,xmax=1e3,ymin=0,ymax=1.1, region_tag="1m", dataset='SingleMuon', year=2018, tag="test", outtag=None, distribution="recoil",axis_name=None, noscale=False, jeteta_config=None, output_format='pdf'):
+def plot_recoil(acc,xmax=1e3,ymin=0,ymax=1.1, region_tag="1m", dataset='SingleMuon', year=2018, tag="test", outtag=None, distribution="recoil",axis_name=None, noscale=False, jeteta_config=None, output_format='pdf', outrootfile=None):
     # Select and prepare histogram
     h = copy.deepcopy(acc[distribution])
 
@@ -188,6 +188,20 @@ def plot_recoil(acc,xmax=1e3,ymin=0,ymax=1.1, region_tag="1m", dataset='SingleMu
     plt.plot([0,xmax],[0.95,0.95],'r-')
     fig.savefig(pjoin(outdir, f'eff_{outname}.pdf'))
     plt.close(fig)
+
+    if outrootfile is not None:
+        dtag = 'mc' if dataset.startswith('WJetsToLNu') else 'data'
+
+        ynum = hnum.values()[()]
+        yden = hden.values()[()]
+        eff = ynum / yden
+        unc = clopper_pearson_interval(ynum, yden, 0.68)
+
+        xedges = hnum.axes()[0].edges()
+
+        outrootfile[f'efficiency_{dtag}_{jeteta_config}_{year}'] = (eff, xedges)
+        outrootfile[f'efficiency_{dtag}_{jeteta_config}_{year}_up'] = (unc[0], xedges)
+        outrootfile[f'efficiency_{dtag}_{jeteta_config}_{year}_down'] = (unc[1], xedges)
 
     # Plot smoothed efficiencies for data and MC (not needed for photon trigger eff.)
     if not "g" in region_tag:
@@ -913,6 +927,13 @@ def met_trigger_eff(distribution, regions=['1m']):
         acc.load('sumw')      
         acc.load('sumw2')      
 
+        # Output file to save the turn-ons
+        outdir = f'./output/{tag}/{outtag}'
+        if not os.path.exists(outdir):
+            os.makedirs(outdir)
+        outrootfile = uproot.recreate(pjoin(outdir, 'met_turnons.root'))
+
+
         for year in [2017, 2018]:
             for jeteta_config in ['two_central_jets', 'one_jet_forward_one_jet_central', 'inclusive_no_hfhf']:
                 # Single muon CR
@@ -927,7 +948,9 @@ def met_trigger_eff(distribution, regions=['1m']):
                                     tag=tag,
                                     outtag=outtag,
                                     jeteta_config=jeteta_config,
-                                    output_format='pdf')        
+                                    output_format='pdf',
+                                    outrootfile=outrootfile
+                                    )        
                 # Double muon CR
                 region_tag='2m'
                 if region_tag in regions:
@@ -1151,8 +1174,8 @@ def photon_sf_plot(tag):
 
 def main():
     # indir = "/home/albert/repos/bucoffea/bucoffea/plot/input/eff/test"
-    # met_trigger_eff('recoil')
-    photon_triggers()
+    met_trigger_eff('recoil')
+    # photon_triggers()
     # photon_sf_plot('gamma')
 
 if __name__ == "__main__":
