@@ -11,6 +11,7 @@ from matplotlib import pyplot as plt
 from coffea import hist
 from bucoffea.plot.util import merge_datasets, merge_extensions, scale_xs_lumi, fig_ratio
 from klepto.archives import dir_archive
+from scipy.optimize import curve_fit
 from pprint import pprint
 
 pjoin = os.path.join
@@ -29,8 +30,11 @@ xlabels = {
     'mjj' : r'$M_{jj} \ (GeV)$',
 }
 
+def linear(x, a, b):
+    return a*x + b
+
 def mjj_bins():
-    return np.arange(0,5000,200)
+    return list(np.arange(200,3000,200)) + [3000,3500]
 
 def plot_ratio(acc, outtag, distribution='mjj', tag='electrons', regions=['cr_2e_vbf', 'cr_1e_vbf'], year=2017):
     acc.load(distribution)
@@ -124,8 +128,21 @@ def plot_ratio(acc, outtag, distribution='mjj', tag='electrons', regions=['cr_2e
         'color':'k',
     }
 
-    hep.histplot(r_data, xedges, yerr=r_data_err, ax=ax, histtype='errorbar', label='Data / Data', **data_err_opts)
-    hep.histplot(r_mc, xedges, yerr=r_mc_err, ax=ax, label='MC / MC')
+    hep.histplot(r_data, 
+        xedges, 
+        yerr=r_data_err, 
+        ax=ax, 
+        histtype='errorbar', 
+        label='Data / Data', 
+        **data_err_opts
+        )
+        
+    hep.histplot(r_mc, 
+        xedges, 
+        yerr=r_mc_err, 
+        ax=ax, 
+        label='MC / MC'
+        )
 
     ax.legend()
     ax.set_ylim(ylims[distribution])
@@ -145,12 +162,22 @@ def plot_ratio(acc, outtag, distribution='mjj', tag='electrons', regions=['cr_2e
     )
 
     rr = r_data / r_mc
-    rax.plot(xcenters, rr, **data_err_opts)
+    rr_err = r_data_err / r_mc
+    rax.errorbar(xcenters, rr, yerr=rr_err, **data_err_opts)
+
+    # Fit the double ratio with a linear function
+    sigma = 0.5 * np.abs(rr_err[0] + rr_err[1])
+
+    popt, _ = curve_fit(linear, xdata=xcenters, ydata=rr, sigma=sigma, p0=[5e-4,1])
+
+    rax.plot(xcenters, linear(xcenters, *popt), color='red', label=f'{popt[0]:.5f}*x + {popt[1]:.3f}')
 
     rax.set_xlabel(xlabels[distribution])
     rax.set_ylabel('Data / MC')
-    rax.set_ylim(0.5,3)
+    rax.set_ylim(0.5,5)
     rax.grid(True)
+
+    rax.legend()
 
     outdir = f'./output/{outtag}/fine_mjj_binning'
     if not os.path.exists(outdir):
@@ -178,7 +205,7 @@ def main():
     }
 
     for tag, regions in tag_regions.items():
-        for distribution in ['mjj', 'ak4_eta0', 'ak4_eta1']:
+        for distribution in ['mjj']:
             plot_ratio(acc, outtag, distribution=distribution, tag=tag, regions=regions)
 
 if __name__ == '__main__':
