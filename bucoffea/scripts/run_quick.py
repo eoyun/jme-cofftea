@@ -24,6 +24,9 @@ def main():
         "EWKWMinus2Jets_WToLNu_M-50_withDipoleRecoil-mg_2017" : [
             "root://cmsxrootd.fnal.gov//store/user/aakpinar/nanopost/ULv8_05Feb21/EWKWMinus2Jets_WToLNu_M-50_TuneCP5_withDipoleRecoil_13TeV-madgraph-pythia8/EWKWMinus2Jets_WToLNu_M-50_withDipoleRecoil-mg_2017/210607_164955/0000/tree_1.root"
         ],
+        "DYJetsToLL_Pt-100To250_MatchEWPDG20-amcatnloFXFX_2017" : [
+            "root://cmsxrootd.fnal.gov//store/user/aakpinar/nanopost/ULv8_05Feb21/DYJetsToLL_Pt-100To250_MatchEWPDG20_TuneCP5_13TeV-amcatnloFXFX-pythia8/DYJetsToLL_Pt-100To250_MatchEWPDG20-amcatnloFXFX_2017/210427_150051/0000/tree_1.root"
+        ],
     }
 
     years = list(set(map(extract_year, fileset.keys())))
@@ -47,6 +50,9 @@ def main():
     elif args.processor == 'sumw':
         from bucoffea.gen import mcSumwProcessor
         processorInstance = mcSumwProcessor()
+    elif args.processor == 'gen':
+        from bucoffea.gen.genVbfProcessor import genVbfProcessor
+        processorInstance = genVbfProcessor()
 
     for dataset, filelist in fileset.items():
         newlist = []
