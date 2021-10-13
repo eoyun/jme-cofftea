@@ -941,6 +941,9 @@ class vbfhinvProcessor(processor.ProcessorABC):
             ezfill('detajj',             deta=df["detajj"][mask],   weight=rweight[mask] )
             ezfill('mjj',                mjj=df["mjj"][mask],      weight=rweight[mask] )
 
+            if region not in ['inclusive']:
+                ezfill('mjj_ak4_eta0',       mjj=df["mjj"][mask],      jeteta=diak4.i0.eta[mask].flatten(),       weight=rweight[mask])
+
             rweight_nopref = region_weights.partial_weight(exclude=exclude+['prefire'])
             ezfill('mjj_nopref',                mjj=df["mjj"][mask],      weight=rweight_nopref[mask] )
 

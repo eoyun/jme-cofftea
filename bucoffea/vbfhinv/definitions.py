@@ -30,6 +30,7 @@ def vbfhinv_accumulator(cfg):
     recoil_ax = Bin("recoil", r"Recoil (GeV)", 200, 0, 2000)
 
     mjj_ax = Bin("mjj", r"$M_{jj}$ (GeV)", 150, 0, 7500)
+    mjj_ax_coarse = Bin("mjj", r"$M_{jj}$ (GeV)", [200,500,1000,1500,2000,3000,7500])
     jet_pt_ax = Bin("jetpt", r"$p_{T}$ (GeV)", 100, 0, 1000)
     jet_pt_ax_coarse = Bin("jetpt", r"$p_{T}$ (GeV)", 5, 0, 500)
     jet_eta_ax = Bin("jeteta", r"$\eta$", 50, -5, 5)
@@ -123,6 +124,8 @@ def vbfhinv_accumulator(cfg):
     items["mjj_unc"] = Hist("Counts", dataset_ax, region_ax, mjj_ax, unc_ax)
     items["dphijj"] = Hist("Counts", dataset_ax, region_ax, dphi_ax)
     items["detajj"] = Hist("Counts", dataset_ax, region_ax, deta_ax)
+
+    items["mjj_ak4_eta0"] = Hist("Counts", dataset_ax, region_ax, mjj_ax_coarse, jet_eta_ax)
 
     if cfg.RUN.BTAG_STUDY:
         items["mjj_bveto_up"] = Hist("Counts", dataset_ax, region_ax, mjj_ax)
