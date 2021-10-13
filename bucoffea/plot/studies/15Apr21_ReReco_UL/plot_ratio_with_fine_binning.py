@@ -3,6 +3,7 @@
 import os
 import sys
 import re
+import argparse
 import warnings
 import numpy as np
 import mplhep as hep
@@ -24,6 +25,7 @@ ylims = {
     'ak4_pt0' : (0,1),
     'ak4_pt1' : (0,1),
     'mjj' : (0,2),
+    'mjj_ak4_eta0' : (0,2),
 }
 
 xlabels = {
@@ -32,15 +34,39 @@ xlabels = {
     'ak4_pt0' : r'Leading Jet $p_T \ (GeV)$',
     'ak4_pt1' : r'Trailing Jet $p_T \ (GeV)$',
     'mjj' : r'$M_{jj} \ (GeV)$',
+    'mjj_ak4_eta0' : r'Leading Jet $\eta$',
 }
+
+def parse_cli():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('inpath', help='Path to coffea merged acc.')
+    parser.add_argument('--distribution', default='.*', help='Regex specifying distributions.')
+    args = parser.parse_args()
+    return args 
 
 def linear(x, a, b):
     return a*x + b
 
 def mjj_bins():
-    return list(np.arange(200,3000,200)) + [3000,3500]
+    return list(np.arange(200,3000,100)) + [3000,3500]
 
-def plot_ratio(acc, outtag, distribution='mjj', tag='electrons', regions=['cr_2e_vbf', 'cr_1e_vbf'], year=2017):
+def fit(xcenters, dratio, sigma, xmin=0, xmax=3500):
+    fit_range_mask = (xcenters > xmin) & (xcenters < xmax)
+   
+    xfit = xcenters[fit_range_mask]
+    yfit = dratio[fit_range_mask]
+    sigma = sigma[fit_range_mask]
+
+    popt, pcov = curve_fit(linear, xdata=xfit, ydata=yfit, sigma=sigma, p0=[5e-4,1])
+    
+    diff = yfit - linear(xfit, *popt)
+    chi2 = np.sum((diff / sigma) ** 2)
+
+    chi2_per_dof = chi2 / (len(xfit) - 1)
+
+    return popt, pcov, chi2_per_dof, xfit
+
+def plot_ratio(acc, outtag, distribution='mjj', tag='electrons', regions=['cr_2e_vbf', 'cr_1e_vbf'], year=2017, doFit=True):
     acc.load(distribution)
     h = acc[distribution]
 
@@ -56,6 +82,13 @@ def plot_ratio(acc, outtag, distribution='mjj', tag='electrons', regions=['cr_2e
     if distribution == 'mjj':
         mjj_ax = hist.Bin("mjj", r"$M_{jj}$ (GeV)", mjj_bins())
         h = h.rebin('mjj', mjj_ax)
+
+    # Integrate over mjj > 1 TeV to get the leading jet eta distribution there
+    elif distribution == 'mjj_ak4_eta0':
+        mjj_lo_thresh = 1000.
+        h = h.integrate('mjj', slice(mjj_lo_thresh,7500))
+        jet_eta_ax = hist.Bin("jeteta", r"Leading Jet $\eta$", 10, -5, 5)
+        h = h.rebin('jeteta', jet_eta_ax)
 
     h_num = h.integrate('region', regions[0])
     h_den = h.integrate('region', regions[1])
@@ -174,19 +207,33 @@ def plot_ratio(acc, outtag, distribution='mjj', tag='electrons', regions=['cr_2e
         transform=ax.transAxes
     )
 
+    if distribution == 'mjj_ak4_eta0':
+        ax.text(0,1,f'$M_{{jj}} > {mjj_lo_thresh/1000.:.1f} \\ TeV$',
+            fontsize=14,
+            ha='left',
+            va='bottom',
+            transform=ax.transAxes
+        )
+
     rr = r_data / r_mc
     rr_err = r_data_err / r_mc
     rax.errorbar(xcenters, rr, yerr=rr_err, **data_err_opts)
 
-    if distribution == 'mjj':
+    if distribution == 'mjj' and doFit:
         # Fit the double ratio with a linear function
         sigma = 0.5 * np.abs(rr_err[0] + rr_err[1])
     
-        popt, _ = curve_fit(linear, xdata=xcenters, ydata=rr, sigma=sigma, p0=[5e-4,1])
-    
-        rax.plot(xcenters, linear(xcenters, *popt), color='red', label=f'{popt[0]:.5f}*x + {popt[1]:.3f}')
+        popt0, pcov0, chi2_per_dof_0, x0 = fit(xcenters, rr, sigma, xmin=0, xmax=3500)
+        popt1, pcov1, chi2_per_dof_1, x1 = fit(xcenters, rr, sigma, xmin=1500, xmax=3500)
 
-        rax.legend()
+        # Errors on the slope parameter
+        perr0 = np.sqrt(np.diag(pcov0))[0]
+        perr1 = np.sqrt(np.diag(pcov1))[0]
+
+        rax.plot(x0, linear(x0, *popt0), color='red', label=f'$slope={popt0[0]:.5f} \\pm {perr0:.5f}$')
+        rax.plot(x1, linear(x1, *popt1), color='green', label=f'$slope={popt1[0]:.5f} \\pm {perr1:.5f}$')
+
+        rax.legend(title='Best-fits', prop={'size': 8})
 
     rax.set_xlabel(xlabels[distribution])
     rax.set_ylabel('Data / MC')
@@ -209,7 +256,8 @@ def plot_ratio(acc, outtag, distribution='mjj', tag='electrons', regions=['cr_2e
     print(f'File saved: {outpath}')
 
 def main():
-    inpath = sys.argv[1]
+    args = parse_cli()
+    inpath = args.inpath
     acc = dir_archive(inpath)
 
     acc.load('sumw')
@@ -224,8 +272,17 @@ def main():
     }
 
     for tag, regions in tag_regions.items():
-        for distribution in ['mjj']:
-            plot_ratio(acc, outtag, distribution=distribution, tag=tag, regions=regions)
+        for distribution in ['mjj', 'mjj_ak4_eta0', 'ak4_eta0', 'ak4_eta1']:
+            if not re.match(args.distribution, distribution):
+                continue
+            
+            plot_ratio(acc, 
+                outtag, 
+                distribution=distribution, 
+                tag=tag, 
+                regions=regions, 
+                doFit=True
+                )
 
 if __name__ == '__main__':
     main()
