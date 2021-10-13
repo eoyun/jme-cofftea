@@ -21,12 +21,16 @@ warnings.filterwarnings('ignore')
 ylims = {
     'ak4_eta0' : (0,1),
     'ak4_eta1' : (0,1.5),
-    'mjj' : (0,1.5),
+    'ak4_pt0' : (0,1),
+    'ak4_pt1' : (0,1),
+    'mjj' : (0,2),
 }
 
 xlabels = {
     'ak4_eta0' : r'Leading Jet $\eta$',
     'ak4_eta1' : r'Trailing Jet $\eta$',
+    'ak4_pt0' : r'Leading Jet $p_T \ (GeV)$',
+    'ak4_pt1' : r'Trailing Jet $p_T \ (GeV)$',
     'mjj' : r'$M_{jj} \ (GeV)$',
 }
 
@@ -43,6 +47,10 @@ def plot_ratio(acc, outtag, distribution='mjj', tag='electrons', regions=['cr_2e
     h = merge_extensions(h, acc)
     scale_xs_lumi(h)
     h = merge_datasets(h)
+
+    if 'ak4_pt' in distribution:
+        new_ax = hist.Bin('jetpt',r'Jet $p_{T}$ (GeV)',list(range(80,600,20)) + list(range(600,1000,20)) )
+        h = h.rebin('jetpt', new_ax)
 
     # Mjj binning
     if distribution == 'mjj':
@@ -111,8 +119,13 @@ def plot_ratio(acc, outtag, distribution='mjj', tag='electrons', regions=['cr_2e
 
     if distribution == 'mjj':
         axname = 'mjj'
-    else:
+    elif 'ak4_eta' in distribution:
         axname = 'jeteta'
+    elif 'ak4_pt' in distribution:
+        axname = 'jetpt'
+    else:
+        raise RuntimeError(f'Check distribution: {distribution}')
+    
     xedges = h_mc_num.axis(axname).edges()
     xcenters = h_mc_num.axis(axname).centers()
 
@@ -165,19 +178,25 @@ def plot_ratio(acc, outtag, distribution='mjj', tag='electrons', regions=['cr_2e
     rr_err = r_data_err / r_mc
     rax.errorbar(xcenters, rr, yerr=rr_err, **data_err_opts)
 
-    # Fit the double ratio with a linear function
-    sigma = 0.5 * np.abs(rr_err[0] + rr_err[1])
+    if distribution == 'mjj':
+        # Fit the double ratio with a linear function
+        sigma = 0.5 * np.abs(rr_err[0] + rr_err[1])
+    
+        popt, _ = curve_fit(linear, xdata=xcenters, ydata=rr, sigma=sigma, p0=[5e-4,1])
+    
+        rax.plot(xcenters, linear(xcenters, *popt), color='red', label=f'{popt[0]:.5f}*x + {popt[1]:.3f}')
 
-    popt, _ = curve_fit(linear, xdata=xcenters, ydata=rr, sigma=sigma, p0=[5e-4,1])
-
-    rax.plot(xcenters, linear(xcenters, *popt), color='red', label=f'{popt[0]:.5f}*x + {popt[1]:.3f}')
+        rax.legend()
 
     rax.set_xlabel(xlabels[distribution])
     rax.set_ylabel('Data / MC')
     rax.set_ylim(0.5,5)
     rax.grid(True)
 
-    rax.legend()
+    if distribution != 'mjj':
+        rax.axhline(1, xmin=0, xmax=1, color='red')
+    else:
+        rax.axhline(1, xmin=0, xmax=1, color='blue', linestyle='--')
 
     outdir = f'./output/{outtag}/fine_mjj_binning'
     if not os.path.exists(outdir):
