@@ -147,7 +147,7 @@ def plot_signal_over_total_bkg(h_signal, h_mc, h_qcd, outtag, year):
     fig.savefig(outpath)
     plt.close(fig)
 
-def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4_eta0', etaslice=slice(3, 3.25), fformat='pdf', logy=False, print_lastbin_yields=False, ic_theme=True, plot_pretty_eta_label=False):
+def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4_eta0', etaslice=slice(3, 3.25), fformat='pdf', logy=False, print_lastbin_yields=False, ic_theme=True, plot_pretty_eta_label=True):
     '''Plot dphitkpf distribution in data and MC in a stack plot, for the given eta slice for the leading jet.'''
     acc.load(distribution)
     h = preprocess(acc[distribution], acc, etaslice, year)
