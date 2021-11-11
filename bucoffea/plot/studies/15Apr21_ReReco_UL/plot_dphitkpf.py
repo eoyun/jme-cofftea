@@ -147,7 +147,7 @@ def plot_signal_over_total_bkg(h_signal, h_mc, h_qcd, outtag, year):
     fig.savefig(outpath)
     plt.close(fig)
 
-def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4_eta0', etaslice=slice(3, 3.25), fformat='pdf', logy=False, print_lastbin_yields=False, ic_theme=True):
+def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4_eta0', etaslice=slice(3, 3.25), fformat='pdf', logy=False, print_lastbin_yields=False, ic_theme=True, plot_pretty_eta_label=False):
     '''Plot dphitkpf distribution in data and MC in a stack plot, for the given eta slice for the leading jet.'''
     acc.load(distribution)
     h = preprocess(acc[distribution], acc, etaslice, year)
@@ -278,18 +278,17 @@ def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4
     ax.legend(handles=handles, ncol=2, prop={'size' : 11})
 
     # CMS label & text
-    # NOTE: May need slight modifications for the src code when looking at 2017+2018
     hep.cms.label(ax=ax, 
             llabel="", # Just "CMS" label on the left hand side
-            lumi=lumi(year) if year in [2017, 2018] else 101, # Combined luminosity = 101 fb^-1
-            year=year if year in [2017, 2018] else None, 
+            rlabel="$101 \\ \mathrm{fb^{-1}} \\ (13 \\ TeV)$",
             )
     
-    ax.text(0.95,0.15,pretty_eta_label(etaslice),
-        ha='right',
-        va='bottom',
-        transform=ax.transAxes
-    )
+    if plot_pretty_eta_label:
+        ax.text(0.95,0.15,pretty_eta_label(etaslice),
+            ha='right',
+            va='bottom',
+            transform=ax.transAxes
+        )
 
     # Plot ratio
     h_mc = h[mc].integrate('dataset', mc)
@@ -314,7 +313,9 @@ def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4
         **data_err_opts
     )
 
-    rax.set_xlabel('$\\Delta\\phi$')
+    ax.set_xlabel('$\\Delta\\phi \\ (rad)$')
+
+    rax.set_xlabel('$\\Delta\\phi \\ (rad)$')
     rax.set_ylabel('Data / MC')
     rax.set_ylim(0.5,1.5)
     loc1 = MultipleLocator(0.2)

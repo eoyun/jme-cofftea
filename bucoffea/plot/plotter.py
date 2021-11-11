@@ -110,7 +110,7 @@ legend_labels_IC = {
     'ZN*JetsToNuNu.*.*' : "$Z(\\nu\\nu)$ + jets (strong)",
     'EWKZ.*ZToNuNu.*' : "$Z(\\nu\\nu)$ + jets (VBF)",
     'QCD.*' : "QCD Estimation",
-    'Top.*' : "Top",
+    'Top.*' : "Top quark",
     'Diboson.*' : "Dibosons",
     'MET|Single(Electron|Photon|Muon)|EGamma.*' : "Data",
     'VBF_HToInv.*' : "qqH, $B(H\\rightarrow inv.)=1.0$",
