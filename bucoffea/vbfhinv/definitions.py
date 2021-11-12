@@ -466,12 +466,14 @@ def vbfhinv_regions(cfg):
 
         regions['tr_1m_num_two_central_jets'] = tr_1m_num_cuts + ['two_central_jets']
         regions['tr_1m_num_one_jet_forward_one_jet_central'] = tr_1m_num_cuts + ['one_jet_forward_one_jet_central']
+        regions['tr_1m_num_two_hf_jets'] = tr_1m_num_cuts + ['two_hf_jets']
 
         tr_1m_den_cuts = copy.deepcopy(tr_1m_num_cuts)
         tr_1m_den_cuts.remove('trig_met')
 
         regions['tr_1m_den_two_central_jets'] = tr_1m_den_cuts + ['two_central_jets']
         regions['tr_1m_den_one_jet_forward_one_jet_central'] = tr_1m_den_cuts + ['one_jet_forward_one_jet_central']
+        regions['tr_1m_den_two_hf_jets'] = tr_1m_den_cuts + ['two_hf_jets']
 
         # Double Mu region: Remove mjj cut, toggle MET trigger
         tr_2m_num_cuts = copy.deepcopy(cr_2m_cuts)
@@ -481,12 +483,14 @@ def vbfhinv_regions(cfg):
 
         regions['tr_2m_num_two_central_jets'] = tr_2m_num_cuts + ['two_central_jets']
         regions['tr_2m_num_one_jet_forward_one_jet_central'] = tr_2m_num_cuts + ['one_jet_forward_one_jet_central']
+        regions['tr_2m_num_two_hf_jets'] = tr_2m_num_cuts + ['two_hf_jets']
 
         tr_2m_den_cuts = copy.deepcopy(tr_2m_num_cuts)
         tr_2m_den_cuts.remove('trig_met')
 
         regions['tr_2m_den_two_central_jets'] = tr_2m_den_cuts + ['two_central_jets']
         regions['tr_2m_den_one_jet_forward_one_jet_central'] = tr_2m_den_cuts + ['one_jet_forward_one_jet_central']
+        regions['tr_2m_den_two_hf_jets'] = tr_2m_den_cuts + ['two_hf_jets']
 
         # Photon region
         tr_g_num_cuts = copy.deepcopy(cr_g_cuts)

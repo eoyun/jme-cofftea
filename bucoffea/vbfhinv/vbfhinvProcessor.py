@@ -376,7 +376,7 @@ class vbfhinvProcessor(processor.ProcessorABC):
         selection.add('dphijj', df['dphijj'] < cfg.SELECTION.SIGNAL.DIJET.SHAPE_BASED.DPHI)
         selection.add('detajj', df['detajj'] > cfg.SELECTION.SIGNAL.DIJET.SHAPE_BASED.DETA)
 
-        selection.add('mjj_tight', df['mjj'] > 1200.)
+        # selection.add('mjj_tight', df['mjj'] > 1200.)
 
         # Cleaning cuts for signal region
 
@@ -408,11 +408,11 @@ class vbfhinvProcessor(processor.ProcessorABC):
                         (no_jet_in_trk & at_least_one_jet_in_hf) & (vec_b < 0.2)
                     )
 
-        selection.add('eemitigation', eemitigation)
+        # selection.add('eemitigation', eemitigation)
 
         # HF-HF veto in SR
         both_jets_in_hf = (diak4.i0.abseta > 3.0) & (diak4.i1.abseta > 3.0)
-        selection.add('veto_hfhf', ~both_jets_in_hf.any())
+        # selection.add('veto_hfhf', ~both_jets_in_hf.any())
 
         # Leading jet |eta| < 2.9
         # leadak4_not_in_hf = (diak4.i0.abseta < 2.9).any()
@@ -430,16 +430,17 @@ class vbfhinvProcessor(processor.ProcessorABC):
 
             selection.add('two_central_jets', two_central_jets.any())
             selection.add('one_jet_forward_one_jet_central', one_jet_forward_one_jet_central.any())
+            selection.add('two_hf_jets', two_hf_jets.any())
         
         # Mask for 1/5th unlbinding
         one_fifth_mask = ~pass_all
 
         # Only pick each 5 entry in data
-        one_fifth_mask[::5] = True
-        if df['is_data']:
-            selection.add('one_fifth_mask', one_fifth_mask)
-        else:
-            selection.add('one_fifth_mask', pass_all)
+        # one_fifth_mask[::5] = True
+        # if df['is_data']:
+        #     selection.add('one_fifth_mask', one_fifth_mask)
+        # else:
+        #     selection.add('one_fifth_mask', pass_all)
 
         # Dimuon CR
         leadmuon_index=muons.pt.argmax()
