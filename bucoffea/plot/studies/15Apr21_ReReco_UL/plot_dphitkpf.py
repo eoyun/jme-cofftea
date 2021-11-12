@@ -247,7 +247,7 @@ def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4
         ax.set_yscale('log')
         ax.set_ylim(1e-2,1e6)
 
-    ax.set_ylabel('Events / Bin Width')
+    ax.set_ylabel('Events / Bin Width', horizontalalignment='right', y=1.0)
     ax.yaxis.set_ticks_position('both')
 
     colors_to_look = colors_IC if ic_theme else colors
@@ -313,9 +313,9 @@ def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4
         **data_err_opts
     )
 
-    ax.set_xlabel('$\\Delta\\phi \\ (rad)$')
+    ax.set_xlabel('')
 
-    rax.set_xlabel('$\\Delta\\phi \\ (rad)$')
+    rax.set_xlabel('$\\Delta\\phi \\ (rad)$', horizontalalignment='right', x=1.0)
     rax.set_ylabel('Data / MC')
     rax.set_ylim(0.5,1.5)
     loc1 = MultipleLocator(0.2)
