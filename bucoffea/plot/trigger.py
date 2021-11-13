@@ -34,6 +34,7 @@ def pretty_tag_for_jetconfig(tag):
     pretty_tags = {
         'two_central_jets' : 'Two Central Jets',
         'one_jet_forward_one_jet_central' : 'Mixed',
+        'two_hf_jets' : 'HF-HF',
         'inclusive_no_hfhf' : 'Inclusive (no HF-HF)',
     }
 
@@ -95,7 +96,10 @@ def preprocess(h, acc, distribution, region_tag='1m', dataset='SingleMuon', nosc
     elif distribution == 'mjj':
         newbin = hist.Bin(axis_name,r'$M_{jj}$ (GeV)',np.array(list(range(200,600,200)) + list(range(600,1500,300)) + [1500,2000,2750,3500]))
     else:
-        newbin = hist.Bin(axis_name,f"{axis_name} (GeV)",np.array(list(range(0,400,20)) + list(range(400,1100,100))))
+        if jeteta_config == 'two_hf_jets':
+            newbin = hist.Bin(axis_name,f"{axis_name} (GeV)",np.array(list(range(0,400,40)) + list(range(400,1100,200))))
+        else:
+            newbin = hist.Bin(axis_name,f"{axis_name} (GeV)",np.array(list(range(0,400,20)) + list(range(400,1100,100))))
     h = h.rebin(h.axis(axis_name), newbin)
     ds = f'{dataset}_{year}'
 
@@ -349,7 +353,7 @@ def read_smooth_scale_facs(file):
 
     return recoil, sf
 
-def plot_smooth_scale_facs(tag, outtag, distribution='recoil'):
+def plot_smooth_scale_facs(tag, outtag, distribution='recoil', jeteta_configs=None):
     '''Plot smoothed scale factors.'''
     regions = ['1m']
     opts = markers('data')
@@ -357,12 +361,12 @@ def plot_smooth_scale_facs(tag, outtag, distribution='recoil'):
     outdir = f"./output/{tag}/{outtag}/smoothed"
     if not os.path.exists(outdir):
         os.makedirs(outdir)
-    jeteta_configs = ['two_central_jets', 'one_jet_forward_one_jet_central', 'inclusive_no_hfhf']
 
     pretty_legend_label = {
         'two_central_jets' : 'Two Central Jets',
         'one_jet_forward_one_jet_central' : 'Mixed',
-        'inclusive_no_hfhf' : 'Inclusive (No HF-HF)'
+        'inclusive_no_hfhf' : 'Inclusive (No HF-HF)',
+        'two_hf_jets' : 'HF-HF'
     }
 
     for year in [2017,2018]:
@@ -571,12 +575,11 @@ def sf_comparison_plot(tag):
         fig.clear()
         plt.close(fig)
 
-def plot_scalefactors(tag, outtag, ymin=0.9, ymax=1.1, distribution='recoil', output_format='pdf'):
+def plot_scalefactors(tag, outtag, ymin=0.9, ymax=1.1, distribution='recoil', output_format='pdf', jeteta_configs=None):
     regions = ['1m']
     opts = markers('data')
     emarker = opts.pop('emarker', '')
     outdir = f"./output/{tag}/{outtag}"
-    jeteta_configs = ['two_central_jets', 'one_jet_forward_one_jet_central', 'inclusive_no_hfhf']
 
     for year in [2017,2018]:
         for region in regions:
@@ -620,14 +623,14 @@ def plot_scalefactors(tag, outtag, ymin=0.9, ymax=1.1, distribution='recoil', ou
                 ysferr_new = {}
                 ysferr_new['two_central_jets'] = [ ysferr['two_central_jets'][0][recoil_cut], ysferr['two_central_jets'][1][recoil_cut] ] 
                 ysferr_new['one_jet_forward_one_jet_central'] = [ ysferr['one_jet_forward_one_jet_central'][0][recoil_cut], ysferr['one_jet_forward_one_jet_central'][1][recoil_cut] ]
-                ysferr_new['inclusive_no_hfhf'] = [ ysferr['inclusive_no_hfhf'][0][recoil_cut], ysferr['inclusive_no_hfhf'][1][recoil_cut] ]
+                ysferr_new['two_hf_jets'] = [ ysferr['two_hf_jets'][0][recoil_cut], ysferr['two_hf_jets'][1][recoil_cut] ]
 
             opts['color'] = 'k'
             ax.errorbar(xsf, ysf['two_central_jets'][recoil_cut], yerr=ysferr_new['two_central_jets'],label=f'Two central jets', **opts)
             opts['color'] = 'g'
             ax.errorbar(xsf, ysf['one_jet_forward_one_jet_central'][recoil_cut], yerr=ysferr_new['one_jet_forward_one_jet_central'],label=f'Mixed', **opts)
             opts['color'] = 'r'
-            ax.errorbar(xsf, ysf['inclusive_no_hfhf'][recoil_cut], yerr=ysferr_new['inclusive_no_hfhf'],label=f'Inclusive (no HF-HF)', **opts)
+            ax.errorbar(xsf, ysf['two_hf_jets'][recoil_cut], yerr=ysferr_new['two_hf_jets'],label=f'HF-HF', **opts)
      
             ax.legend()
             ax.set_ylabel('Data / MC SF') 
@@ -789,7 +792,8 @@ def compare_scale_factors(tag, outtag, distribution='recoil', smoothed=False):
     pretty_legend_label = {
         'two_central_jets' : 'Two Central Jets',
         'one_jet_forward_one_jet_central' : 'Mixed',
-        'inclusive_no_hfhf' : 'Inclusive (No HF-HF)'
+        'inclusive_no_hfhf' : 'Inclusive (No HF-HF)',
+        'two_hf_jets' : 'HF-HF',
     }
 
     # Read in the old and new scale factors for comparison
@@ -911,9 +915,9 @@ def met_trigger_eff(distribution, regions=['1m']):
             tag = '120pfht_mu_mjj'
         elif distribution == 'recoil':
             tag = '120pfht_mu_recoil'
-            indir = bucoffea_path('submission/merged_2021-05-13_vbfhinv_ULv8_05Feb21_METtrig')
+            indir = bucoffea_path('submission/merged_2021-11-12_vbfhinv_trigger_v2')
             # Output tag to name output directory accordingly
-            outtag = 'merged_2021-05-13_vbfhinv_ULv8_05Feb21_METtrig'
+            outtag = os.path.basename(indir)
 
         acc = dir_archive(
                           indir,
@@ -934,8 +938,14 @@ def met_trigger_eff(distribution, regions=['1m']):
         outrootfile = uproot.recreate(pjoin(outdir, 'met_turnons.root'))
 
 
+        jeteta_configs = [
+            'two_central_jets',
+            'one_jet_forward_one_jet_central',
+            'two_hf_jets'
+        ]
+
         for year in [2017, 2018]:
-            for jeteta_config in ['two_central_jets', 'one_jet_forward_one_jet_central', 'inclusive_no_hfhf']:
+            for jeteta_config in jeteta_configs:
                 # Single muon CR
                 region_tag='1m'
                 if region_tag in regions:
@@ -952,29 +962,29 @@ def met_trigger_eff(distribution, regions=['1m']):
                                     outrootfile=outrootfile
                                     )        
                 # Double muon CR
-                region_tag='2m'
-                if region_tag in regions:
-                    for dataset in ['VDYJetsToLL_M-50_HT_MLM', 'SingleMuon']:
-                        plot_recoil(acc, region_tag=region_tag,
-                                    distribution=distribution,
-                                    axis_name=distribution,
-                                    dataset=dataset,
-                                    year=year,
-                                    tag=tag,
-                                    outtag=outtag,
-                                    jeteta_config=jeteta_config,
-                                    output_format='pdf')        
+                # region_tag='2m'
+                # if region_tag in regions:
+                #     for dataset in ['VDYJetsToLL_M-50_HT_MLM', 'SingleMuon']:
+                #         plot_recoil(acc, region_tag=region_tag,
+                #                     distribution=distribution,
+                #                     axis_name=distribution,
+                #                     dataset=dataset,
+                #                     year=year,
+                #                     tag=tag,
+                #                     outtag=outtag,
+                #                     jeteta_config=jeteta_config,
+                #                     output_format='pdf')        
 
-        for jeteta_config in ['two_central_jets', 'one_jet_forward_one_jet_central', 'inclusive_no_hfhf']:
+        for jeteta_config in jeteta_configs:
             data_mc_comparison_plot(tag, outtag=outtag, distribution=distribution, jeteta_config=jeteta_config, output_format='pdf')
 
-        plot_scalefactors(tag, outtag, distribution=distribution)
+        # plot_scalefactors(tag, outtag, distribution=distribution, jeteta_configs=jeteta_configs)
 
         # Smoothed out data/MC scale factors
-        plot_smooth_scale_facs(tag, outtag, distribution=distribution)
+        # plot_smooth_scale_facs(tag, outtag, distribution=distribution, jeteta_configs=jeteta_configs)
 
         # Compare the smooth scale factors with the current ones being used in analysis
-        compare_scale_factors(tag, outtag, distribution=distribution)
+        # compare_scale_factors(tag, outtag, distribution=distribution)
 
 def photon_triggers_merged():
     tag = 'gamma'
