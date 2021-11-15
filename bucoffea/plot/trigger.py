@@ -96,10 +96,7 @@ def preprocess(h, acc, distribution, region_tag='1m', dataset='SingleMuon', nosc
     elif distribution == 'mjj':
         newbin = hist.Bin(axis_name,r'$M_{jj}$ (GeV)',np.array(list(range(200,600,200)) + list(range(600,1500,300)) + [1500,2000,2750,3500]))
     else:
-        if jeteta_config == 'two_hf_jets':
-            newbin = hist.Bin(axis_name,f"{axis_name} (GeV)",np.array(list(range(0,400,40)) + list(range(400,1100,200))))
-        else:
-            newbin = hist.Bin(axis_name,f"{axis_name} (GeV)",np.array(list(range(0,400,20)) + list(range(400,1100,100))))
+        newbin = hist.Bin(axis_name,f"{axis_name} (GeV)",np.array(list(range(0,400,20)) + list(range(400,1100,100))))
     h = h.rebin(h.axis(axis_name), newbin)
     ds = f'{dataset}_{year}'
 
