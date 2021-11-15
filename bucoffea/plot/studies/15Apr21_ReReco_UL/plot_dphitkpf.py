@@ -27,7 +27,7 @@ font = { 'size' : 16 }
 matplotlib.rc('font', **font)
 
 def pretty_eta_label(etaslice):
-    return f'${etaslice.start:.2f} < |\\eta_{{j0}}| < {etaslice.stop:.2f}$' 
+    return f'${etaslice.start:.2f} < |\\eta| < {etaslice.stop:.2f}$' 
 
 def preprocess(h, acc, etaslice, year):
     h = merge_extensions(h, acc)
@@ -284,6 +284,12 @@ def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4
             )
     
     if plot_pretty_eta_label:
+        ax.text(0.95,0.25,r'Leading-$p_T$ jet:',
+            ha='right',
+            va='bottom',
+            transform=ax.transAxes
+        )
+
         ax.text(0.95,0.15,pretty_eta_label(etaslice),
             ha='right',
             va='bottom',
@@ -315,7 +321,7 @@ def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4
 
     ax.set_xlabel('')
 
-    rax.set_xlabel('$\\Delta\\phi \\ (rad)$', horizontalalignment='right', x=1.0)
+    rax.set_xlabel(r'$\Delta\phi (p_{\mathrm{T, Trk}}^\mathrm{miss}, p_{\mathrm{T}}^\mathrm{miss} ) \ (rad)$', horizontalalignment='right', x=1.0)
     rax.set_ylabel('Data / MC')
     rax.set_ylim(0.5,1.5)
     loc1 = MultipleLocator(0.2)
