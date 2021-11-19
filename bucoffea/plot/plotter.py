@@ -113,7 +113,7 @@ legend_labels_IC = {
     'Top.*' : "Top quark",
     'Diboson.*' : "Dibosons",
     'MET|Single(Electron|Photon|Muon)|EGamma.*' : "Data",
-    'VBF_HToInv.*' : "qqH, $B(H\\rightarrow inv.)=1.0$",
+    'VBF_HToInv.*' : "VBF, $B(H\\rightarrow inv)=1.0$",
 }
 
 legend_titles = {
