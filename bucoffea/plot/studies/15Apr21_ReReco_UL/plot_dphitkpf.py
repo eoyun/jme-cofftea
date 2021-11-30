@@ -67,7 +67,7 @@ def get_qcd_estimation_for_etaslice(h, outtag, year, etaslice=slice(3, 3.25), ff
     if logy:
         ax.set_yscale('log')
         ax.set_ylim(1e-4,1e4)
-    ax.set_ylabel('HF Estimation / Bin Width')
+    ax.set_ylabel('HF Estimation / bin width')
 
     ax.get_legend().remove()
     ax.yaxis.set_ticks_position('both')
@@ -247,7 +247,7 @@ def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4
         ax.set_yscale('log')
         ax.set_ylim(1e-2,1e6)
 
-    ax.set_ylabel('Events / Bin Width', horizontalalignment='right', y=1.0)
+    ax.set_ylabel('Events / bin width', horizontalalignment='right', y=1.0)
     ax.yaxis.set_ticks_position('both')
 
     colors_to_look = colors_IC if ic_theme else colors
