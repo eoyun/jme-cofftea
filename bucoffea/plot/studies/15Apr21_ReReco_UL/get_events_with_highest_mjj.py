@@ -11,9 +11,9 @@ pjoin = os.path.join
 
 def dump_events_with_highest_mjj(tree, numevents=20):
     df = tree.pandas.df(['run','event','lumi','mjj']).astype({
-        'event' : 'int32',
-        'run' : 'int32',
-        'lumi' : 'int32',
+        'event' : 'int64',
+        'run' : 'int64',
+        'lumi' : 'int64',
     })
     
     # Sort with mjj
