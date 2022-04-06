@@ -322,7 +322,7 @@ def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4
     ax.set_xlabel('')
 
     rax.set_xlabel(r'$\Delta\phi (p_{\mathrm{T, Trk}}^\mathrm{miss}, p_{\mathrm{T}}^\mathrm{miss} ) \ (rad)$', horizontalalignment='right', x=1.0)
-    rax.set_ylabel('Data / MC')
+    rax.set_ylabel('Data / prediction')
     rax.set_ylim(0.5,1.5)
     loc1 = MultipleLocator(0.2)
     loc2 = MultipleLocator(0.1)
@@ -341,7 +341,7 @@ def plot_dphitkpf(acc, outtag, year, region='sr_vbf', distribution='dphitkpf_ak4
         xedges,
         np.r_[denom_unc[0], denom_unc[0, -1]],
         np.r_[denom_unc[1], denom_unc[1, -1]],
-        label='Bkg. uncert.',
+        label='Background uncertainty',
         **opts
     )
 
