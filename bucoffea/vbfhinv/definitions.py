@@ -29,6 +29,8 @@ def vbfhinv_accumulator(cfg):
     met_ax = Bin("met", r"$p_{T}^{miss}$ (GeV)", 200, 0, 2000)
     recoil_ax = Bin("recoil", r"Recoil (GeV)", 200, 0, 2000)
 
+    score_ax = Bin("score", "Neural network score", 50, 0, 1)
+
     mjj_ax = Bin("mjj", r"$M_{jj}$ (GeV)", 150, 0, 7500)
     mjj_ax_coarse = Bin("mjj", r"$M_{jj}$ (GeV)", [200,500,1000,1500,2000,3000,7500])
     jet_pt_ax = Bin("jetpt", r"$p_{T}$ (GeV)", 100, 0, 1000)
@@ -110,6 +112,9 @@ def vbfhinv_accumulator(cfg):
 
     items["met_pt_ak40_hf"] = Hist("Counts", dataset_ax, region_ax, met_ax)
     items["met_pt_ak41_hf"] = Hist("Counts", dataset_ax, region_ax, met_ax)
+
+    items["cnn_score"] = Hist("Counts", dataset_ax, region_ax, score_ax)
+    items["cnn_score_unc"] = Hist("Counts", dataset_ax, region_ax, score_ax, unc_ax)
 
     items["mjj"] = Hist("Counts", dataset_ax, region_ax, mjj_ax)
     items["mjj_nopref"] = Hist("Counts", dataset_ax, region_ax, mjj_ax)

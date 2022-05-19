@@ -136,6 +136,9 @@ default:
         dr: 0.4
   mitigation:
     hem: True
+  nn_models:
+    convnet:
+      path: models/model_2022-04-09_signal_vs_bkg_v1
 
   sf:
     qcd_ew_nlo_w: # QCD x EW k factor for QCD Z

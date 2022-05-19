@@ -4,6 +4,11 @@ import re
 import numpy as np
 from dynaconf import settings as cfg
 
+from bucoffea.helpers.tensorflow import (
+                            load_model, 
+                            prepare_data_for_cnn
+                            )
+
 from bucoffea.helpers import (
                               bucoffea_path,
                               dphi,
@@ -183,7 +188,7 @@ class vbfhinvProcessor(processor.ProcessorABC):
         # Already pre-filtered!
         # All leptons are at least loose
         # Check out setup_candidates for filtering details
-        met_pt, met_phi, ak4, bjets, _, muons, electrons, taus, photons = setup_candidates(df, cfg)
+        met_pt, met_phi, ak4, bjets, _, muons, electrons, taus, photons, jet_images = setup_candidates(df, cfg)
 
         # Remove jets in accordance with the noise recipe
         if not cfg.RUN.ULEGACYV8 and df['year'] == 2017:
@@ -583,6 +588,13 @@ class vbfhinvProcessor(processor.ProcessorABC):
         if not df['is_data']:
             veto_weights = get_veto_weights(df, cfg, evaluator, electrons, muons, taus, do_variations=cfg.RUN.VETO_WEIGHTS_STUDY)
         
+        # Get model predictions from the jet images
+        model_dir = bucoffea_path(cfg.NN_MODELS.CONVNET.PATH)
+        model = load_model(model_dir)
+        
+        jetimages_norm = prepare_data_for_cnn(jet_images)
+        df['nn_score'] = model.predict(jetimages_norm)
+
         for region, cuts in regions.items():
             if not re.match(cfg.RUN.REGIONREGEX, region):
                 continue
@@ -942,8 +954,8 @@ class vbfhinvProcessor(processor.ProcessorABC):
             ezfill('detajj',             deta=df["detajj"][mask],   weight=rweight[mask] )
             ezfill('mjj',                mjj=df["mjj"][mask],      weight=rweight[mask] )
 
-            if region not in ['inclusive']:
-                ezfill('mjj_ak4_eta0',       mjj=df["mjj"][mask],      jeteta=diak4.i0.eta[mask].flatten(),       weight=rweight[mask])
+            # Save signal-like score distribution
+            ezfill('cnn_score',     score=df["nn_score"][:, 1][mask],     weight=rweight[mask])
 
             rweight_nopref = region_weights.partial_weight(exclude=exclude+['prefire'])
             ezfill('mjj_nopref',                mjj=df["mjj"][mask],      weight=rweight_nopref[mask] )
@@ -951,18 +963,6 @@ class vbfhinvProcessor(processor.ProcessorABC):
             ezfill('vecdphi',     vecdphi=vec_dphi[mask],       weight=rweight[mask] )
             ezfill('vecb',        vecb=vec_b[mask],            weight=rweight[mask] )
             ezfill('dphitkpf',    dphi=dphitkpf[mask],         weight=rweight[mask] )
-
-            if re.match('sr_vbf.*', region) or region in ['cr_vbf_qcd']:
-                ezfill('dphitkpf_ak4_eta0',     dphi=dphitkpf[mask],     jeteta=diak4.i0.abseta[mask].flatten(),     weight=rweight[mask])
-
-            # Consider events where only (at least) one of the jets is in horn
-            dpftkmet_weight = np.where(
-                leading_jet_in_horn | trailing_jet_in_horn,
-                rweight,
-                0
-            )
-
-            ezfill('dPFTkMET',   dpftk=df['dPFTkSR'][mask],    weight=dpftkmet_weight[mask])
 
             # b-tag weight up and down variations
             if cfg.RUN.BTAG_STUDY:
@@ -1119,6 +1119,11 @@ class vbfhinvProcessor(processor.ProcessorABC):
                     ezfill(
                         'mjj_unc',
                         mjj=df['mjj'][mask],
+                        uncertainty=unc,
+                        weight=w)
+                    ezfill(
+                        'cnn_score_unc',
+                        mjj=df['nn_score'][mask],
                         uncertainty=unc,
                         weight=w)
 

@@ -1,6 +1,6 @@
 import re
 import copy
-from bucoffea.helpers.gen import setup_gen_jets_ak8
+from awkward import JaggedArray
 
 import coffea.processor as processor
 import numpy as np
@@ -8,6 +8,7 @@ from coffea import hist
 from coffea.analysis_objects import JaggedCandidateArray
 
 from bucoffea.helpers import object_overlap, sigmoid, exponential
+from bucoffea.helpers.gen import setup_gen_jets_ak8
 from bucoffea.helpers.dataset import extract_year
 
 Hist = hist.Hist
@@ -527,7 +528,10 @@ def setup_candidates(df, cfg):
     met_pt = df[f'{met_branch}_pt{jes_suffix_met}']
     met_phi = df[f'{met_branch}_phi{jes_suffix_met}']
 
-    return met_pt, met_phi, ak4, bjets, ak8, muons, electrons, taus, photons
+    # Jet images
+    jet_images = JaggedArray.fromcounts(df['nJetImage'], df['JetImage_E'])
+
+    return met_pt, met_phi, ak4, bjets, ak8, muons, electrons, taus, photons, jet_images
 
 def monojet_regions(cfg):
     common_cuts = [
