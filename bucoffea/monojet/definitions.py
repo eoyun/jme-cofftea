@@ -484,38 +484,6 @@ def setup_candidates(df, cfg):
     if cfg.OVERLAP.AK4.PHOTON.CLEAN:
         ak4 = ak4[object_overlap(ak4, photons, dr=cfg.OVERLAP.AK4.PHOTON.DR)]
 
-
-    if df['is_data']:
-        msd = df[f'FatJet_msoftdrop{jes_suffix}']
-    else:
-        msd = df[f'FatJet_msoftdrop{jes_suffix}'] / (df['FatJet_msoftdrop_corr_JMR'] * df['FatJet_msoftdrop_corr_JMS'])
-        if not cfg.AK8.JER:
-            msd = msd / df['FatJet_corr_JER']
-
-    ak8 = JaggedCandidateArray.candidatesfromcounts(
-        df['nFatJet'],
-        pt=df[f'FatJet_pt{jes_suffix}'] if (df['is_data'] or cfg.AK8.JER) else df[f'FatJet_pt{jes_suffix}']/df['FatJet_corr_JER'],
-        eta=df['FatJet_eta'],
-        abseta=np.abs(df['FatJet_eta']),
-        phi=df['FatJet_phi'],
-        mass=msd,
-        tightId=(df['FatJet_jetId']&2) == 2, # Tight
-        csvv2=df["FatJet_btagCSVV2"],
-        deepcsv=df['FatJet_btagDeepB'],
-        tau1=df['FatJet_tau1'],
-        tau2=df['FatJet_tau2'],
-        tau21=df['FatJet_tau2']/df['FatJet_tau1'],
-        wvsqcd=df['FatJet_deepTag_WvsQCD'],
-        wvsqcdmd=df['FatJet_deepTagMD_WvsQCD'],
-        zvsqcd=df['FatJet_deepTag_ZvsQCD'],
-        zvsqcdmd=df['FatJet_deepTagMD_ZvsQCD'],
-        tvsqcd=df['FatJet_deepTag_TvsQCD'],
-        tvsqcdmd=df['FatJet_deepTagMD_TvsQCD'],
-        wvstqcd=df['FatJet_deepTag_WvsQCD']*(1-df['FatJet_deepTag_TvsQCD'])/(1-df['FatJet_deepTag_WvsQCD']*df['FatJet_deepTag_TvsQCD']),
-        wvstqcdmd=df['FatJet_deepTagMD_WvsQCD']*(1-df['FatJet_deepTagMD_TvsQCD'])/(1-df['FatJet_deepTagMD_WvsQCD']*df['FatJet_deepTagMD_TvsQCD']),
-    )
-    ak8 = ak8[ak8.tightId & object_overlap(ak8, muons) & object_overlap(ak8, electrons) & object_overlap(ak8, photons)]
-
     # No EE v2 fix in UL
     if cfg.RUN.ULEGACYV8:
         met_branch = 'MET'
@@ -529,9 +497,9 @@ def setup_candidates(df, cfg):
     met_phi = df[f'{met_branch}_phi{jes_suffix_met}']
 
     # Jet images
-    jet_images = JaggedArray.fromcounts(df['nJetImage'], df['JetImage_E'])
+    jet_images = JaggedArray.fromcounts(df['nJetImage'], df['JetImage_energies'])
 
-    return met_pt, met_phi, ak4, bjets, ak8, muons, electrons, taus, photons, jet_images
+    return met_pt, met_phi, ak4, bjets, muons, electrons, taus, photons, jet_images
 
 def monojet_regions(cfg):
     common_cuts = [

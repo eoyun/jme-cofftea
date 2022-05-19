@@ -16,16 +16,12 @@ def parse_commandline():
     return args
 
 def main():
-    # Test on old and new UL samples
     fileset = {
-        # "MET_ver1_2017B" : [
-            # "root://cmsxrootd.fnal.gov//store/user/aakpinar/nanopost/ULv8_05Feb21/MET/MET_ver1_2017B/210205_210910/0000/tree_1.root"
-        # ],
-        "EWKWMinus2Jets_WToLNu_M-50_withDipoleRecoil-mg_2017" : [
-            "root://cmsxrootd.fnal.gov//store/user/aakpinar/nanopost/ULv8_05Feb21/EWKWMinus2Jets_WToLNu_M-50_TuneCP5_withDipoleRecoil_13TeV-madgraph-pythia8/EWKWMinus2Jets_WToLNu_M-50_withDipoleRecoil-mg_2017/210607_164955/0000/tree_1.root"
+        "VBF_HToInvisible_M125_withDipoleRecoil_pow_pythia8_2017" : [
+            "/eos/user/a/aakpinar/nanopost/ULv8_05Feb21_withJetImages/VBF_HToInvisible_M125_TuneCP5_withDipoleRecoil_13TeV_powheg_pythia8/VBF_HToInvisible_M125_withDipoleRecoil_pow_pythia8_2017/220508_163431/0000/tree_1.root"
         ],
-        "DYJetsToLL_Pt-100To250_MatchEWPDG20-amcatnloFXFX_2017" : [
-            "root://cmsxrootd.fnal.gov//store/user/aakpinar/nanopost/ULv8_05Feb21/DYJetsToLL_Pt-100To250_MatchEWPDG20_TuneCP5_13TeV-amcatnloFXFX-pythia8/DYJetsToLL_Pt-100To250_MatchEWPDG20-amcatnloFXFX_2017/210427_150051/0000/tree_1.root"
+        "MET_ver1_2017C" : [
+            "/eos/user/a/aakpinar/nanopost/ULv8_05Feb21_withJetImages/MET/MET_ver1_2017C/220515_153144/0000/tree_1.root"
         ],
     }
 

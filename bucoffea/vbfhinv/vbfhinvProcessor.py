@@ -188,7 +188,7 @@ class vbfhinvProcessor(processor.ProcessorABC):
         # Already pre-filtered!
         # All leptons are at least loose
         # Check out setup_candidates for filtering details
-        met_pt, met_phi, ak4, bjets, _, muons, electrons, taus, photons, jet_images = setup_candidates(df, cfg)
+        met_pt, met_phi, ak4, bjets, muons, electrons, taus, photons, jet_images = setup_candidates(df, cfg)
 
         # Remove jets in accordance with the noise recipe
         if not cfg.RUN.ULEGACYV8 and df['year'] == 2017:

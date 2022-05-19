@@ -8,3 +8,4 @@ __pycache__
 *cutflow*.txt
 monitor_log.txt
 submission/
+pkl/
