@@ -1123,7 +1123,7 @@ class vbfhinvProcessor(processor.ProcessorABC):
                         weight=w)
                     ezfill(
                         'cnn_score_unc',
-                        score=df['nn_score'][mask],
+                        score=df['nn_score'][:, 1][mask],
                         uncertainty=unc,
                         weight=w)
 

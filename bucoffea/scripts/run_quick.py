@@ -17,8 +17,8 @@ def parse_commandline():
 
 def main():
     fileset = {
-        "VBF_HToInvisible_M125_withDipoleRecoil_pow_pythia8_2017" : [
-            "/eos/user/a/aakpinar/nanopost/ULv8_05Feb21_withJetImages/VBF_HToInvisible_M125_TuneCP5_withDipoleRecoil_13TeV_powheg_pythia8/VBF_HToInvisible_M125_withDipoleRecoil_pow_pythia8_2017/220508_163431/0000/tree_1.root"
+        "EWKZ2Jets_ZToNuNu_M-50_withDipoleRecoil-mg_2017" : [
+            "/eos/user/a/aakpinar/nanopost/ULv8_05Feb21_withJetImages/EWKZ2Jets_ZToNuNu_M-50_TuneCP5_withDipoleRecoil_13TeV-madgraph-pythia8/EWKZ2Jets_ZToNuNu_M-50_withDipoleRecoil-mg_2017/220509_014056/0000/tree_1.root"
         ],
         "MET_ver1_2017C" : [
             "/eos/user/a/aakpinar/nanopost/ULv8_05Feb21_withJetImages/MET/MET_ver1_2017C/220515_153144/0000/tree_1.root"
