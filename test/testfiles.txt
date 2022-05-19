@@ -1,4 +1,2 @@
-MET_ver1_2017B https://aalbert.web.cern.ch/aalbert/public/03Sep20v7
-MET_ver1_2018B https://aalbert.web.cern.ch/aalbert/public/03Sep20v7
-WJetsToLNu_HT-400To600-MLM_2017 https://aalbert.web.cern.ch/aalbert/public/03Sep20v7
-WJetsToLNu_HT-400To600-MLM_2018 https://aalbert.web.cern.ch/aalbert/public/03Sep20v7
+MET_ver1_2017C https://aakpinar.web.cern.ch/aakpinar/public/ULv8_05Feb21_withJetImages
+EWKZ2Jets_ZToNuNu_M-50_withDipoleRecoil-mg_2017 https://aakpinar.web.cern.ch/aakpinar/public/ULv8_05Feb21_withJetImages
