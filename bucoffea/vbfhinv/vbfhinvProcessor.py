@@ -955,7 +955,7 @@ class vbfhinvProcessor(processor.ProcessorABC):
             ezfill('mjj',                mjj=df["mjj"][mask],      weight=rweight[mask] )
 
             # Save signal-like score distribution
-            ezfill('cnn_score',     score=df["nn_score"][:, 1][mask],     weight=rweight[mask])
+            ezfill('cnn_score',          score=df["nn_score"][:, 1][mask],     weight=rweight[mask])
 
             rweight_nopref = region_weights.partial_weight(exclude=exclude+['prefire'])
             ezfill('mjj_nopref',                mjj=df["mjj"][mask],      weight=rweight_nopref[mask] )
@@ -1123,7 +1123,7 @@ class vbfhinvProcessor(processor.ProcessorABC):
                         weight=w)
                     ezfill(
                         'cnn_score_unc',
-                        mjj=df['nn_score'][mask],
+                        score=df['nn_score'][mask],
                         uncertainty=unc,
                         weight=w)
 
