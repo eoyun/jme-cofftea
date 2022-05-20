@@ -27,8 +27,9 @@ else
     ENVNAME="bucoffeaenv"
     python -m venv ${ENVNAME}
     source ${ENVNAME}/bin/activate
-    python -m pip install -e bucoffea --no-cache-dir
     export PYTHONPATH="${PWD}/${ENVNAME}/lib/python3.6/site-packages":${PYTHONPATH}
+    python -m pip install --upgrade pip
+    python -m pip install -e bucoffea --no-cache-dir
 fi
 
 # Copy files to local disk before running
