@@ -969,8 +969,9 @@ class vbfhinvProcessor(processor.ProcessorABC):
                 rw = region_weights.partial_weight(exclude=exclude+['bveto'])
                 
                 variations = {
-                    "btagSFup" : rw*(1-bsf_variations['up']).prod(),
-                    "btagSFdown" : rw*(1-bsf_variations['down']).prod(),
+                    "btagSFNom" : rw*(1-bsf_variations['central']).prod(),
+                    "btagSFUp" : rw*(1-bsf_variations['up']).prod(),
+                    "btagSFDown" : rw*(1-bsf_variations['down']).prod(),
                 }
 
                 # Fill the mjj and score distributions with the varied b-tag weights
@@ -1069,9 +1070,14 @@ class vbfhinvProcessor(processor.ProcessorABC):
 
                 puweights = pileup_sf_variations(df, evaluator, cfg)
                 for puvar, w in puweights.items():
-                    ezfill('mjj_pu_weights',
+                    ezfill('mjj_unc',
                         mjj=df['mjj'][mask],
-                        variation=puvar,
+                        uncertainty=puvar,
+                        weight=(rw_nopu * w)[mask]
+                    )
+                    ezfill('cnn_score_unc',
+                        score=df['nn_score'][:, 1][mask],
+                        uncertainty=puvar,
                         weight=(rw_nopu * w)[mask]
                     )
 
@@ -1082,6 +1088,7 @@ class vbfhinvProcessor(processor.ProcessorABC):
                 # Fill mjj and score distributions with the variations of the prefire weight
                 try:
                     pref_weights = {
+                        "prefireNom" : df['PrefireWeight'],
                         "prefireUp" : df['PrefireWeight_Up'],
                         "prefireDown" : df['PrefireWeight_Down'],
                     }

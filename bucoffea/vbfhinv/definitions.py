@@ -124,8 +124,6 @@ def vbfhinv_accumulator(cfg):
     items["mjj_ele_reco"] = Hist("Counts", dataset_ax, region_ax, variation_ax, mjj_ax)
     items["mjj_muon_id"] = Hist("Counts", dataset_ax, region_ax, variation_ax, mjj_ax)
     items["mjj_muon_iso"] = Hist("Counts", dataset_ax, region_ax, variation_ax, mjj_ax)
-    items["mjj_pu_weights"] = Hist("Counts", dataset_ax, region_ax, variation_ax, mjj_ax)
-    items["mjj_pref_weights"] = Hist("Counts", dataset_ax, region_ax, variation_ax, mjj_ax)
     items["mjj_unc"] = Hist("Counts", dataset_ax, region_ax, mjj_ax, unc_ax)
     items["dphijj"] = Hist("Counts", dataset_ax, region_ax, dphi_ax)
     items["detajj"] = Hist("Counts", dataset_ax, region_ax, deta_ax)
@@ -713,9 +711,9 @@ def met_xy_correction(df, met_pt, met_phi):
 def pileup_sf_variations(df, evaluator, cfg):
     if cfg.SF.PILEUP.MODE == 'nano':
         pu_weights = {
-            "up" : df['puWeightUp'],
-            "down" : df['puWeightDown'],
-            "nom" : df['puWeight'],
+            "puSFUp" : df['puWeightUp'],
+            "puSFDown" : df['puWeightDown'],
+            "puSFNom" : df['puWeight'],
         }
     else:
         raise NotImplementedError(f'No implementation for cfg.PILEUP.MODE: {cfg.SF.PILEUP.MODE}')
