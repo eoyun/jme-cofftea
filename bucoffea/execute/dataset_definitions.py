@@ -180,23 +180,10 @@ def files_from_eos(regex):
 
     host = socket.gethostname()
     if 'lxplus' in host:
-        topdir = '/eos/cms/store/group/phys_exotica/monojet/aalbert/nanopost/'
-        tag = '16Jul19'
+        topdir = '/eos/user/a/aakpinar/nanopost'
+        tag = 'ULv8_05Feb21_withJetImages'
+        fileset = find_files(pjoin(topdir, tag), regex)
 
-        fileset_16jul = find_files(pjoin(topdir, tag), regex)
-
-        topdir = '/eos/user/a/aalbert/nanopost/'
-        tag = '10Aug19'
-
-        fileset_10aug = find_files(pjoin(topdir, tag), regex)
-
-        fileset = {}
-        keys = set(list(fileset_16jul.keys()) + list(fileset_10aug.keys()))
-        for key in keys:
-            if key in fileset_10aug:
-                fileset[key] = fileset_10aug[key]
-            else:
-                fileset[key] = fileset_16jul[key]
     elif 'lpc' in host:
         topdir = '/eos/uscms/store/user/aakpinar/nanopost/'
         tag = 'ULv8_05Feb21'
