@@ -586,7 +586,7 @@ class vbfhinvProcessor(processor.ProcessorABC):
 
         # Get veto weights (only for MC)
         if not df['is_data']:
-            veto_weights = get_veto_weights(df, cfg, evaluator, electrons, muons, taus, do_variations=cfg.RUN.VETO_WEIGHTS_STUDY)
+            veto_weights = get_veto_weights(df, cfg, evaluator, electrons, muons, taus, do_variations=cfg.RUN.UNCERTAINTIES.VETO_WEIGHTS)
         
         # Get model predictions from the jet images
         model_dir = bucoffea_path(cfg.NN_MODELS.CONVNET.PATH)
@@ -976,7 +976,7 @@ class vbfhinvProcessor(processor.ProcessorABC):
                 ezfill('gen_mjj', mjj=df['mjj_gen'][mask], weight=df['Generator_weight'][mask])
 
 
-            if cfg.RUN.ELE_SF_STUDY and re.match('cr_(\d)e_vbf', region) and not df['is_data']:
+            if cfg.RUN.UNCERTAINTIES.ELECTRON_SF and re.match('cr_(\d)e_vbf', region) and not df['is_data']:
                 eleloose_id_sf, eletight_id_sf, ele_reco_sf = get_varied_ele_sf(electrons, df, evaluator)
                 rw = region_weights.partial_weight(exclude=exclude+['ele_id_tight','ele_id_loose'])
                 for ele_id_variation in eletight_id_sf.keys():
@@ -993,7 +993,7 @@ class vbfhinvProcessor(processor.ProcessorABC):
                         weight=(rw * w)[mask]
                     )
 
-            if cfg.RUN.MUON_SF_STUDY and re.match('cr_(\d)m_vbf', region) and not df['is_data']:
+            if cfg.RUN.UNCERTAINTIES.MUON_SF and re.match('cr_(\d)m_vbf', region) and not df['is_data']:
                 muon_looseid_sf, muon_tightid_sf, muon_looseiso_sf, muon_tightiso_sf = get_varied_muon_sf(muons, df, evaluator)
                 rw = region_weights.partial_weight(exclude=exclude+['muon_id_tight','muon_id_loose'])
 
@@ -1011,7 +1011,7 @@ class vbfhinvProcessor(processor.ProcessorABC):
                         weight=(rw * muon_tightiso_sf[mu_iso_variation].prod() * muon_looseiso_sf[mu_iso_variation].prod())[mask],
                     )
 
-            if cfg.RUN.ELE_TRIG_STUDY and not df['is_data'] and re.match('cr_(\d)e_vbf', region):
+            if cfg.RUN.UNCERTAINTIES.ELECTRON_TRIGGER_SF and not df['is_data'] and re.match('cr_(\d)e_vbf', region):
                 # Note that electrons in the gap do not count in this study
                 mask_electron_nogap = (np.abs(electrons.etasc)<1.4442) | (np.abs(electrons.etasc)>1.566)
                 electrons_nogap = electrons[mask_electron_nogap]
@@ -1049,7 +1049,7 @@ class vbfhinvProcessor(processor.ProcessorABC):
                         weight=(rw*trigw)[mask] 
                     )
 
-            if cfg.RUN.PILEUP_SF_STUDY and not df['is_data']:
+            if cfg.RUN.UNCERTAINTIES.PILEUP_SF and not df['is_data']:
                 rw_nopu = region_weights.partial_weight(exclude=exclude+['pileup'])
 
                 puweights = pileup_sf_variations(df, evaluator, cfg)
@@ -1060,27 +1060,34 @@ class vbfhinvProcessor(processor.ProcessorABC):
                         weight=(rw_nopu * w)[mask]
                     )
 
-            if cfg.RUN.PREFIRE_SF_STUDY and not df['is_data']:
+            # Variations in the prefire weight
+            if cfg.RUN.UNCERTAINTIES.PREFIRE_SF and not df['is_data']:
                 rw_nopref = region_weights.partial_weight(exclude=exclude+['prefire'])
 
+                # Fill mjj and score distributions with the variations of the prefire weight
                 try:
                     pref_weights = {
-                        "nom" : df['PrefireWeight'],
-                        "up" : df['PrefireWeight_Up'],
-                        "down" : df['PrefireWeight_Down'],
+                        "prefireUp" : df['PrefireWeight_Up'],
+                        "prefireDown" : df['PrefireWeight_Down'],
                     }
     
-                    for prefvar, w in pref_weights.items():
-                        ezfill('mjj_pref_weights',
+                    for variation, w in pref_weights.items():
+                        ezfill('mjj_unc',
                             mjj=df['mjj'][mask],
-                            variation=prefvar,
+                            uncertainty=variation,
+                            weight=(rw_nopref * w)[mask]
+                        )
+
+                        ezfill('cnn_score_unc',
+                            score=df['nn_score'][:, 1][mask],
+                            uncertainty=variation,
                             weight=(rw_nopref * w)[mask]
                         )
                 
                 except KeyError:
                     pass
 
-            if cfg.RUN.VETO_WEIGHTS_STUDY and 'no_veto_all' in region and not df['is_data']:
+            if cfg.RUN.UNCERTAINTIES.VETO_WEIGHTS and 'no_veto_all' in region and not df['is_data']:
                 variations = ['nominal', 'tau_id_up', 'tau_id_dn', 
                     'ele_id_up', 'ele_id_dn', 'ele_reco_up', 'ele_reco_dn',
                     'muon_id_up', 'muon_id_dn', 'muon_iso_up', 'muon_iso_dn'

@@ -370,10 +370,6 @@ def vbfhinv_regions(cfg):
         regions['cr_vbf_qcd_rs'].remove('mindphijr')
         regions['cr_vbf_qcd_rs'].append('mindphijr_inv')
 
-    # For prefiring study, SR without prefiring weights
-    if cfg.RUN.PREFIRE_STUDY:
-        regions['sr_vbf_no_pref'] = copy.deepcopy(regions['sr_vbf'])
-
     # For sync mode
     if cfg and cfg.RUN.SYNC:
         regions['cr_sync'] = [
@@ -444,6 +440,8 @@ def vbfhinv_regions(cfg):
                                         'detajj',
                                         ]
 
+    # VBF signal region where the hard-lepton vetoes are replace
+    # with lepton veto weights
     tmp = {}
     for region in regions.keys():
         if not region.startswith("sr_"):

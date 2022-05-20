@@ -261,17 +261,17 @@ default:
         - 79242854
     trigger_study: False
     btag_study: False
-    prefire_study: False
     hemcheck: False
     hfstudy_v2: False
     apply_categorized_sf: True
     apply_ewk_corr_to_signal: True
-    ele_trig_study: False
-    ele_sf_study: False
-    muon_sf_study: False
-    veto_weights_study: False
-    pileup_sf_study: False
-    prefire_sf_study: False
+    uncertainties:
+      prefire_sf: True
+      electron_sf: False
+      electron_trigger_sf: False
+      muon_sf: False
+      pileup_sf: False
+      veto_weights: False
   triggers:
     ht:
       gammaeff:
