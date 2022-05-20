@@ -260,13 +260,13 @@ default:
         - 22791344
         - 79242854
     trigger_study: False
-    btag_study: False
     hemcheck: False
     hfstudy_v2: False
     apply_categorized_sf: True
     apply_ewk_corr_to_signal: True
     uncertainties:
       prefire_sf: True
+      btag_sf: True
       electron_sf: False
       electron_trigger_sf: False
       muon_sf: False

@@ -965,11 +965,26 @@ class vbfhinvProcessor(processor.ProcessorABC):
             ezfill('dphitkpf',    dphi=dphitkpf[mask],         weight=rweight[mask] )
 
             # b-tag weight up and down variations
-            if cfg.RUN.BTAG_STUDY:
-                if not df['is_data']:
-                    rw = region_weights.partial_weight(exclude=exclude+['bveto'])
-                    ezfill('mjj_bveto_up',    mjj=df['mjj'][mask],  weight=(rw*(1-bsf_variations['up']).prod())[mask])
-                    ezfill('mjj_bveto_down',  mjj=df['mjj'][mask],  weight=(rw*(1-bsf_variations['down']).prod())[mask])
+            if cfg.RUN.UNCERTAINTIES.BTAG_SF and not df['is_data']:
+                rw = region_weights.partial_weight(exclude=exclude+['bveto'])
+                
+                variations = {
+                    "btagSFup" : rw*(1-bsf_variations['up']).prod(),
+                    "btagSFdown" : rw*(1-bsf_variations['down']).prod(),
+                }
+
+                # Fill the mjj and score distributions with the varied b-tag weights
+                for variation, weight in variations.items():
+                    ezfill('mjj_unc',
+                        mjj=df['mjj'][mask],
+                        uncertainty=variation,
+                        weight=weight[mask],
+                    )
+                    ezfill('cnn_score_unc',
+                        score=df['nn_score'][:, 1][mask],
+                        uncertainty=variation,
+                        weight=weight[mask],
+                    )
 
             if gen_v_pt is not None:
                 ezfill('gen_vpt', vpt=gen_v_pt[mask], weight=df['Generator_weight'][mask])
