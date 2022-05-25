@@ -154,7 +154,7 @@ colors_IC = {
     '.*HF (N|n)oise.*' : (174, 126, 230),
 }
 
-def plot_data_mc(acc, outtag, year, data, mc, data_region, mc_region, distribution='mjj', plot_signal=True, nlo=False, mcscale=1, fformat='pdf', qcd_file=None, jes_file=None, ulxs=True):
+def plot_data_mc(acc, outtag, year, data, mc, data_region, mc_region, distribution='mjj', plot_signal=True, mcscale=1, fformat='pdf', qcd_file=None, jes_file=None, ulxs=True):
     '''Plot data/MC comparison with the QCD template included.'''
     acc.load(distribution)
     h = acc[distribution]
@@ -399,10 +399,7 @@ def plot_data_mc(acc, outtag, year, data, mc, data_region, mc_region, distributi
                 transform=ax.transAxes
                )
 
-    if not nlo:
-        outdir = f'./output/{outtag}/{data_region}'
-    else:
-        outdir = f'./output/{outtag}/nlo_mc/{data_region}'
+    outdir = f'./output/{outtag}/{data_region}'
     if not os.path.exists(outdir):
         os.makedirs(outdir)
     outpath_pdf = pjoin(outdir, f'{data_region}_data_mc_{distribution}_{year}.pdf')
