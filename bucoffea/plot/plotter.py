@@ -154,7 +154,7 @@ colors_IC = {
     '.*HF (N|n)oise.*' : (174, 126, 230),
 }
 
-def plot_data_mc(acc, outtag, year, data, mc, data_region, mc_region, distribution='mjj', plot_signal=True, mcscale=1, fformat='pdf', qcd_file=None, jes_file=None, ulxs=True):
+def plot_data_mc(acc, outtag, year, data, mc, data_region, mc_region, distribution='mjj', plot_signal=True, mcscale=1, fformats=['pdf'], qcd_file=None, jes_file=None, ulxs=True):
     '''Plot data/MC comparison with the QCD template included.'''
     acc.load(distribution)
     h = acc[distribution]
@@ -402,8 +402,10 @@ def plot_data_mc(acc, outtag, year, data, mc, data_region, mc_region, distributi
     outdir = f'./output/{outtag}/{data_region}'
     if not os.path.exists(outdir):
         os.makedirs(outdir)
-    outpath_pdf = pjoin(outdir, f'{data_region}_data_mc_{distribution}_{year}.pdf')
-    outpath_png = pjoin(outdir, f'{data_region}_data_mc_{distribution}_{year}.png')
-    fig.savefig(outpath_pdf)
-    fig.savefig(outpath_png)
+    
+    # For each file format (PDF, PNG etc.), save the plot
+    for fformat in fformats:
+        outpath = pjoin(outdir, f'{data_region}_data_mc_{distribution}_{year}.{fformat}')
+        fig.savefig(outpath)
+
     plt.close(fig)

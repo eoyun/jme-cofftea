@@ -73,7 +73,8 @@ def make_plot(args):
                         mcscale=mcscale,
                         plot_signal='sr_vbf' in data_region,
                         jes_file='./jec/jes_uncs.root' if args.jes else None,
-                        ulxs=not args.eoyxs
+                        ulxs=not args.eoyxs,
+                        fformats=args.fformats,
                     )
                 except KeyError:
                     print(f'WARNING: {data_region} not found in inputs, skipping.')
@@ -86,9 +87,8 @@ def commandline():
     parser.add_argument('--distribution', type=str, default='.*', help='Regex specifying the distributions to plot.')
     parser.add_argument('--years', type=int, nargs='*', default=[2017,2018], help='Years to run on.')
     parser.add_argument('--one_fifth_unblind', action='store_true', help='1/5th unblinded data.')
-    parser.add_argument('--fformat', nargs='*', default=['pdf'], help='Output file format for the plots, default is PDF only.')
+    parser.add_argument('--fformats', nargs='*', default=['pdf'], help='Output file format for the plots, default is PDF only.')
     parser.add_argument('--jes', action='store_true', help='Plot JES+JER uncertainty bands.')
-    parser.add_argument('--nlo', action='store_true', help='Use NLO samples where available (Z regions currently).')
     parser.add_argument('--eoyxs', action='store_true', help='Use EOY XS for normalization, otherwise use UL XS.')
     args = parser.parse_args()
     return args
