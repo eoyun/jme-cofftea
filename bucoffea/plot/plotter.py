@@ -198,7 +198,11 @@ def plot_data_mc(acc, outtag, year, data, mc, data_region, mc_region, distributi
         if qcd_file:
             qcdfilepath = qcd_file
         else:    
-            qcdfilepath = f'output/{outtag}/qcd_estimate/hf_qcd_estimate.root'    
+            qcdfilepath = f'output/{outtag}/qcd_estimate/vbfhinv_hf_estimate.root'
+        
+        # Make sure that the HF-noise estimate ROOT file points to a valid path
+        assert os.path.exists(qcdfilepath), f"HF-noise file cannot be found: {qcdfilepath}"
+
         h_qcd = uproot.open(qcdfilepath)[f'qcd_estimate_{distribution}_{year}']
 
     data_err_opts = {

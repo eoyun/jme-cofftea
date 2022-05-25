@@ -83,7 +83,7 @@ def make_plot(args):
 def commandline():
     parser = argparse.ArgumentParser(prog='Plotter.')
     parser.add_argument('inpath', type=str, help='Input folder to use.')
-    parser.add_argument('--region', type=str, default='.*', help='Region to plot.')
+    parser.add_argument('--region', type=str, default='.*', help='Regex specifying the analysis regions to plot.')
     parser.add_argument('--distribution', type=str, default='.*', help='Regex specifying the distributions to plot.')
     parser.add_argument('--years', type=int, nargs='*', default=[2017,2018], help='Years to run on.')
     parser.add_argument('--one_fifth_unblind', action='store_true', help='1/5th unblinded data.')
