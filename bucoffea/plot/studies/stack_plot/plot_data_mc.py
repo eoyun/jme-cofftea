@@ -47,11 +47,11 @@ def make_plot(args):
             if not re.match(args.region, data_region):
                 continue
 
+            # Parameter to scale the MC by a constant normalization factor
+            mcscale = args.mcscale
             # If we want to do 1/5th unblinding on the data
             if args.one_fifth_unblind and data_region == 'sr_vbf':
-                mcscale = 0.2
-            else:
-                mcscale = 1
+                mcscale *= 0.2
 
             # Pick the signal region with veto weights (instead of hard-lepton veto)
             # for the VBF signal region
@@ -60,7 +60,7 @@ def make_plot(args):
             else:
                 mc_region = data_region
 
-            for distribution in tqdm(distributions[data_region]):
+            for distribution in tqdm(distributions[data_region], desc="Plotting distributions"):
                 if not re.match(args.distribution, distribution):
                     continue
                 try:
@@ -90,6 +90,7 @@ def commandline():
     parser.add_argument('--fformats', nargs='*', default=['pdf'], help='Output file format for the plots, default is PDF only.')
     parser.add_argument('--jes', action='store_true', help='Plot JES+JER uncertainty bands.')
     parser.add_argument('--eoyxs', action='store_true', help='Use EOY XS for normalization, otherwise use UL XS.')
+    parser.add_argument('--mcscale', type=float, default=1.0, help='Scale the MC by the given value.')
     args = parser.parse_args()
     return args
 

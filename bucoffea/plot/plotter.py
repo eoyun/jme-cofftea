@@ -154,7 +154,7 @@ colors_IC = {
     '.*HF (N|n)oise.*' : (174, 126, 230),
 }
 
-def plot_data_mc(acc, outtag, year, data, mc, data_region, mc_region, distribution='mjj', plot_signal=True, mcscale=1, fformats=['pdf'], qcd_file=None, jes_file=None, ulxs=True):
+def plot_data_mc(acc, outtag, year, data, mc, data_region, mc_region, distribution='mjj', plot_signal=True, mcscale=1, binwnorm=None, fformats=['pdf'], qcd_file=None, jes_file=None, ulxs=True):
     '''Plot data/MC comparison with the QCD template included.'''
     acc.load(distribution)
     h = acc[distribution]
@@ -227,7 +227,7 @@ def plot_data_mc(acc, outtag, year, data, mc, data_region, mc_region, distributi
         plot_info['sumw'].insert(6, h_qcd.values * mcscale)
 
     fig, ax, rax = fig_ratio()
-    hist.plot1d(h_data[data], ax=ax, overflow=overflow, overlay='dataset', binwnorm=1, error_opts=data_err_opts)
+    hist.plot1d(h_data[data], ax=ax, overflow=overflow, overlay='dataset', binwnorm=binwnorm, error_opts=data_err_opts)
 
     xedges = h_data.integrate('dataset').axes()[0].edges(overflow=overflow)
 
@@ -235,7 +235,7 @@ def plot_data_mc(acc, outtag, year, data, mc, data_region, mc_region, distributi
         ax=ax,
         label=plot_info['label'], 
         histtype='fill',
-        binwnorm=1,
+        binwnorm=binwnorm,
         stack=True
         )
 
@@ -256,7 +256,7 @@ def plot_data_mc(acc, outtag, year, data, mc, data_region, mc_region, distributi
             overlay='dataset',
             overflow=overflow,
             line_opts=signal_line_opts,
-            binwnorm=1,
+            binwnorm=binwnorm,
             clear=False
         )
 
@@ -268,8 +268,8 @@ def plot_data_mc(acc, outtag, year, data, mc, data_region, mc_region, distributi
         if distribution in ylims.keys():
             ax.set_ylim(ylims[distribution])
         else:
-            ax.set_ylim(1e-2,1e6)
-        ax.set_ylabel('Events / Bin Width')
+            ax.set_ylim(1e0,1e4)
+        ax.set_ylabel('Events')
     
     if distribution == 'mjj':
         ax.set_xlim(left=0.)
