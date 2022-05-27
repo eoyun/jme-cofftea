@@ -165,7 +165,7 @@ def plot_data_mc(acc, outtag, year, data, mc, data_region, mc_region, distributi
         overflow = 'none'
 
     h = merge_extensions(h, acc, reweight_pu=False)
-    scale_xs_lumi(h, ulxs=ulxs)
+    scale_xs_lumi(h, ulxs=ulxs, mcscale=mcscale)
     h = merge_datasets(h)
 
     if distribution in binnings.keys():
@@ -183,10 +183,6 @@ def plot_data_mc(acc, outtag, year, data, mc, data_region, mc_region, distributi
     # This sorting messes up in SR for some reason
     if data_region != 'sr_vbf':
         h.axis('dataset').sorting = 'integral'
-
-    h.scale({
-        ds : (mcscale  if mc.match(ds) else 1) for ds in map(str,h.axis("dataset").identifiers())
-    }, axis='dataset')
 
     h_data = h.integrate('region', data_region)
     h_mc = h.integrate('region', mc_region)
