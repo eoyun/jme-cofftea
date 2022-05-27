@@ -43,6 +43,30 @@ def klepto_load(inpath):
                     )
     return acc
 
+def rebin_histogram(h: hist.Hist, variable: str) -> hist.Hist:
+    """Rebin a given histogram."""
+    new_bins = {
+        "cnn_score": hist.Bin("score", "CNN score", 25, 0, 1)
+    }
+    if variable in new_bins:
+        new_bin = new_bins[variable]
+        h = h.rebin(new_bin.name, new_bin)
+    
+    return h
+
+def get_dataset_tag(dataset: str) -> str:
+    mapping = {
+        "VBF_HToInv.*" : r"VBF H(inv) 2017",
+        "ZNJetsToNuNu_M-50.*FXFX.*" : r"QCD $Z(\nu\nu)$ 2017",
+    }
+
+    for regex, tag in mapping.items():
+        if re.match(regex, dataset):
+            return tag
+
+    print(f"WARNING: No dataset tag found for dataset: {dataset}")
+    return ""
+
 def acc_from_dir(indir):
     """Load Coffea accumulator from directory with *.coffea files
 

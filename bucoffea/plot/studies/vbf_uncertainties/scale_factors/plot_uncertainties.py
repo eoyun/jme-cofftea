@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import os
-from pprint import pprint
 import sys
 import re
 import uproot
@@ -13,8 +12,15 @@ from matplotlib import pyplot as plt
 from coffea import hist
 from tqdm import tqdm
 from klepto.archives import dir_archive
+from pprint import pprint
 
-from bucoffea.plot.util import merge_extensions, merge_datasets, scale_xs_lumi
+from bucoffea.plot.util import (
+    merge_extensions, 
+    merge_datasets, 
+    scale_xs_lumi, 
+    rebin_histogram,
+    get_dataset_tag,
+    )
 
 pjoin = os.path.join
 
@@ -25,29 +31,6 @@ def parse_cli():
     args = parser.parse_args()
     return args
 
-def rebin_histogram(h: hist.Hist, variable: str) -> hist.Hist:
-    """Rebin a given histogram."""
-    new_bins = {
-        "cnn_score": hist.Bin("score", "CNN score", 25, 0, 1)
-    }
-    if variable in new_bins:
-        new_bin = new_bins[variable]
-        h = h.rebin(new_bin.name, new_bin)
-    
-    return h
-
-def get_dataset_tag(dataset: str) -> str:
-    mapping = {
-        "VBF_HToInv.*" : r"VBF H(inv) 2017",
-        "ZJetsToNuNu.*Pt.*" : r"QCD $Z(\nu\nu)$ 2017",
-    }
-
-    for regex, tag in mapping.items():
-        if re.match(regex, dataset):
-            return tag
-
-    print(f"WARNING: No dataset tag found for dataset: {dataset}")
-    return ""
 
 def plot_uncertainty(acc,
     outputrootfile,
@@ -149,12 +132,12 @@ def main():
     
     dataset="VBF_HToInvisible.*2017"
 
-    uncertainties = [
-        "prefire",
-        "puSF",
-    ]
+    uncertainties = {
+        "prefire" : "VBF_HToInvisible.*M125.*2017",
+        "puSF" : "VBF_HToInvisible.*M125.*2017",
+    }
 
-    for uncertainty in tqdm(uncertainties, desc="Plotting uncertainties"):
+    for uncertainty, dataset in tqdm(uncertainties.items(), desc="Plotting uncertainties"):
         # The ROOT file to save ratios of up and down variations
         outputrootfile = uproot.recreate(
             pjoin(outdir, f"{dataset.replace('.*', '')}_{uncertainty}.root")    
