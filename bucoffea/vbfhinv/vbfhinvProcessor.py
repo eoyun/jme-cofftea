@@ -956,6 +956,7 @@ class vbfhinvProcessor(processor.ProcessorABC):
 
             # Save signal-like score distribution
             ezfill('cnn_score',          score=df["nn_score"][:, 1][mask],     weight=rweight[mask])
+            ezfill('cnn_score_mjj',      score=df["nn_score"][:, 1][mask],     mjj=df["mjj"][mask],    weight=rweight[mask])
 
             rweight_nopref = region_weights.partial_weight(exclude=exclude+['prefire'])
             ezfill('mjj_nopref',                mjj=df["mjj"][mask],      weight=rweight_nopref[mask] )
@@ -1140,21 +1141,22 @@ class vbfhinvProcessor(processor.ProcessorABC):
                                 )
 
             # Uncertainty variations
-            if df['is_lo_z'] or df['is_nlo_z'] or df['is_lo_z_ewk']:
-                theory_uncs = [x for x in cfg.SF.keys() if x.startswith('unc')]
-                for unc in theory_uncs:
-                    reweight = evaluator[unc](gen_v_pt)
-                    w = (region_weights.weight() * reweight)[mask]
-                    ezfill(
-                        'mjj_unc',
-                        mjj=df['mjj'][mask],
-                        uncertainty=unc,
-                        weight=w)
-                    ezfill(
-                        'cnn_score_unc',
-                        score=df['nn_score'][:, 1][mask],
-                        uncertainty=unc,
-                        weight=w)
+            if cfg.RUN.UNCERTAINTIES.THEORY:
+                if df['is_lo_z'] or df['is_nlo_z'] or df['is_lo_z_ewk']:
+                    theory_uncs = [x for x in cfg.SF.keys() if x.startswith('unc')]
+                    for unc in theory_uncs:
+                        reweight = evaluator[unc](gen_v_pt)
+                        w = (region_weights.weight() * reweight)[mask]
+                        ezfill(
+                            'mjj_unc',
+                            mjj=df['mjj'][mask],
+                            uncertainty=unc,
+                            weight=w)
+                        ezfill(
+                            'cnn_score_unc',
+                            score=df['nn_score'][:, 1][mask],
+                            uncertainty=unc,
+                            weight=w)
 
             # Muons
             if '_1m_' in region or '_2m_' in region or 'no_veto' in region:

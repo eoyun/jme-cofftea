@@ -116,6 +116,8 @@ def vbfhinv_accumulator(cfg):
     items["cnn_score"] = Hist("Counts", dataset_ax, region_ax, score_ax)
     items["cnn_score_unc"] = Hist("Counts", dataset_ax, region_ax, score_ax, unc_ax)
 
+    items["cnn_score_mjj"] = Hist("Counts", dataset_ax, region_ax, score_ax, mjj_ax_coarse)
+
     items["mjj"] = Hist("Counts", dataset_ax, region_ax, mjj_ax)
     items["mjj_nopref"] = Hist("Counts", dataset_ax, region_ax, mjj_ax)
     items["mjj_veto_weight"] = Hist("Counts", dataset_ax, region_ax, variation_ax, mjj_ax)
