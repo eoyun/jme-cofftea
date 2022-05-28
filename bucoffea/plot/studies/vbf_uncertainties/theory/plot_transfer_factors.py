@@ -18,7 +18,6 @@ from bucoffea.plot.util import (
     merge_datasets, 
     scale_xs_lumi, 
     rebin_histogram,
-    get_dataset_tag,
     fig_ratio,
     )
 
@@ -33,17 +32,18 @@ def parse_cli():
 
 def get_uncertainty_tag(unc: str) -> str:
     mapping = {
-        "unc_zoverw_nlo_muf_down" : r"$\mu_F$ down",
-        "unc_zoverw_nlo_muf_up" : r"$\mu_F$ up",
-        "unc_zoverw_nlo_mur_down" : r"$\mu_R$ down",
-        "unc_zoverw_nlo_mur_up" : r"$\mu_R$ up",
-        "unc_zoverw_nlo_pdf_down" : r"$PDF$ down",
-        "unc_zoverw_nlo_pdf_up" : r"$PDF$ up",
+        "unc_(zoverw|goverz)_nlo_muf_down" : r"$\mu_F$ down",
+        "unc_(zoverw|goverz)_nlo_muf_up" : r"$\mu_F$ up",
+        "unc_(zoverw|goverz)_nlo_mur_down" : r"$\mu_R$ down",
+        "unc_(zoverw|goverz)_nlo_mur_up" : r"$\mu_R$ up",
+        "unc_(zoverw|goverz)_nlo_pdf_down" : r"$PDF$ down",
+        "unc_(zoverw|goverz)_nlo_pdf_up" : r"$PDF$ up",
     }
-    try:
-        return mapping[unc]
-    except KeyError:
-        raise ValueError(f"Cannot find tag for uncertainty: {unc}")
+    for regex, label in mapping.items():
+        if re.match(regex, unc):
+            return label
+
+    raise ValueError(f"Cannot find tag for uncertainty: {unc}")
 
 def plot_transfer_factors(acc, 
         transfer_factors: dict,
@@ -144,6 +144,7 @@ def plot_transfer_factors(acc,
         
         ax.set_xlim(0,1)
         ax.grid(True)
+        ax.set_ylabel('Transfer Factor')
 
         ax.text(0,1,name,
             fontsize=14,
@@ -185,9 +186,9 @@ def main():
             ],
             "ylim" : (1,3),
         },
-        "zvv_over_zmumu" : {
-            "num"   : {"dataset" : "ZNJetsToNuNu_M-50_LHEFilterPtZ-FXFX_2017", "region" : "sr_vbf"},
-            "denom" : {"dataset" : "DYJetsToLL_Pt_FXFX_2017",                  "region" : "cr_2m_vbf"},
+        "zmumu_over_zvv" : {
+            "num"    : {"dataset" : "DYJetsToLL_Pt_FXFX_2017",                  "region" : "cr_2m_vbf"},
+            "denom"  : {"dataset" : "ZNJetsToNuNu_M-50_LHEFilterPtZ-FXFX_2017", "region" : "sr_vbf"},
         },
     }
 
