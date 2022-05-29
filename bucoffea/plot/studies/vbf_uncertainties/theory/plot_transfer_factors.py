@@ -94,17 +94,17 @@ def plot_transfer_factors(acc,
             h_unc = merge_datasets(h_unc)
             h_unc = rebin_histogram(h_unc, distribution)
             
-            h_varied_num = h_unc \
-                .integrate("dataset", transfer_factor["num"]["dataset"]) \
-                .integrate("region",  transfer_factor["num"]["region"])
+            h_varied_den = h_unc \
+                .integrate("dataset", transfer_factor["denom"]["dataset"]) \
+                .integrate("region",  transfer_factor["denom"]["region"])
 
 
             nominal_ratio = h_num.values()[()] / h_den.values()[()]
 
             for unc in transfer_factor["variations"]:
                 hist.plotratio(
-                    h_varied_num.integrate("uncertainty", unc),
-                    h_den,
+                    h_num,
+                    h_varied_den.integrate("uncertainty", unc),
                     ax=ax,
                     unc='num',
                     error_opts=data_err_opts,
@@ -113,7 +113,8 @@ def plot_transfer_factors(acc,
                 )
 
                 # Ratio of ratios
-                varied_ratio = h_varied_num.integrate("uncertainty",unc).values()[()] / h_den.values()[()]
+                # varied_ratio = h_varied_num.integrate("uncertainty",unc).values()[()] / h_den.values()[()]
+                varied_ratio = h_num.values()[()] / h_varied_den.integrate("uncertainty", unc).values()[()]
                 
                 double_ratio = varied_ratio / nominal_ratio
                 rax.plot(
@@ -173,9 +174,9 @@ def main():
 
     # Define the transfer factors to plot
     transfer_factors = {
-        "zvv_over_wlv" : {
-            "num"   : {"dataset" : "ZNJetsToNuNu_M-50_LHEFilterPtZ-FXFX_2017", "region" : "sr_vbf"},
-            "denom" : {"dataset" : "WJetsToLNu_Pt-FXFX_2017",                  "region" : "sr_vbf"},
+        "wlv_over_zvv" : {
+            "num"   : {"dataset" : "WJetsToLNu_Pt-FXFX_2017",                  "region" : "sr_vbf"},
+            "denom" : {"dataset" : "ZNJetsToNuNu_M-50_LHEFilterPtZ-FXFX_2017", "region" : "sr_vbf"},
             "variations" : [
                 "unc_zoverw_nlo_muf_down",
                 "unc_zoverw_nlo_muf_up",
@@ -184,7 +185,20 @@ def main():
                 "unc_zoverw_nlo_pdf_down",
                 "unc_zoverw_nlo_pdf_up",
             ],
-            "ylim" : (1,3),
+            "ylim" : (0,1),
+        },
+        "gjets_over_zvv" : {
+            "num"   : {"dataset" : "GJets_DR-0p4_HT_MLM_2017",                 "region" : "cr_g_vbf"},
+            "denom" : {"dataset" : "ZNJetsToNuNu_M-50_LHEFilterPtZ-FXFX_2017", "region" : "sr_vbf"},
+            "variations" : [
+                "unc_goverz_nlo_muf_down",
+                "unc_goverz_nlo_muf_up",
+                "unc_goverz_nlo_mur_down",
+                "unc_goverz_nlo_mur_up",
+                "unc_goverz_nlo_pdf_down",
+                "unc_goverz_nlo_pdf_up",
+            ],
+            "ylim" : (0,1),
         },
         "zmumu_over_zvv" : {
             "num"    : {"dataset" : "DYJetsToLL_Pt_FXFX_2017",                  "region" : "cr_2m_vbf"},
