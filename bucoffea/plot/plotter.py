@@ -264,6 +264,11 @@ def plot_data_mc(acc, outtag, year, data, mc, data_region, mc_region, distributi
     if distribution == 'mjj':
         ax.set_ylim(1e-3,1e5)
         ax.set_ylabel('Events / GeV')
+    elif distribution == 'cnn_score':
+        if data_region in ['cr_2m_vbf', 'cr_2e_vbf']:
+            ax.set_ylim(1e-2,1e4)
+        else:
+            ax.set_ylim(1e-1,1e4)
     else:
         if distribution in ylims.keys():
             ax.set_ylim(ylims[distribution])
