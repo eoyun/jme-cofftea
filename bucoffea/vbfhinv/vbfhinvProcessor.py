@@ -4,11 +4,6 @@ import re
 import numpy as np
 from dynaconf import settings as cfg
 
-from bucoffea.helpers.tensorflow import (
-                            load_model, 
-                            prepare_data_for_cnn
-                            )
-
 from bucoffea.helpers import (
                               bucoffea_path,
                               dphi,
@@ -188,7 +183,7 @@ class vbfhinvProcessor(processor.ProcessorABC):
         # Already pre-filtered!
         # All leptons are at least loose
         # Check out setup_candidates for filtering details
-        met_pt, met_phi, ak4, bjets, muons, electrons, taus, photons, jet_images = setup_candidates(df, cfg)
+        met_pt, met_phi, ak4, bjets, muons, electrons, taus, photons = setup_candidates(df, cfg)
 
         # Remove jets in accordance with the noise recipe
         if not cfg.RUN.ULEGACYV8 and df['year'] == 2017:
@@ -588,13 +583,6 @@ class vbfhinvProcessor(processor.ProcessorABC):
         if not df['is_data']:
             veto_weights = get_veto_weights(df, cfg, evaluator, electrons, muons, taus, do_variations=cfg.RUN.UNCERTAINTIES.VETO_WEIGHTS)
         
-        # Get model predictions from the jet images
-        model_dir = bucoffea_path(cfg.NN_MODELS.CONVNET.PATH)
-        model = load_model(model_dir)
-        
-        jetimages_norm = prepare_data_for_cnn(jet_images)
-        df['nn_score'] = model.predict(jetimages_norm)
-
         for region, cuts in regions.items():
             if not re.match(cfg.RUN.REGIONREGEX, region):
                 continue
@@ -728,9 +716,6 @@ class vbfhinvProcessor(processor.ProcessorABC):
 
                     if gen_v_pt is not None:
                         output['tree_float16'][region]["gen_boson_pt"]  +=  processor.column_accumulator(np.float16(gen_v_pt[mask]))
-
-                    # Signal-like score from the CNN
-                    output['tree_float16'][region]["cnn_score"]         +=  processor.column_accumulator(np.float16(df["nn_score"][:, 1][mask]))                    
 
                     output['tree_float16'][region]["htmiss"]            +=  processor.column_accumulator(np.float16(df['htmiss'][mask]))
                     output['tree_float16'][region]["ht"]                +=  processor.column_accumulator(np.float16(df['ht'][mask]))
@@ -957,10 +942,6 @@ class vbfhinvProcessor(processor.ProcessorABC):
             ezfill('detajj',             deta=df["detajj"][mask],   weight=rweight[mask] )
             ezfill('mjj',                mjj=df["mjj"][mask],      weight=rweight[mask] )
 
-            # Save signal-like score distribution
-            ezfill('cnn_score',          score=df["nn_score"][:, 1][mask],     weight=rweight[mask])
-            ezfill('cnn_score_mjj',      score=df["nn_score"][:, 1][mask],     mjj=df["mjj"][mask],    weight=rweight[mask])
-
             rweight_nopref = region_weights.partial_weight(exclude=exclude+['prefire'])
             ezfill('mjj_nopref',                mjj=df["mjj"][mask],      weight=rweight_nopref[mask] )
 
@@ -982,11 +963,6 @@ class vbfhinvProcessor(processor.ProcessorABC):
                 for variation, weight in variations.items():
                     ezfill('mjj_unc',
                         mjj=df['mjj'][mask],
-                        uncertainty=variation,
-                        weight=weight[mask],
-                    )
-                    ezfill('cnn_score_unc',
-                        score=df['nn_score'][:, 1][mask],
                         uncertainty=variation,
                         weight=weight[mask],
                     )
@@ -1079,11 +1055,6 @@ class vbfhinvProcessor(processor.ProcessorABC):
                         uncertainty=puvar,
                         weight=(rw_nopu * w)[mask]
                     )
-                    ezfill('cnn_score_unc',
-                        score=df['nn_score'][:, 1][mask],
-                        uncertainty=puvar,
-                        weight=(rw_nopu * w)[mask]
-                    )
 
             # Variations in the prefire weight
             if cfg.RUN.UNCERTAINTIES.PREFIRE_SF and not df['is_data']:
@@ -1104,12 +1075,6 @@ class vbfhinvProcessor(processor.ProcessorABC):
                             weight=(rw_nopref * w)[mask]
                         )
 
-                        ezfill('cnn_score_unc',
-                            score=df['nn_score'][:, 1][mask],
-                            uncertainty=variation,
-                            weight=(rw_nopref * w)[mask]
-                        )
-                
                 except KeyError:
                     pass
 
@@ -1153,11 +1118,6 @@ class vbfhinvProcessor(processor.ProcessorABC):
                         ezfill(
                             'mjj_unc',
                             mjj=df['mjj'][mask],
-                            uncertainty=unc,
-                            weight=w)
-                        ezfill(
-                            'cnn_score_unc',
-                            score=df['nn_score'][:, 1][mask],
                             uncertainty=unc,
                             weight=w)
 

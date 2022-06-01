@@ -18,10 +18,10 @@ def parse_commandline():
 def main():
     fileset = {
         "EWKZ2Jets_ZToNuNu_M-50_withDipoleRecoil-mg_2017" : [
-            "/eos/user/a/aakpinar/nanopost/ULv8_05Feb21_withJetImages/EWKZ2Jets_ZToNuNu_M-50_TuneCP5_withDipoleRecoil_13TeV-madgraph-pythia8/EWKZ2Jets_ZToNuNu_M-50_withDipoleRecoil-mg_2017/220509_014056/0000/tree_1.root"
+            "root://cmsxrootd.fnal.gov//store/user/aakpinar/nanopost/ULv8_05Feb21/EWKZ2Jets_ZToNuNu_M-50_TuneCP5_withDipoleRecoil_13TeV-madgraph-pythia8/EWKZ2Jets_ZToNuNu_M-50_withDipoleRecoil-mg_2017/210607_170225/0000/tree_1.root"
         ],
         "MET_ver1_2017C" : [
-            "/eos/user/a/aakpinar/nanopost/ULv8_05Feb21_withJetImages/MET/MET_ver1_2017C/220515_153144/0000/tree_1.root"
+            "root://cmsxrootd.fnal.gov//store/user/aakpinar/nanopost/ULv8_05Feb21/MET/MET_ver1_2017C/210806_194544/0000/tree_1.root"
         ],
     }
 
