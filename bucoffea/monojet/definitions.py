@@ -1,6 +1,5 @@
 import re
 import copy
-from awkward import JaggedArray
 
 import coffea.processor as processor
 import numpy as np
