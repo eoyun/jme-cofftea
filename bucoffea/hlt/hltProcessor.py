@@ -7,7 +7,7 @@ from bucoffea.hlt.definitions import hlt_accumulator, hlt_regions, setup_candida
 
 class hltProcessor(processor.ProcessorABC):
     def __init__(self):
-        self._accumulator = hlt_accumulator(cfg)
+        self._accumulator = hlt_accumulator()
 
     @property
     def accumulator(self):
