@@ -3,7 +3,10 @@ import coffea.processor as processor
 import re
 import numpy as np
 
+from coffea.lumi_tools import LumiMask
+
 from bucoffea.hlt.definitions import hlt_accumulator, hlt_regions, setup_candidates
+from bucoffea.helpers.paths import bucoffea_path
 
 class hltProcessor(processor.ProcessorABC):
     def __init__(self):
@@ -17,6 +20,10 @@ class hltProcessor(processor.ProcessorABC):
         if not df.size:
             return self.accumulator.identity()
         dataset = df['dataset']
+
+        # Create mask for events with good lumis (using the golden JSON)
+        json = bucoffea_path("data/json/Cert_Collisions2022_355100_356175_Golden.json")
+        lumi_mask = LumiMask(json)(df['run'], df['luminosityBlock'])
 
         # Implement selections
         selection = processor.PackedSelection()
