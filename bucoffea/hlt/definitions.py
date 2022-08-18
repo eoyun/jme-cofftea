@@ -73,6 +73,18 @@ def setup_candidates(df, cfg):
         dz=df['Muon_dz']
     )
 
+    hltMuons = JaggedCandidateArray.candidatesfromcounts(
+        df['nTrigObj'],
+        pt=df['TrigObj_pt'],
+        eta=df['TrigObj_eta'],
+        abseta=np.abs(df['TrigObj_eta']),
+        phi=df['TrigObj_phi'],
+        mass=0,
+        #looseId=df['TrigObj_looseId'],
+        #tightId=df['TrigObj_tightId'],
+        id=df['TrigObj_id']
+    ) 
+
     # Pre-filter: All muons must be at least loose
     muons = muons[(muons.iso < cfg.MUON.CUTS.LOOSE.ISO) \
                     & (muons.pt > cfg.MUON.CUTS.LOOSE.PT) \
@@ -131,7 +143,7 @@ def setup_candidates(df, cfg):
               & (photons.abseta < cfg.PHOTON.CUTS.LOOSE.eta)
               ] 
 
-    return met_pt, met_phi, ak4, muons, electrons, photons
+    return met_pt, met_phi, ak4, muons, hltMuons, electrons, photons
 
 def hlt_regions():
     """

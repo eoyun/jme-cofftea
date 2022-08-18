@@ -7,13 +7,10 @@ from dynaconf import settings as cfg
 from coffea.lumi_tools import LumiMask
 
 from bucoffea.hlt.definitions import hlt_accumulator, hlt_regions, setup_candidates
-<<<<<<< HEAD
 from bucoffea.helpers import bucoffea_path, recoil, mask_and
 from coffea.lumi_tools import LumiMask
 from bucoffea.helpers.dataset import extract_year
-=======
 from bucoffea.helpers.paths import bucoffea_path
->>>>>>> 6a2f295af7322fce943999f6843202e88e485a3e
 
 class hltProcessor(processor.ProcessorABC):
     def __init__(self):
@@ -43,15 +40,14 @@ class hltProcessor(processor.ProcessorABC):
             return self.accumulator.identity()
         dataset = df['dataset']
 
-<<<<<<< HEAD
         self._configure(df)
 
-        met_pt, met_phi, ak4, muons, electrons, photons = setup_candidates(df, cfg)
-=======
+        met_pt, met_phi, ak4, muons, hltMuons, electrons, photons = setup_candidates(df, cfg)
+
+
         # Create mask for events with good lumis (using the golden JSON)
         json = bucoffea_path("data/json/Cert_Collisions2022_355100_356175_Golden.json")
         lumi_mask = LumiMask(json)(df['run'], df['luminosityBlock'])
->>>>>>> 6a2f295af7322fce943999f6843202e88e485a3e
 
         # Implement selections
         selection = processor.PackedSelection()
@@ -76,7 +72,10 @@ class hltProcessor(processor.ProcessorABC):
         selection.add('mftmht_clean_trig', df['HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_FilterHF'])
         selection.add('HLT_IsoMu27', df['HLT_IsoMu27'])
 
-        # Muons
+        #Muons & Muon matching
+        hltMuons = hltMuons[hltMuons.id == 13]
+        muons = muons[muons.match(hltMuons, deltaRCut=0.4)]
+
         df['is_tight_muon'] = (muons.iso < cfg.MUON.CUTS.TIGHT.ISO) \
                       & (muons.pt > cfg.MUON.CUTS.TIGHT.PT) \
                       & (muons.abseta < cfg.MUON.CUTS.TIGHT.ETA)
