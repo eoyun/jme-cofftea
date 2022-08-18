@@ -592,7 +592,7 @@ era2018:
       - Flag_HBHENoiseIsoFilter
       - Flag_EcalDeadCellTriggerPrimitiveFilter
       - Flag_BadPFMuonFilter
-      - Flag_ecalBadCalibFilter
+      - Flag_ecalBadCalibFilterV2
 
   btag:
     algo: deepcsv

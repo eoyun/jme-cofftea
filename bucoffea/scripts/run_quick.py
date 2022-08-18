@@ -16,13 +16,20 @@ def parse_commandline():
     return args
 
 def main():
+
+    rootfiles0 = []
+    path = "/eos/user/c/cericeci/Run3/data/"
+    for i in range(40):
+        rootfiles0.append(path + "SingleMuon_C_" + str(i+1) + ".root")
+        #rootfiles0.append(path + "MET_C_" + str(i+1) + ".root")
+
+    rootfiles0.remove(path + "SingleMuon_C_16.root")
+
     fileset = {
-        "EWKZ2Jets_ZToNuNu_M-50_withDipoleRecoil-mg_2017" : [
-            "root://cmsxrootd.fnal.gov//store/user/aakpinar/nanopost/ULv8_05Feb21/EWKZ2Jets_ZToNuNu_M-50_TuneCP5_withDipoleRecoil_13TeV-madgraph-pythia8/EWKZ2Jets_ZToNuNu_M-50_withDipoleRecoil-mg_2017/210607_170225/0000/tree_1.root"
-        ],
-        "MET_ver1_2017C" : [
-            "root://cmsxrootd.fnal.gov//store/user/aakpinar/nanopost/ULv8_05Feb21/MET/MET_ver1_2017C/210806_194544/0000/tree_1.root"
-        ],
+        #"dimuon_mass-SingleMuon-2017C" : rootfiles0,
+        #"MET-all_tightid_withtrig-2017C" : rootfiles0,
+        #"trigger-turnon-SingleMuon-2017C" : rootfiles0,
+        "SingleMuon-2017C" : rootfiles0,
     }
 
     years = list(set(map(extract_year, fileset.keys())))
@@ -49,6 +56,9 @@ def main():
     elif args.processor == 'gen':
         from bucoffea.gen.genVbfProcessor import genVbfProcessor
         processorInstance = genVbfProcessor()
+    elif args.processor == 'hlt':
+        from bucoffea.hlt.hltProcessor import hltProcessor
+        processorInstance = hltProcessor()
 
     for dataset, filelist in fileset.items():
         newlist = []
