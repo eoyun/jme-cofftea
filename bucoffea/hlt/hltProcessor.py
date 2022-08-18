@@ -4,10 +4,16 @@ import re
 import numpy as np
 from dynaconf import settings as cfg
 
+from coffea.lumi_tools import LumiMask
+
 from bucoffea.hlt.definitions import hlt_accumulator, hlt_regions, setup_candidates
+<<<<<<< HEAD
 from bucoffea.helpers import bucoffea_path, recoil, mask_and
 from coffea.lumi_tools import LumiMask
 from bucoffea.helpers.dataset import extract_year
+=======
+from bucoffea.helpers.paths import bucoffea_path
+>>>>>>> 6a2f295af7322fce943999f6843202e88e485a3e
 
 class hltProcessor(processor.ProcessorABC):
     def __init__(self):
@@ -37,9 +43,15 @@ class hltProcessor(processor.ProcessorABC):
             return self.accumulator.identity()
         dataset = df['dataset']
 
+<<<<<<< HEAD
         self._configure(df)
 
         met_pt, met_phi, ak4, muons, electrons, photons = setup_candidates(df, cfg)
+=======
+        # Create mask for events with good lumis (using the golden JSON)
+        json = bucoffea_path("data/json/Cert_Collisions2022_355100_356175_Golden.json")
+        lumi_mask = LumiMask(json)(df['run'], df['luminosityBlock'])
+>>>>>>> 6a2f295af7322fce943999f6843202e88e485a3e
 
         # Implement selections
         selection = processor.PackedSelection()
