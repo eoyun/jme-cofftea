@@ -44,6 +44,9 @@ class hltProcessor(processor.ProcessorABC):
 
         met_pt, met_phi, ak4, muons, electrons, photons = setup_candidates(df, cfg)
 
+        #accumulate events that fail metmht trigger in W(munu) selection
+        #items['selected_events'] = processor.defaultdict_accumulator(list)
+
         # Implement selections
         selection = processor.PackedSelection()
 
@@ -65,6 +68,7 @@ class hltProcessor(processor.ProcessorABC):
         #require that mftmht_trig and mftmht_clean_trig are triggered
         selection.add('mftmht_trig', df['HLT_PFMETNoMu120_PFMHTNoMu120_IDTight'])
         selection.add('mftmht_clean_trig', df['HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_FilterHF'])
+        selection.add('fail_metmht_trig', df['HLT_PFMETNoMu120_PFMHTNoMu120_IDTight'] == 0)
         selection.add('HLT_IsoMu27', df['HLT_IsoMu27'])
 
         df['is_tight_muon'] = (muons.iso < cfg.MUON.CUTS.TIGHT.ISO) \
@@ -84,11 +88,19 @@ class hltProcessor(processor.ProcessorABC):
         
         #Single Muon CR
         selection.add('one_muon', muons.counts==1)
-        selection.add('muon_pt>30', muons.pt.max() > 30) 
+        selection.add('muon_pt>30', muons.pt.max() > 30)
+
+        #Single Electron CR
+        trig_ele = mask_or(df, cfg.TRIGGERS.ELECTRON.SINGLE_BACKUP) | mask_or(df, cfg.TRIGGERS.ELECTRON.SINGLE)
+        selection.add('trig_ele', trig_ele)
+        selection.add('one_electron', electrons.counts==1)
+        selection.add('at_least_one_tight_el', df['is_tight_electron'].any())
+        selection.add('hlt_ele', df['HLT_Ele35_WPTight_Gsf'] | df['HLT_Ele115_CaloIdVT_GsfTrkIdT'])
         
         #Recoil
         df['recoil_pt'], df['recoil_phi'] = recoil(met_pt, met_phi, electrons, muons, photons)
-        recoil_pt, recoil_phi = df['recoil_pt'], df['recoil_phi']
+        recoil_pt, recoil_phi = df['recoil_pt'], df['recoil_phi']i
+        selection.add('recoil>250', recoil_pt > 250)
 
         #Electron veto
         selection.add('veto_ele', electrons.counts==0)
@@ -109,6 +121,8 @@ class hltProcessor(processor.ProcessorABC):
         for region, cuts in regions.items():
 
             mask = selection.all(*cuts)
+            #keep track of event numbers that pass this mask
+            #output['selected_events'][region] += list(df['event'][mask])
 
             def ezfill(name, **kwargs):
                 """Helper function to make filling easier."""
@@ -127,6 +141,10 @@ class hltProcessor(processor.ProcessorABC):
             #ezfill('dimu_mass', dimumass=dimuons.mass[mask].flatten())
             ezfill('trigger_turnon', turnon=recoil_pt[mask])                      
             #ezfill('met', MET=met_pt[mask])
+
+        #with open('fail10.txt', 'a') as f:
+            #for event in output['selected_events'][region]:
+                #f.write('\n' + str(event))
 
         # Return the output accumulator once the histograms are filled
         return output

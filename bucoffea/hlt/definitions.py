@@ -70,7 +70,19 @@ def setup_candidates(df, cfg):
         iso=df["Muon_pfRelIso04_all"],
         tightId=df['Muon_tightId'],
         dxy=df['Muon_dxy'],
-        dz=df['Muon_dz']
+        dz=df['Muon_dz'],
+        globalmu = df['Muon_isGlobal'],
+        pfcand = df['Muon_isPFcand']
+    ) 
+
+    #HLT muons
+    hltMuons = JaggedCandidateArray.candidatesfromcounts(
+        df['nTrigObj'],
+        pt=df['TrigObj_pt'],
+        eta=df['TrigObj_eta'],
+        abseta=np.abs(df['TrigObj_eta']),
+        phi=df['TrigObj_phi'],
+        mass=0
     )
 
     # Pre-filter: All muons must be at least loose
@@ -79,7 +91,12 @@ def setup_candidates(df, cfg):
                     & (muons.abseta < cfg.MUON.CUTS.LOOSE.ETA) \
                     & (np.abs(muons.dxy) < 0.1) \
                     & (np.abs(muons.dz) < 0.2) \
+                    & muons.globalmu & muons.pfcand
                     ]
+
+    #HLT Muon matching
+    #hltMuons = hltMuons[hltMuons.id == 13]
+    #muons = muons[muons.match(hltMuons, deltaRCut = 0.4)]
 
     #electrons
     electrons = JaggedCandidateArray.candidatesfromcounts(
@@ -145,8 +162,17 @@ def hlt_regions():
     #regions['my_regions'] = ['leadak4_pt_eta', 'leadak4_id']
     #regions['trigger w/o filter'] = ['leadak4_pt_eta', 'leadak4_id', 'mftmht_trig', 'at_least_one_tight_mu', 'dimuon_mass', 'dimuon_charge', 'two_muons', 'lumi_mask']
     #regions['trigger w/ filter'] = ['leadak4_pt_eta', 'leadak4_id', 'mftmht_clean_trig', 'at_least_one_tight_mu', 'dimuon_mass', 'dimuon_charge', 'two_muons', 'lumi_mask']
+
+    #W(mu nu) turn on regions
     regions['clean turn on numerator'] = ['leadak4_pt_eta', 'leadak4_id', 'at_least_one_tight_mu', 'one_muon', 'veto_ele', 'veto_pho', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff', 'mftmht_clean_trig']
     regions['turn on denominator'] = ['leadak4_pt_eta', 'leadak4_id', 'at_least_one_tight_mu', 'one_muon', 'veto_ele', 'veto_pho', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff']
     regions['turn on numerator'] = ['leadak4_pt_eta', 'leadak4_id', 'at_least_one_tight_mu', 'one_muon', 'veto_ele', 'veto_pho', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff', 'mftmht_trig']
+    #regions['failing metmht'] = ['leadak4_pt_eta', 'leadak4_id', 'at_least_one_tight_mu', 'one_muon', 'veto_ele', 'veto_pho', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff', 'fail_metmht_trig', 'recoil>250']
+
+    #W(e nu) turn on regions
+    #cr_1e_cuts = ['trig_ele','one_electron', 'at_least_one_tight_el', 'veto_muo', 'calo_diff', 'filt_met', 'hlt_ele']
+    #regions['clean turn on numerator'] = ['leadak4_pt_eta', 'leadak4_id', 'veto_pho', 'lumi_mask', 'mftmht_clean_trig'] + cr_1e_cuts
+    #regions['turn on denominator'] = ['leadak4_pt_eta', 'leadak4_id', 'veto_pho', 'lumi_mask'] + cr_1e_cuts
+    #regions['turn on numerator'] = ['leadak4_pt_eta', 'leadak4_id', 'veto_pho', 'lumi_mask', 'mftmht_trig'] + cr_1e_cuts
 
     return regions
