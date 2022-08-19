@@ -7,7 +7,7 @@ from dynaconf import settings as cfg
 from coffea.lumi_tools import LumiMask
 
 from bucoffea.hlt.definitions import hlt_accumulator, hlt_regions, setup_candidates
-from bucoffea.helpers import bucoffea_path, recoil, mask_and
+from bucoffea.helpers import bucoffea_path, recoil, mask_and, mask_or
 from coffea.lumi_tools import LumiMask
 from bucoffea.helpers.dataset import extract_year
 from bucoffea.helpers.paths import bucoffea_path
@@ -89,17 +89,24 @@ class hltProcessor(processor.ProcessorABC):
         #Single Muon CR
         selection.add('one_muon', muons.counts==1)
         selection.add('muon_pt>30', muons.pt.max() > 30)
+        df['clean_mu'] = (np.abs(muons.dxy) < 0.1) \
+                       & (np.abs(muons.dz) < 0.2) \
+                       & (muons.globalmu) & (muons.pfcand)
+        
+        #print(muons.globalmu & muons.pfcand)
+
+        selection.add('clean_mu', df['clean_mu'].any())
 
         #Single Electron CR
         trig_ele = mask_or(df, cfg.TRIGGERS.ELECTRON.SINGLE_BACKUP) | mask_or(df, cfg.TRIGGERS.ELECTRON.SINGLE)
         selection.add('trig_ele', trig_ele)
         selection.add('one_electron', electrons.counts==1)
-        selection.add('at_least_one_tight_el', df['is_tight_electron'].any())
+        #selection.add('at_least_one_tight_el', df['is_tight_electron'].any())
         selection.add('hlt_ele', df['HLT_Ele35_WPTight_Gsf'] | df['HLT_Ele115_CaloIdVT_GsfTrkIdT'])
         
         #Recoil
         df['recoil_pt'], df['recoil_phi'] = recoil(met_pt, met_phi, electrons, muons, photons)
-        recoil_pt, recoil_phi = df['recoil_pt'], df['recoil_phi']i
+        recoil_pt, recoil_phi = df['recoil_pt'], df['recoil_phi']
         selection.add('recoil>250', recoil_pt > 250)
 
         #Electron veto
@@ -137,9 +144,9 @@ class hltProcessor(processor.ProcessorABC):
             w_leadak4 = 1
             #ezfill('ak4_eta0',   jeteta=ak4[leadak4_index].eta[mask].flatten())
             #ezfill('ak4_pt0',    jetpt=ak4[leadak4_index].pt[mask].flatten())
-            #ezfill('ak4_phi0',   jetphi=ak4[leadak4_index].phi[mask].flatten())
+            ezfill('ak4_phi0',   jetphi=ak4[leadak4_index].phi[mask].flatten())
             #ezfill('dimu_mass', dimumass=dimuons.mass[mask].flatten())
-            ezfill('trigger_turnon', turnon=recoil_pt[mask])                      
+            #ezfill('trigger_turnon', turnon=recoil_pt[mask])                      
             #ezfill('met', MET=met_pt[mask])
 
         #with open('fail10.txt', 'a') as f:

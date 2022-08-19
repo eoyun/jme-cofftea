@@ -88,10 +88,7 @@ def setup_candidates(df, cfg):
     # Pre-filter: All muons must be at least loose
     muons = muons[(muons.iso < cfg.MUON.CUTS.LOOSE.ISO) \
                     & (muons.pt > cfg.MUON.CUTS.LOOSE.PT) \
-                    & (muons.abseta < cfg.MUON.CUTS.LOOSE.ETA) \
-                    & (np.abs(muons.dxy) < 0.1) \
-                    & (np.abs(muons.dz) < 0.2) \
-                    & muons.globalmu & muons.pfcand
+                    & (muons.abseta < cfg.MUON.CUTS.LOOSE.ETA)
                     ]
 
     #HLT Muon matching
@@ -164,10 +161,14 @@ def hlt_regions():
     #regions['trigger w/ filter'] = ['leadak4_pt_eta', 'leadak4_id', 'mftmht_clean_trig', 'at_least_one_tight_mu', 'dimuon_mass', 'dimuon_charge', 'two_muons', 'lumi_mask']
 
     #W(mu nu) turn on regions
-    regions['clean turn on numerator'] = ['leadak4_pt_eta', 'leadak4_id', 'at_least_one_tight_mu', 'one_muon', 'veto_ele', 'veto_pho', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff', 'mftmht_clean_trig']
-    regions['turn on denominator'] = ['leadak4_pt_eta', 'leadak4_id', 'at_least_one_tight_mu', 'one_muon', 'veto_ele', 'veto_pho', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff']
-    regions['turn on numerator'] = ['leadak4_pt_eta', 'leadak4_id', 'at_least_one_tight_mu', 'one_muon', 'veto_ele', 'veto_pho', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff', 'mftmht_trig']
+    #regions['clean turn on numerator'] = ['leadak4_pt_eta', 'leadak4_id', 'clean_mu', 'at_least_one_tight_mu', 'one_muon', 'veto_ele', 'veto_pho', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff', 'mftmht_clean_trig']
+    #regions['turn on denominator'] = ['leadak4_pt_eta', 'leadak4_id', 'clean_mu', 'at_least_one_tight_mu', 'one_muon', 'veto_ele', 'veto_pho', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff']
+    #regions['turn on numerator'] = ['leadak4_pt_eta', 'leadak4_id', 'clean_mu', 'at_least_one_tight_mu', 'one_muon', 'veto_ele', 'veto_pho', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff', 'mftmht_trig']
     #regions['failing metmht'] = ['leadak4_pt_eta', 'leadak4_id', 'at_least_one_tight_mu', 'one_muon', 'veto_ele', 'veto_pho', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff', 'fail_metmht_trig', 'recoil>250']
+
+    #Jet Phi w/ w/o muon cuts
+    regions['no muon cleaning'] = ['leadak4_pt_eta', 'leadak4_id', 'at_least_one_tight_mu', 'one_muon', 'veto_ele', 'veto_pho', 'lumi_mask']
+    regions['muon cleaning'] = ['leadak4_pt_eta', 'leadak4_id', 'clean_mu', 'at_least_one_tight_mu', 'one_muon', 'veto_ele', 'veto_pho', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff']
 
     #W(e nu) turn on regions
     #cr_1e_cuts = ['trig_ele','one_electron', 'at_least_one_tight_el', 'veto_muo', 'calo_diff', 'filt_met', 'hlt_ele']
