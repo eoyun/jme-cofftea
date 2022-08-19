@@ -42,12 +42,7 @@ class hltProcessor(processor.ProcessorABC):
 
         self._configure(df)
 
-        met_pt, met_phi, ak4, muons, hltMuons, electrons, photons = setup_candidates(df, cfg)
-
-
-        # Create mask for events with good lumis (using the golden JSON)
-        json = bucoffea_path("data/json/Cert_Collisions2022_355100_356175_Golden.json")
-        lumi_mask = LumiMask(json)(df['run'], df['luminosityBlock'])
+        met_pt, met_phi, ak4, muons, electrons, photons = setup_candidates(df, cfg)
 
         # Implement selections
         selection = processor.PackedSelection()
@@ -67,14 +62,10 @@ class hltProcessor(processor.ProcessorABC):
         #require that lead jet has loose ID
         selection.add('leadak4_id', (ak4.looseId[leadak4_index].any()))
         
-	#require that mftmht_trig and mftmht_clean_trig are triggered
+        #require that mftmht_trig and mftmht_clean_trig are triggered
         selection.add('mftmht_trig', df['HLT_PFMETNoMu120_PFMHTNoMu120_IDTight'])
         selection.add('mftmht_clean_trig', df['HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_FilterHF'])
         selection.add('HLT_IsoMu27', df['HLT_IsoMu27'])
-
-        #Muons & Muon matching
-        hltMuons = hltMuons[hltMuons.id == 13]
-        muons = muons[muons.match(hltMuons, deltaRCut=0.4)]
 
         df['is_tight_muon'] = (muons.iso < cfg.MUON.CUTS.TIGHT.ISO) \
                       & (muons.pt > cfg.MUON.CUTS.TIGHT.PT) \
@@ -82,8 +73,6 @@ class hltProcessor(processor.ProcessorABC):
 
         dimuons = muons.distincts()
         dimuon_charge = dimuons.i0['charge'] + dimuons.i1['charge']
-
-        #df['MT_mu'] = ((muons.counts==1) * mt(muons.pt, muons.phi, met_pt, met_phi)).max()
 
         # Dimuon CR
         leadmuon_index=muons.pt.argmax()
