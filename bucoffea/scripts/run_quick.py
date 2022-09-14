@@ -20,16 +20,19 @@ def main():
     rootfiles0 = []
     path = "/eos/user/c/cericeci/Run3/data/"
     for i in range(40):
-        rootfiles0.append(path + "SingleMuon_C_" + str(i+1) + ".root")
+        pass
+        #rootfiles0.append(path + "SingleMuon_C_" + str(i+1) + ".root")
         #rootfiles0.append(path + "MET_C_" + str(i+1) + ".root")
 
-    rootfiles0.remove(path + "SingleMuon_C_16.root")
+    #rootfiles0.append("root://cmsxrootd.fnal.gov//store/data/Run2022D/Muon/NANOAOD/PromptNanoAODv10-v1/40000/a19737e2-db88-499b-aec9-17ff4a5c9f77.root")
+    rootfiles0.append("root://cmsxrootd.fnal.gov//store/data/Run2022D/Muon/NANOAOD/PromptNanoAODv10-v1/40000/5342a5f1-fb21-4739-b084-32fce4b16453.root")
+    #rootfiles0.remove(path + "SingleMuon_C_16.root")
 
     fileset = {
         #"dimuon_mass-SingleMuon-2017C" : rootfiles0,
         #"MET-all_tightid_withtrig-2017C" : rootfiles0,
         #"trigger-turnon-SingleMuon-2017C" : rootfiles0,
-        "SingleMuon-2017C" : rootfiles0,
+        "SingleMuon-2022D" : rootfiles0,
     }
 
     years = list(set(map(extract_year, fileset.keys())))

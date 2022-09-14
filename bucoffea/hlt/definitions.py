@@ -34,7 +34,10 @@ def hlt_accumulator():
     items["ak4_phi0"] = Hist("Counts", dataset_ax, region_ax, jet_phi_ax)
     items["dimu_mass"] = Hist("Counts", dataset_ax, region_ax, dimu_mass_ax)
     items["trigger_turnon"] = Hist("Counts", dataset_ax, region_ax, trigger_turnon_ax)
-    items["met"] = Hist("Counts", dataset_ax, region_ax, met_ax)    
+    items["met"] = Hist("Counts", dataset_ax, region_ax, met_ax)
+
+    #keep track of events that failt metmht trigger
+    items['selected_events'] = processor.defaultdict_accumulator(list)  
 
     # Return the accumulator of histograms
     return processor.dict_accumulator(items)
@@ -125,6 +128,23 @@ def setup_candidates(df, cfg):
                                     & pass_dxy \
                                     & pass_dz
                                     ]
+    #taus
+    taus = JaggedCandidateArray.candidatesfromcounts(
+        df['nTau'],
+        pt=df['Tau_pt'],
+        eta=df['Tau_eta'],
+        abseta=np.abs(df['Tau_eta']),
+        phi=df['Tau_phi'],
+        mass=0 * df['Tau_pt'],
+        #decaymode=df[cfg.TAU.BRANCH.ID],
+        decaymode=df['Tau_idDecayModeOldDMs'],
+        iso=df['Tau_idDeepTau2017v2p1VSjet']
+    )
+
+    taus = taus[ (taus.decaymode) \
+                & (taus.pt > cfg.TAU.CUTS.PT)\
+                & (taus.abseta < cfg.TAU.CUTS.ETA) \
+                & ((taus.iso&2)==2)]
 
     #photons
     if cfg.PHOTON.BRANCH.ID in df.keys():
@@ -145,9 +165,10 @@ def setup_candidates(df, cfg):
     )
     photons = photons[(photons.pt > cfg.PHOTON.CUTS.LOOSE.pt) \
               & (photons.abseta < cfg.PHOTON.CUTS.LOOSE.eta)
-              ] 
+              ]
 
-    return met_pt, met_phi, ak4, muons, electrons, photons
+
+    return met_pt, met_phi, ak4, muons, electrons, taus, photons
 
 def hlt_regions():
     """
@@ -156,19 +177,31 @@ def hlt_regions():
     """
     regions = {}
 
+    lepton_veto = ['veto_ele', 'veto_pho']
+
     #regions['my_regions'] = ['leadak4_pt_eta', 'leadak4_id']
     #regions['trigger w/o filter'] = ['leadak4_pt_eta', 'leadak4_id', 'mftmht_trig', 'at_least_one_tight_mu', 'dimuon_mass', 'dimuon_charge', 'two_muons', 'lumi_mask']
     #regions['trigger w/ filter'] = ['leadak4_pt_eta', 'leadak4_id', 'mftmht_clean_trig', 'at_least_one_tight_mu', 'dimuon_mass', 'dimuon_charge', 'two_muons', 'lumi_mask']
 
+    #Z(mu mu) turn on regions
+    #regions['clean turn on numerator'] = ['leadak4_pt_eta', 'leadak4_id', 'clean_mu', 'at_least_one_tight_mu', 'two_muons', 'dimuon_mass', 'dimuon_charge', 'HLT_IsoMu27', 'muon_pt>30', 'veto_ele', 'veto_pho', 'lumi_mask', 'filt_met', 'calo_diff', 'mftmht_clean_trig']
+    #regions['turn on denominator'] = ['leadak4_pt_eta', 'leadak4_id', 'clean_mu', 'at_least_one_tight_mu', 'two_muons', 'dimuon_mass', 'dimuon_charge','HLT_IsoMu27', 'muon_pt>30', 'veto_ele', 'veto_pho', 'lumi_mask', 'filt_met', 'calo_diff']
+    #regions['turn on numerator'] = ['leadak4_pt_eta', 'leadak4_id', 'clean_mu', 'at_least_one_tight_mu', 'two_muons', 'dimuon_mass', 'dimuon_charge', 'HLT_IsoMu27', 'muon_pt>30', 'veto_ele', 'veto_pho', 'lumi_mask', 'filt_met', 'calo_diff', 'mftmht_trig']
+
     #W(mu nu) turn on regions
-    #regions['clean turn on numerator'] = ['leadak4_pt_eta', 'leadak4_id', 'clean_mu', 'at_least_one_tight_mu', 'one_muon', 'veto_ele', 'veto_pho', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff', 'mftmht_clean_trig']
-    #regions['turn on denominator'] = ['leadak4_pt_eta', 'leadak4_id', 'clean_mu', 'at_least_one_tight_mu', 'one_muon', 'veto_ele', 'veto_pho', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff']
-    #regions['turn on numerator'] = ['leadak4_pt_eta', 'leadak4_id', 'clean_mu', 'at_least_one_tight_mu', 'one_muon', 'veto_ele', 'veto_pho', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff', 'mftmht_trig']
-    #regions['failing metmht'] = ['leadak4_pt_eta', 'leadak4_id', 'at_least_one_tight_mu', 'one_muon', 'veto_ele', 'veto_pho', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff', 'fail_metmht_trig', 'recoil>250']
+    #regions['test'] = ['leadak4_pt_eta', 'leadak4_id', 'at_least_one_tight_mu', 'one_muon', 'clean_mu', 'HLT_IsoMu27'] + lepton_veto
+    #regions['test w/ lumi'] = ['leadak4_pt_eta', 'leadak4_id', 'at_least_one_tight_mu', 'one_muon', 'clean_mu', 'HLT_IsoMu27', 'lumi_mask'] + lepton_veto
+    #regions['test w/ lumi, filt_met'] = ['leadak4_pt_eta', 'leadak4_id', 'at_least_one_tight_mu', 'one_muon', 'clean_mu', 'HLT_IsoMu27', 'lumi_mask', 'filt_met'] + lepton_veto 
+    #regions['test w/lumi, filt_met, calodiff'] = ['leadak4_pt_eta', 'leadak4_id', 'at_least_one_tight_mu', 'one_muon', 'clean_mu', 'HLT_IsoMu27', 'lumi_mask', 'filt_met', 'calo_diff'] + lepton_veto
+    #regions['test w/lumi, filt, calod, met_trig'] = ['leadak4_pt_eta', 'leadak4_id', 'at_least_one_tight_mu', 'one_muon', 'clean_mu', 'HLT_IsoMu27', 'lumi_mask', 'filt_met', 'calo_diff', 'mftmht_trig'] + lepton_veto
+    regions['clean turn on numerator'] = ['leadak4_pt_eta', 'leadak4_id', 'clean_mu', 'at_least_one_tight_mu', 'one_muon', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff', 'mftmht_clean_trig'] + lepton_veto
+    regions['turn on denominator'] = ['leadak4_pt_eta', 'leadak4_id', 'clean_mu', 'at_least_one_tight_mu', 'one_muon', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff'] + lepton_veto
+    regions['turn on numerator'] = ['leadak4_pt_eta', 'leadak4_id', 'clean_mu', 'at_least_one_tight_mu', 'one_muon', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff', 'mftmht_trig'] + lepton_veto
+    #regions['failing metmht'] = ['leadak4_pt_eta', 'leadak4_id', 'clean_mu', 'at_least_one_tight_mu', 'one_muon', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff', 'fail_metmht_trig', 'recoil>250'] + letpon_veto
 
     #Jet Phi w/ w/o muon cuts
-    regions['no muon cleaning'] = ['leadak4_pt_eta', 'leadak4_id', 'at_least_one_tight_mu', 'one_muon', 'veto_ele', 'veto_pho', 'lumi_mask']
-    regions['muon cleaning'] = ['leadak4_pt_eta', 'leadak4_id', 'clean_mu', 'at_least_one_tight_mu', 'one_muon', 'veto_ele', 'veto_pho', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff']
+    #regions['no muon cleaning'] = ['leadak4_pt_eta', 'leadak4_id']
+    #regions['muon cleaning'] = ['leadak4_pt_eta', 'leadak4_id', 'clean_mu', 'at_least_one_tight_mu', 'one_muon', 'veto_ele', 'veto_pho', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff']
 
     #W(e nu) turn on regions
     #cr_1e_cuts = ['trig_ele','one_electron', 'at_least_one_tight_el', 'veto_muo', 'calo_diff', 'filt_met', 'hlt_ele']

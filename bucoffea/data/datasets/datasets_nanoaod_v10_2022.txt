@@ -1,0 +1,2 @@
+/Muon/Run2022D-PromptNanoAODv10-v1/NANOAOD
+/SingleMuon/Run2022C-PromptNanoAODv10-v1/NANOAOD

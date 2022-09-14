@@ -4,16 +4,18 @@ from coffea.util import load
 from bucoffea.plot.util import fig_ratio
 import numpy as np
 
+from klepto.archives import dir_archive
+acc = dir_archive(
+                  '/afs/cern.ch/user/j/jbarlow/bucoffea/bucoffea/execute/submission/SingleMuon2022C_2022D/merged_coffea', # Same as the -o argument to bumerge
+                  serialized=True,
+                  compression=0,
+                  memsize=1e3,
+                  )
+
 # Get the file
-acc = load('../scripts/hlt_SingleMuon-2022D.coffea')
+#acc = load('../scripts/hlt_SingleMuon-2017C.coffea')
 
-# Get the histogram
-#h = acc['ak4_pt0']
-#h1 = acc['ak4_eta0']
-#h2 = acc['dimu_mass']
-#h3 = acc['trigger_turnon']
-#h = acc['ak4_phi0']
-
+acc.load('trigger_turnon')
 h = acc['trigger_turnon']
 
 #h = acc['met']
@@ -45,10 +47,12 @@ h = h.rebin(h.axis(newax.name), newax)
 # Plot the remaining numerical axis
 #fig, ax, rax = fig_ratio()
 
-h = h.integrate('dataset', 'SingleMuon-2022D')
-#num = h.integrate('region', 'turn on numerator')
-#den = h.integrate('region', 'turn on denominator')
-#clean_num = h.integrate('region', 'clean turn on numerator')
+print(h.identifiers('dataset'))
+print(h.values())
+h = h.integrate('dataset')
+num = h.integrate('region', 'turn on numerator')
+den = h.integrate('region', 'turn on denominator')
+clean_num = h.integrate('region', 'clean turn on numerator')
 
 #fig, ax, rax = fig_ratio()
 
@@ -71,27 +75,27 @@ error_opts1 = {
         'elinewidth': 1,
     }
 
-#hist.plotratio(
-    #num,
-    #den,
-    #ax=rax,
-    #unc='clopper-pearson',
-    #error_opts=error_opts,
-    #label='METnoMu trigger'
-#)
+hist.plotratio(
+    num,
+    den,
+    ax=rax,
+    unc='clopper-pearson',
+    error_opts=error_opts,
+    label='METnoMu trigger'
+)
 
-#hist.plotratio(
-    #clean_num,
-    #den,
-    #ax=rax,
-    #unc='clopper-pearson',
-    #error_opts=error_opts1,
-    #clear=False,
-    #label='clean METnoMu trigger'
-#)
+hist.plotratio(
+    clean_num,
+    den,
+    ax=rax,
+    unc='clopper-pearson',
+    error_opts=error_opts1,
+    clear=False,
+    label='clean METnoMu trigger'
+)
 
 #hist.plot1d(h, ax=ax, binwnorm=1)
-hist.plot1d(h, ax=rax)
+#hist.plot1d(h, ax=ax)
 
 # Plot the ratio on the bottom pad
 #hist.plotratio(
@@ -138,13 +142,11 @@ rax.text(0., 1.01, r'$W \rightarrow \mu \nu$',
 
 rax.set_xlabel('Recoil (GeV)')
 rax.set_ylabel('Efficiency')
-rax.set_yscale('log')
-rax.set_ylim(10e-2, 10e4)
-#rax.set_ylim(0, 1.1)
+rax.set_ylim(0, 1.1)
 rax.set_xlim(0, 700.)
 rax.grid(True)
 rax.axhline(1, ls='--', c='k')
 rax.legend()
 
 
-fig.savefig('Wmunu-trigeff-1file-SingleMuon-2022D.pdf')
+fig.savefig('Wmunu-trigeff-SingleMuon-2022D.pdf')

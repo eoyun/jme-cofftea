@@ -51,6 +51,9 @@ def extract_year(dataset):
     for x in [6,7,8]:
         if f"201{x}" in dataset:
             return 2010+x
+    for x in [2]:
+        if f"202{x}" in dataset:
+            return 2020+x
     raise RuntimeError("Could not determine dataset year")
 
 def rand_dataset_dict(keys, year):

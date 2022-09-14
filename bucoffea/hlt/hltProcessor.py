@@ -7,7 +7,7 @@ from dynaconf import settings as cfg
 from coffea.lumi_tools import LumiMask
 
 from bucoffea.hlt.definitions import hlt_accumulator, hlt_regions, setup_candidates
-from bucoffea.helpers import bucoffea_path, recoil, mask_and, mask_or
+from bucoffea.helpers import bucoffea_path, recoil, mask_and, mask_or, object_overlap
 from coffea.lumi_tools import LumiMask
 from bucoffea.helpers.dataset import extract_year
 from bucoffea.helpers.paths import bucoffea_path
@@ -30,7 +30,8 @@ class hltProcessor(processor.ProcessorABC):
             dataset = df['dataset']
             self._year = extract_year(dataset)
             df["year"] = self._year
-            cfg.ENV_FOR_DYNACONF = f"era{self._year}"
+            #cfg.ENV_FOR_DYNACONF = f"era{self._year}"
+            cfg.ENV_FOR_DYNACONF = "era2017"
         else:
             cfg.ENV_FOR_DYNACONF = f"default"
         cfg.reload()
@@ -42,7 +43,7 @@ class hltProcessor(processor.ProcessorABC):
 
         self._configure(df)
 
-        met_pt, met_phi, ak4, muons, electrons, photons = setup_candidates(df, cfg)
+        met_pt, met_phi, ak4, muons, electrons, taus, photons = setup_candidates(df, cfg)
 
         #accumulate events that fail metmht trigger in W(munu) selection
         #items['selected_events'] = processor.defaultdict_accumulator(list)
@@ -51,7 +52,8 @@ class hltProcessor(processor.ProcessorABC):
         selection = processor.PackedSelection()
 
         # Create mask for events with good lumis (using the golden JSON)
-        json = bucoffea_path("data/json/Cert_Collisions2022_355100_356175_Golden.json")
+        #json = bucoffea_path("data/json/Cert_Collisions2022_355100_356175_Golden.json") #eraC json
+        json = bucoffea_path("data/json/Cert_Collisions2022_355100_357900_Golden.json") #era C+D json
         lumi_mask = LumiMask(json)(df['run'], df['luminosityBlock'])
         selection.add('lumi_mask', lumi_mask)
         
@@ -64,6 +66,10 @@ class hltProcessor(processor.ProcessorABC):
         
         #require that lead jet has loose ID
         selection.add('leadak4_id', (ak4.looseId[leadak4_index].any()))
+
+        #Muon and Jet overlap mask
+        #muons = muons[object_overlap(muons, ak4, dr=0.4)]
+        #ak4 = ak4[object_overlap(ak4, muons, dr=0.4)]
         
         #require that mftmht_trig and mftmht_clean_trig are triggered
         selection.add('mftmht_trig', df['HLT_PFMETNoMu120_PFMHTNoMu120_IDTight'])
@@ -112,6 +118,9 @@ class hltProcessor(processor.ProcessorABC):
         #Electron veto
         selection.add('veto_ele', electrons.counts==0)
 
+        #Tau veto
+        selection.add('veto_tau', taus.counts==0)
+
         #Photon Veto
         selection.add('veto_pho', photons.counts==0)
 
@@ -128,6 +137,7 @@ class hltProcessor(processor.ProcessorABC):
         for region, cuts in regions.items():
 
             mask = selection.all(*cuts)
+            print(mask)
             #keep track of event numbers that pass this mask
             #output['selected_events'][region] += list(df['event'][mask])
 
@@ -144,14 +154,14 @@ class hltProcessor(processor.ProcessorABC):
             w_leadak4 = 1
             #ezfill('ak4_eta0',   jeteta=ak4[leadak4_index].eta[mask].flatten())
             #ezfill('ak4_pt0',    jetpt=ak4[leadak4_index].pt[mask].flatten())
-            ezfill('ak4_phi0',   jetphi=ak4[leadak4_index].phi[mask].flatten())
+            #ezfill('ak4_phi0',   jetphi=ak4[leadak4_index].phi[mask].flatten())
             #ezfill('dimu_mass', dimumass=dimuons.mass[mask].flatten())
-            #ezfill('trigger_turnon', turnon=recoil_pt[mask])                      
+            ezfill('trigger_turnon', turnon=recoil_pt[mask])                      
             #ezfill('met', MET=met_pt[mask])
 
-        #with open('fail10.txt', 'a') as f:
-            #for event in output['selected_events'][region]:
-                #f.write('\n' + str(event))
+            #with open('fail40.txt', 'a') as f:
+                #for event in output['selected_events'][region]:
+                    #f.write('\n' + str(event))
 
         # Return the output accumulator once the histograms are filled
         return output
