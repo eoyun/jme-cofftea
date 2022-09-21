@@ -24,8 +24,9 @@ def hlt_accumulator():
     jet_eta_ax = Bin("jeteta", r"Jet $\eta$", 50, -5, 5)
     jet_phi_ax = Bin("jetphi", "Jet $\phi$", 50, -3.14, 3.14)
     dimu_mass_ax = Bin("dimumass", "Dimuon Mass (GeV)", 50, 60, 120) 
-    trigger_turnon_ax = Bin("turnon", "METnoMu120 (GeV)", 50, 0, 1000)
-    met_ax = Bin("MET", "MET (GeV)", 50, 0, 1000)
+    recoil_ax = Bin("recoil", "Recoil (GeV)", 50, 0, 1000)
+    met_ax = Bin("met", "MET (GeV)", 50, 0, 1000)
+    ht_ax = Bin("ht", r"$H_{T}$ (GeV)", 200, 0, 4000)
 
     # Histogram definitions
     items = {}
@@ -33,8 +34,9 @@ def hlt_accumulator():
     items["ak4_eta0"] = Hist("Counts", dataset_ax, region_ax, jet_eta_ax)
     items["ak4_phi0"] = Hist("Counts", dataset_ax, region_ax, jet_phi_ax)
     items["dimu_mass"] = Hist("Counts", dataset_ax, region_ax, dimu_mass_ax)
-    items["trigger_turnon"] = Hist("Counts", dataset_ax, region_ax, trigger_turnon_ax)
+    items["recoil"] = Hist("Counts", dataset_ax, region_ax, recoil_ax)
     items["met"] = Hist("Counts", dataset_ax, region_ax, met_ax)
+    items["ht"] = Hist("Counts", dataset_ax, region_ax, ht_ax)
 
     #keep track of events that failt metmht trigger
     items['selected_events'] = processor.defaultdict_accumulator(list)  
@@ -54,7 +56,7 @@ def setup_candidates(df, cfg):
         abseta=np.abs(df['Jet_eta']),
         phi=df['Jet_phi'],
         mass=np.zeros_like(df['Jet_pt']),
-        looseId=(df['Jet_jetId']&2) == 2, # bitmask: 1 = loose, 2 = tight, 3 = tight + lep veto
+        looseId=(df['Jet_jetId'] & 2) == 2, # bitmask: 1 = loose, 2 = tight, 3 = tight + lep veto
     )
 
     met_pt = df['MET_pt']
@@ -70,8 +72,8 @@ def setup_candidates(df, cfg):
         mass=0 * df['Muon_pt'],
         charge=df['Muon_charge'],
         looseId=df['Muon_looseId'],
-        iso=df["Muon_pfRelIso04_all"],
         tightId=df['Muon_tightId'],
+        iso=df["Muon_pfRelIso04_all"],
         dxy=df['Muon_dxy'],
         dz=df['Muon_dz'],
         globalmu = df['Muon_isGlobal'],
@@ -89,7 +91,8 @@ def setup_candidates(df, cfg):
     )
 
     # Pre-filter: All muons must be at least loose
-    muons = muons[(muons.iso < cfg.MUON.CUTS.LOOSE.ISO) \
+    muons = muons[muons.looseId \
+                    & (muons.iso < cfg.MUON.CUTS.LOOSE.ISO) \
                     & (muons.pt > cfg.MUON.CUTS.LOOSE.PT) \
                     & (muons.abseta < cfg.MUON.CUTS.LOOSE.ETA)
                     ]
@@ -177,36 +180,26 @@ def hlt_regions():
     """
     regions = {}
 
-    lepton_veto = ['veto_ele', 'veto_pho']
+    common_cuts = [
+        'leadak4_pt_eta', 
+        'leadak4_id', 
+        'at_least_one_tight_mu', 
+        'one_muon',
+        'lumi_mask',
+        'HLT_IsoMu27',
+        'muon_pt>30',
+        'filt_met',
+        ]
 
-    #regions['my_regions'] = ['leadak4_pt_eta', 'leadak4_id']
-    #regions['trigger w/o filter'] = ['leadak4_pt_eta', 'leadak4_id', 'mftmht_trig', 'at_least_one_tight_mu', 'dimuon_mass', 'dimuon_charge', 'two_muons', 'lumi_mask']
-    #regions['trigger w/ filter'] = ['leadak4_pt_eta', 'leadak4_id', 'mftmht_clean_trig', 'at_least_one_tight_mu', 'dimuon_mass', 'dimuon_charge', 'two_muons', 'lumi_mask']
+    # Trigger numerator and denominator regions
+    for suffix in ['bf_356800', 'af_356800']:
+        regions[f'tr_jet_num_{suffix}'] = common_cuts + [f'run_{suffix}'] + ['HLT_PFJet500']
+        regions[f'tr_jet_den_{suffix}'] = common_cuts + [f'run_{suffix}']
 
-    #Z(mu mu) turn on regions
-    #regions['clean turn on numerator'] = ['leadak4_pt_eta', 'leadak4_id', 'clean_mu', 'at_least_one_tight_mu', 'two_muons', 'dimuon_mass', 'dimuon_charge', 'HLT_IsoMu27', 'muon_pt>30', 'veto_ele', 'veto_pho', 'lumi_mask', 'filt_met', 'calo_diff', 'mftmht_clean_trig']
-    #regions['turn on denominator'] = ['leadak4_pt_eta', 'leadak4_id', 'clean_mu', 'at_least_one_tight_mu', 'two_muons', 'dimuon_mass', 'dimuon_charge','HLT_IsoMu27', 'muon_pt>30', 'veto_ele', 'veto_pho', 'lumi_mask', 'filt_met', 'calo_diff']
-    #regions['turn on numerator'] = ['leadak4_pt_eta', 'leadak4_id', 'clean_mu', 'at_least_one_tight_mu', 'two_muons', 'dimuon_mass', 'dimuon_charge', 'HLT_IsoMu27', 'muon_pt>30', 'veto_ele', 'veto_pho', 'lumi_mask', 'filt_met', 'calo_diff', 'mftmht_trig']
+        regions[f'tr_ht_num_{suffix}'] = common_cuts + [f'run_{suffix}'] + ['HLT_PFHT1050']
+        regions[f'tr_ht_den_{suffix}'] = common_cuts + [f'run_{suffix}']
 
-    #W(mu nu) turn on regions
-    #regions['test'] = ['leadak4_pt_eta', 'leadak4_id', 'at_least_one_tight_mu', 'one_muon', 'clean_mu', 'HLT_IsoMu27'] + lepton_veto
-    #regions['test w/ lumi'] = ['leadak4_pt_eta', 'leadak4_id', 'at_least_one_tight_mu', 'one_muon', 'clean_mu', 'HLT_IsoMu27', 'lumi_mask'] + lepton_veto
-    #regions['test w/ lumi, filt_met'] = ['leadak4_pt_eta', 'leadak4_id', 'at_least_one_tight_mu', 'one_muon', 'clean_mu', 'HLT_IsoMu27', 'lumi_mask', 'filt_met'] + lepton_veto 
-    #regions['test w/lumi, filt_met, calodiff'] = ['leadak4_pt_eta', 'leadak4_id', 'at_least_one_tight_mu', 'one_muon', 'clean_mu', 'HLT_IsoMu27', 'lumi_mask', 'filt_met', 'calo_diff'] + lepton_veto
-    #regions['test w/lumi, filt, calod, met_trig'] = ['leadak4_pt_eta', 'leadak4_id', 'at_least_one_tight_mu', 'one_muon', 'clean_mu', 'HLT_IsoMu27', 'lumi_mask', 'filt_met', 'calo_diff', 'mftmht_trig'] + lepton_veto
-    regions['clean turn on numerator'] = ['leadak4_pt_eta', 'leadak4_id', 'clean_mu', 'at_least_one_tight_mu', 'one_muon', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff', 'mftmht_clean_trig'] + lepton_veto
-    regions['turn on denominator'] = ['leadak4_pt_eta', 'leadak4_id', 'clean_mu', 'at_least_one_tight_mu', 'one_muon', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff'] + lepton_veto
-    regions['turn on numerator'] = ['leadak4_pt_eta', 'leadak4_id', 'clean_mu', 'at_least_one_tight_mu', 'one_muon', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff', 'mftmht_trig'] + lepton_veto
-    #regions['failing metmht'] = ['leadak4_pt_eta', 'leadak4_id', 'clean_mu', 'at_least_one_tight_mu', 'one_muon', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff', 'fail_metmht_trig', 'recoil>250'] + letpon_veto
-
-    #Jet Phi w/ w/o muon cuts
-    #regions['no muon cleaning'] = ['leadak4_pt_eta', 'leadak4_id']
-    #regions['muon cleaning'] = ['leadak4_pt_eta', 'leadak4_id', 'clean_mu', 'at_least_one_tight_mu', 'one_muon', 'veto_ele', 'veto_pho', 'lumi_mask', 'HLT_IsoMu27', 'muon_pt>30', 'filt_met', 'calo_diff']
-
-    #W(e nu) turn on regions
-    #cr_1e_cuts = ['trig_ele','one_electron', 'at_least_one_tight_el', 'veto_muo', 'calo_diff', 'filt_met', 'hlt_ele']
-    #regions['clean turn on numerator'] = ['leadak4_pt_eta', 'leadak4_id', 'veto_pho', 'lumi_mask', 'mftmht_clean_trig'] + cr_1e_cuts
-    #regions['turn on denominator'] = ['leadak4_pt_eta', 'leadak4_id', 'veto_pho', 'lumi_mask'] + cr_1e_cuts
-    #regions['turn on numerator'] = ['leadak4_pt_eta', 'leadak4_id', 'veto_pho', 'lumi_mask', 'mftmht_trig'] + cr_1e_cuts
+        regions[f'tr_metnomu_num_{suffix}'] = common_cuts + [f'run_{suffix}'] + ['HLT_PFMETNoMu120']
+        regions[f'tr_metnomu_den_{suffix}'] = common_cuts + [f'run_{suffix}']
 
     return regions

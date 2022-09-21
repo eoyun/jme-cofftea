@@ -291,7 +291,7 @@ def do_submit(args):
                     print(f"Submitted job {jobid}")
     if args.asynchronous:
         print('Starting asynchronous submission.')
-        p = Pool(processes=8)
+        p = Pool(processes=2)
         res = p.map_async(condor_submit, jdl_to_submit)
         res.wait()
         if res.successful():
