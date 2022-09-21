@@ -189,6 +189,7 @@ def hlt_regions():
         'HLT_IsoMu27',
         'muon_pt>30',
         'filt_met',
+        'calo_diff',
         ]
 
     # Trigger numerator and denominator regions
