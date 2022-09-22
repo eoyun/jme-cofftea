@@ -147,6 +147,8 @@ class hltProcessor(processor.ProcessorABC):
             ezfill('met',        met=met_pt[mask])
             ezfill('ht',         ht=ht[mask])
 
+            ezfill('ak4_eta0_pt0',   jeteta=ak4[leadak4_index].eta[mask].flatten(), jetpt=ak4[leadak4_index].pt[mask].flatten())
+
             #with open('fail40.txt', 'a') as f:
                 #for event in output['selected_events'][region]:
                     #f.write('\n' + str(event))

@@ -38,6 +38,8 @@ def hlt_accumulator():
     items["met"] = Hist("Counts", dataset_ax, region_ax, met_ax)
     items["ht"] = Hist("Counts", dataset_ax, region_ax, ht_ax)
 
+    items["ak4_eta0_pt0"] = Hist("Counts", dataset_ax, region_ax, jet_eta_ax, jet_pt_ax)
+
     #keep track of events that failt metmht trigger
     items['selected_events'] = processor.defaultdict_accumulator(list)  
 
@@ -181,15 +183,17 @@ def hlt_regions():
     regions = {}
 
     common_cuts = [
-        'leadak4_pt_eta', 
         'leadak4_id', 
-        'at_least_one_tight_mu', 
-        'one_muon',
         'lumi_mask',
-        'HLT_IsoMu27',
-        'muon_pt>30',
         'filt_met',
-        'calo_diff',
+        # 'leadak4_pt_eta', 
+        # 'at_least_one_tight_mu', 
+        # 'one_muon',
+        # 'HLT_IsoMu27',
+        # 'muon_pt>30',
+        # 'calo_diff',
+        # 'veto_ele',
+        # 'veto_pho',
         ]
 
     # Trigger numerator and denominator regions
