@@ -22,6 +22,7 @@ def hlt_accumulator():
     # Numerical axes
     jet_pt_ax = Bin("jetpt", r"Jet $p_{T}$ (GeV)", 50, 0, 1000)
     jet_eta_ax = Bin("jeteta", r"Jet $\eta$", 50, -5, 5)
+    jet_abseta_ax = Bin("jeteta", r"Jet $\eta$", 50, 0, 5)
     jet_phi_ax = Bin("jetphi", "Jet $\phi$", 50, -3.14, 3.14)
     dimu_mass_ax = Bin("dimumass", "Dimuon Mass (GeV)", 50, 60, 120) 
     recoil_ax = Bin("recoil", "Recoil (GeV)", 50, 0, 1000)
@@ -38,7 +39,7 @@ def hlt_accumulator():
     items["met"] = Hist("Counts", dataset_ax, region_ax, met_ax)
     items["ht"] = Hist("Counts", dataset_ax, region_ax, ht_ax)
 
-    items["ak4_eta0_pt0"] = Hist("Counts", dataset_ax, region_ax, jet_eta_ax, jet_pt_ax)
+    items["ak4_abseta0_pt0"] = Hist("Counts", dataset_ax, region_ax, jet_abseta_ax, jet_pt_ax)
 
     #keep track of events that failt metmht trigger
     items['selected_events'] = processor.defaultdict_accumulator(list)  
