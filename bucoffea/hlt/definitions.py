@@ -186,15 +186,17 @@ def hlt_regions():
         'leadak4_id', 
         'lumi_mask',
         'filt_met',
-        # 'leadak4_pt_eta', 
-        # 'at_least_one_tight_mu', 
-        # 'one_muon',
-        # 'HLT_IsoMu27',
-        # 'muon_pt>30',
-        # 'calo_diff',
-        # 'veto_ele',
-        # 'veto_pho',
         ]
+
+    # W(mu nu) + jet selection for METNoMu trigger measurement
+    metnomu_cuts = common_cuts + [
+        'leadak4_pt_eta', 
+        'at_least_one_tight_mu', 
+        'one_muon',
+        'HLT_IsoMu27',
+        'muon_pt>30',
+        'calo_diff',
+    ]
 
     # Trigger numerator and denominator regions
     for suffix in ['bf_356800', 'af_356800']:
@@ -204,7 +206,7 @@ def hlt_regions():
         regions[f'tr_ht_num_{suffix}'] = common_cuts + [f'run_{suffix}'] + ['HLT_PFHT1050']
         regions[f'tr_ht_den_{suffix}'] = common_cuts + [f'run_{suffix}']
 
-        regions[f'tr_metnomu_num_{suffix}'] = common_cuts + [f'run_{suffix}'] + ['HLT_PFMETNoMu120']
-        regions[f'tr_metnomu_den_{suffix}'] = common_cuts + [f'run_{suffix}']
+        regions[f'tr_metnomu_num_{suffix}'] = metnomu_cuts + [f'run_{suffix}'] + ['HLT_PFMETNoMu120']
+        regions[f'tr_metnomu_den_{suffix}'] = metnomu_cuts + [f'run_{suffix}']
 
     return regions
