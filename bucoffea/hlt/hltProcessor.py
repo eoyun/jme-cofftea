@@ -76,6 +76,13 @@ class hltProcessor(processor.ProcessorABC):
         selection.add('HLT_PFJet500', df['HLT_PFJet500'])
         selection.add('HLT_PFHT1050', df['HLT_PFHT1050'])
 
+        # HF jet cuts
+        high_pt_ak4 = ak4[ak4.pt>80]
+        seta_minus_sphi = high_pt_ak4.setaeta - high_pt_ak4.sphiphi
+
+        selection.add('seta_minus_sphi', (seta_minus_sphi < 0.02).all())
+        selection.add('central_strip_size', (high_pt_ak4.hfcentralstripsize < 3).all())
+
         df['is_tight_muon'] = muons.tightId \
                       & (muons.iso < cfg.MUON.CUTS.TIGHT.ISO) \
                       & (muons.pt > cfg.MUON.CUTS.TIGHT.PT) \

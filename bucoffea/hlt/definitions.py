@@ -60,6 +60,9 @@ def setup_candidates(df, cfg):
         phi=df['Jet_phi'],
         mass=np.zeros_like(df['Jet_pt']),
         looseId=(df['Jet_jetId'] & 2) == 2, # bitmask: 1 = loose, 2 = tight, 3 = tight + lep veto
+        setaeta=df['Jet_hfsigmaEtaEta'],
+        sphiphi=df['Jet_hfsigmaPhiPhi'],
+        hfcentralstripsize=df['Jet_hfcentralEtaStripSize'],
     )
 
     met_pt = df['MET_pt']
@@ -198,6 +201,14 @@ def hlt_regions():
         'muon_pt>30',
         'calo_diff',
     ]
+
+    regions['tr_metnomu_num'] = metnomu_cuts + ['HLT_PFMETNoMu120']
+    regions['tr_metnomu_den'] = metnomu_cuts
+
+    hf_cleaning_cuts = ['seta_minus_sphi', 'central_strip_size']
+
+    regions['tr_metnomu_num_with_hf_cuts'] = metnomu_cuts + hf_cleaning_cuts + ['HLT_PFMETNoMu120']
+    regions['tr_metnomu_den_with_hf_cuts'] = metnomu_cuts + hf_cleaning_cuts
 
     # Trigger numerator and denominator regions
     for suffix in ['bf_356800', 'af_356800']:
