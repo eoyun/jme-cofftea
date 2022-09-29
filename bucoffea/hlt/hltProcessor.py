@@ -135,46 +135,36 @@ class hltProcessor(processor.ProcessorABC):
         output = self.accumulator.identity()
 
         # Save kinematics for specific events
-        events_to_save = [
-            492220275, 
-            654151902, 
-            137678359,
-            613995374,
-            777157971,
-            365128690,
-            401121772,
-            768855736,
-            859279379,
-            978922929
-        ]
-        
-        for event in events_to_save:
-            event_mask = df['event'] == event
+        if cfg.RUN.KINEMATICS.SAVE:
+            for event in cfg.RUN.KINEMATICS.EVENTS:
+                event_mask = df['event'] == event
 
-            if not event_mask.any():
-                continue
+                if not event_mask.any():
+                    continue
 
-            output['kinematics']['event'] += [event]
+                output['kinematics']['event'] += [event]
 
-            output['kinematics']['ak4_pt0'] += [ak4[leadak4_index][event_mask].pt]            
-            output['kinematics']['ak4_eta0'] += [ak4[leadak4_index][event_mask].eta]            
-            output['kinematics']['ak4_phi0'] += [ak4[leadak4_index][event_mask].phi]            
-            output['kinematics']['ak4_tightId0'] += [ak4[leadak4_index][event_mask].looseId]            
-            
-            output['kinematics']['ak4_nhf0'] += [ak4[leadak4_index][event_mask].nhf]
-            output['kinematics']['ak4_nef0'] += [ak4[leadak4_index][event_mask].nef]
-            output['kinematics']['ak4_chf0'] += [ak4[leadak4_index][event_mask].chf]
-            output['kinematics']['ak4_cef0'] += [ak4[leadak4_index][event_mask].cef]
-            output['kinematics']['ak4_mufrac0'] += [ak4[leadak4_index][event_mask].mufrac]
+                output['kinematics']['ak4_pt0'] += [ak4[leadak4_index][event_mask].pt]            
+                output['kinematics']['ak4_eta0'] += [ak4[leadak4_index][event_mask].eta]            
+                output['kinematics']['ak4_phi0'] += [ak4[leadak4_index][event_mask].phi]            
+                output['kinematics']['ak4_tightId0'] += [ak4[leadak4_index][event_mask].looseId]            
+                
+                output['kinematics']['ak4_nhf0'] += [ak4[leadak4_index][event_mask].nhf]
+                output['kinematics']['ak4_nef0'] += [ak4[leadak4_index][event_mask].nef]
+                output['kinematics']['ak4_chf0'] += [ak4[leadak4_index][event_mask].chf]
+                output['kinematics']['ak4_cef0'] += [ak4[leadak4_index][event_mask].cef]
+                output['kinematics']['ak4_mufrac0'] += [ak4[leadak4_index][event_mask].mufrac]
 
         regions = hlt_regions()
 	
         for region, cuts in regions.items():
 
             mask = selection.all(*cuts)
-            output['selected_runs'][region] += list(df['run'][mask])
-            output['selected_lumis'][region] += list(df['luminosityBlock'][mask])
-            output['selected_events'][region] += list(df['event'][mask])
+
+            if cfg.RUN.SAVE.PASSING:
+                output['selected_runs'][region] += list(df['run'][mask])
+                output['selected_lumis'][region] += list(df['luminosityBlock'][mask])
+                output['selected_events'][region] += list(df['event'][mask])
 
             def ezfill(name, **kwargs):
                 """Helper function to make filling easier."""

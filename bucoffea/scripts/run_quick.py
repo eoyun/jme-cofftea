@@ -25,7 +25,7 @@ def main():
         #rootfiles0.append(path + "MET_C_" + str(i+1) + ".root")
 
     #rootfiles0.append("root://cmsxrootd.fnal.gov//store/data/Run2022D/Muon/NANOAOD/PromptNanoAODv10-v1/40000/a19737e2-db88-499b-aec9-17ff4a5c9f77.root")
-    rootfiles0.append("root://cmsxrootd.fnal.gov//store/data/Run2022D/Muon/NANOAOD/PromptNanoAODv10-v1/40000/5342a5f1-fb21-4739-b084-32fce4b16453.root")
+    rootfiles0.append("root://cmsxrootd.fnal.gov//store/data/Run2022C/Muon/NANOAOD/PromptNanoAODv10-v1/40000/c1673786-edbb-4ab3-94a1-226fda6c140a.root")
     #rootfiles0.remove(path + "SingleMuon_C_16.root")
 
     fileset = {
