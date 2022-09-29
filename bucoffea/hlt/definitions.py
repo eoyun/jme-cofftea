@@ -28,6 +28,7 @@ def hlt_accumulator():
     recoil_ax = Bin("recoil", "Recoil (GeV)", 50, 0, 1000)
     met_ax = Bin("met", "MET (GeV)", 50, 0, 1000)
     ht_ax = Bin("ht", r"$H_{T}$ (GeV)", 200, 0, 4000)
+    frac_ax = Bin('frac','Fraction', 50, 0, 1)
 
     # Histogram definitions
     items = {}
@@ -39,10 +40,18 @@ def hlt_accumulator():
     items["met"] = Hist("Counts", dataset_ax, region_ax, met_ax)
     items["ht"] = Hist("Counts", dataset_ax, region_ax, ht_ax)
 
+    items["ak4_chf0"] = Hist("Counts", dataset_ax, region_ax, frac_ax)
+    items["ak4_nhf0"] = Hist("Counts", dataset_ax, region_ax, frac_ax)
+    items["ak4_mufrac0"] = Hist("Counts", dataset_ax, region_ax, frac_ax)
+
     items["ak4_abseta0_pt0"] = Hist("Counts", dataset_ax, region_ax, jet_abseta_ax, jet_pt_ax)
 
-    #keep track of events that failt metmht trigger
+    # Keep track of events that fail PFJet500
+    items['selected_runs'] = processor.defaultdict_accumulator(list)  
+    items['selected_lumis'] = processor.defaultdict_accumulator(list)  
     items['selected_events'] = processor.defaultdict_accumulator(list)  
+
+    items['kinematics'] = processor.defaultdict_accumulator(list)
 
     # Return the accumulator of histograms
     return processor.dict_accumulator(items)
@@ -60,6 +69,11 @@ def setup_candidates(df, cfg):
         phi=df['Jet_phi'],
         mass=np.zeros_like(df['Jet_pt']),
         looseId=(df['Jet_jetId'] & 2) == 2, # bitmask: 1 = loose, 2 = tight, 3 = tight + lep veto
+        cef=df['Jet_chEmEF'],
+        chf=df['Jet_chHEF'],
+        nef=df['Jet_neEmEF'],
+        nhf=df['Jet_neHEF'],
+        mufrac=df['Jet_muEF'],
         setaeta=df['Jet_hfsigmaEtaEta'],
         sphiphi=df['Jet_hfsigmaPhiPhi'],
         hfcentralstripsize=df['Jet_hfcentralEtaStripSize'],
@@ -205,20 +219,36 @@ def hlt_regions():
     regions['tr_metnomu_num'] = metnomu_cuts + ['HLT_PFMETNoMu120']
     regions['tr_metnomu_den'] = metnomu_cuts
 
-    hf_cleaning_cuts = ['seta_minus_sphi', 'central_strip_size']
+    # Regions with HF cleaning cuts
+    # hf_cleaning_cuts = ['seta_minus_sphi', 'central_strip_size']
+    # regions['tr_metnomu_num_with_hf_cuts'] = metnomu_cuts + hf_cleaning_cuts + ['HLT_PFMETNoMu120']
+    # regions['tr_metnomu_den_with_hf_cuts'] = metnomu_cuts + hf_cleaning_cuts
 
-    regions['tr_metnomu_num_with_hf_cuts'] = metnomu_cuts + hf_cleaning_cuts + ['HLT_PFMETNoMu120']
-    regions['tr_metnomu_den_with_hf_cuts'] = metnomu_cuts + hf_cleaning_cuts
+    # Region for events with high pt jet, but failing HLT_PFJet500
+    regions['tr_jet_fail_jet500_high_ak4_pt0'] = common_cuts + ['leadak4_high_pt'] + ['fail_HLT_PFJet500']
+
+    regions['tr_jet_num'] = common_cuts + ['HLT_PFJet500']
+    regions['tr_jet_den'] = common_cuts
+
+    # PFJet500 trigger num and denom regions with energy fraction cuts
+    regions['tr_jet_num_energy_frac'] = common_cuts + ['leadak4_energy_frac'] + ['HLT_PFJet500']
+    regions['tr_jet_den_energy_frac'] = common_cuts + ['leadak4_energy_frac']
 
     # Trigger numerator and denominator regions
-    for suffix in ['bf_356800', 'af_356800']:
-        regions[f'tr_jet_num_{suffix}'] = common_cuts + [f'run_{suffix}'] + ['HLT_PFJet500']
-        regions[f'tr_jet_den_{suffix}'] = common_cuts + [f'run_{suffix}']
+    # for suffix in ['bf_356800', 'af_356800']:
+        # regions[f'tr_jet_num_{suffix}'] = common_cuts + [f'run_{suffix}'] + ['HLT_PFJet500']
+        # regions[f'tr_jet_den_{suffix}'] = common_cuts + [f'run_{suffix}']
 
-        regions[f'tr_ht_num_{suffix}'] = common_cuts + [f'run_{suffix}'] + ['HLT_PFHT1050']
-        regions[f'tr_ht_den_{suffix}'] = common_cuts + [f'run_{suffix}']
+        # regions[f'tr_ht_num_{suffix}'] = common_cuts + [f'run_{suffix}'] + ['HLT_PFHT1050']
+        # regions[f'tr_ht_den_{suffix}'] = common_cuts + [f'run_{suffix}']
 
-        regions[f'tr_metnomu_num_{suffix}'] = metnomu_cuts + [f'run_{suffix}'] + ['HLT_PFMETNoMu120']
-        regions[f'tr_metnomu_den_{suffix}'] = metnomu_cuts + [f'run_{suffix}']
+        # regions[f'tr_metnomu_num_{suffix}'] = metnomu_cuts + [f'run_{suffix}'] + ['HLT_PFMETNoMu120']
+        # regions[f'tr_metnomu_den_{suffix}'] = metnomu_cuts + [f'run_{suffix}']
+
+        # regions[f'tr_metnomu_num_{suffix}_with_hf_cuts'] = copy.deepcopy(regions['tr_metnomu_num_with_hf_cuts'])
+        # regions[f'tr_metnomu_num_{suffix}_with_hf_cuts'].append(f'run_{suffix}')
+
+        # regions[f'tr_metnomu_den_{suffix}_with_hf_cuts'] = copy.deepcopy(regions['tr_metnomu_den_with_hf_cuts'])
+        # regions[f'tr_metnomu_den_{suffix}_with_hf_cuts'].append(f'run_{suffix}')
 
     return regions

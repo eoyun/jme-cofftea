@@ -45,9 +45,6 @@ class hltProcessor(processor.ProcessorABC):
 
         met_pt, met_phi, ak4, muons, electrons, taus, photons = setup_candidates(df, cfg)
 
-        #accumulate events that fail metmht trigger in W(munu) selection
-        #items['selected_events'] = processor.defaultdict_accumulator(list)
-
         # Implement selections
         selection = processor.PackedSelection()
 
@@ -67,6 +64,11 @@ class hltProcessor(processor.ProcessorABC):
 
         # Tight ID on leading AK4 jet
         selection.add('leadak4_id', (ak4.looseId[leadak4_index].any()))
+        
+        # Requirement on hadronic energy fractions of the jet (for jets within tracker range)
+        has_track = ak4[leadak4_index].abseta <= 2.5
+        energy_frac_good = has_track * ((ak4[leadak4_index].chf > 0.1) & (ak4[leadak4_index].nhf < 0.8)) + ~has_track
+        selection.add('leadak4_energy_frac', energy_frac_good.any())
 
         # Trigger requirements
         selection.add('HLT_PFMETNoMu120', df['HLT_PFMETNoMu120_PFMHTNoMu120_IDTight'])
@@ -75,6 +77,10 @@ class hltProcessor(processor.ProcessorABC):
 
         selection.add('HLT_PFJet500', df['HLT_PFJet500'])
         selection.add('HLT_PFHT1050', df['HLT_PFHT1050'])
+
+        # For events failing PFJet500 with a high leading jet pt
+        selection.add('leadak4_high_pt', (ak4.pt.max() > 600))
+        selection.add('fail_HLT_PFJet500', ~df['HLT_PFJet500'])
 
         # HF jet cuts
         high_pt_ak4 = ak4[ak4.pt>80]
@@ -128,25 +134,56 @@ class hltProcessor(processor.ProcessorABC):
         # Fill histograms
         output = self.accumulator.identity()
 
+        # Save kinematics for specific events
+        events_to_save = [
+            492220275, 
+            654151902, 
+            137678359,
+            613995374,
+            777157971,
+            365128690,
+            401121772,
+            768855736,
+            859279379,
+            978922929
+        ]
+        
+        for event in events_to_save:
+            event_mask = df['event'] == event
+
+            if not event_mask.any():
+                continue
+
+            output['kinematics']['event'] += [event]
+
+            output['kinematics']['ak4_pt0'] += [ak4[leadak4_index][event_mask].pt]            
+            output['kinematics']['ak4_eta0'] += [ak4[leadak4_index][event_mask].eta]            
+            output['kinematics']['ak4_phi0'] += [ak4[leadak4_index][event_mask].phi]            
+            output['kinematics']['ak4_tightId0'] += [ak4[leadak4_index][event_mask].looseId]            
+            
+            output['kinematics']['ak4_nhf0'] += [ak4[leadak4_index][event_mask].nhf]
+            output['kinematics']['ak4_nef0'] += [ak4[leadak4_index][event_mask].nef]
+            output['kinematics']['ak4_chf0'] += [ak4[leadak4_index][event_mask].chf]
+            output['kinematics']['ak4_cef0'] += [ak4[leadak4_index][event_mask].cef]
+            output['kinematics']['ak4_mufrac0'] += [ak4[leadak4_index][event_mask].mufrac]
+
         regions = hlt_regions()
 	
         for region, cuts in regions.items():
 
             mask = selection.all(*cuts)
-            #keep track of event numbers that pass this mask
-            #output['selected_events'][region] += list(df['event'][mask])
+            output['selected_runs'][region] += list(df['run'][mask])
+            output['selected_lumis'][region] += list(df['luminosityBlock'][mask])
+            output['selected_events'][region] += list(df['event'][mask])
 
             def ezfill(name, **kwargs):
                 """Helper function to make filling easier."""
+                output[name].fill(
+                    region=region, 
+                    dataset=dataset, 
+                    **kwargs
+                    )
 
-                if not ('dataset' in kwargs):
-                    kwargs['dataset'] = dataset
-
-                output[name].fill(region=region, **kwargs)
-
-            #w_leadak4 = weight_shape(ak4[leadak4_index].eta[mask], region_weights.partial_weight(exclude=exclude)[mask]
-            #if filling histogram with simulated data can weight the data in ezill with parameter [weight]
-            w_leadak4 = 1
             ezfill('ak4_eta0',   jeteta=ak4[leadak4_index].eta[mask].flatten())
             ezfill('ak4_phi0',   jetphi=ak4[leadak4_index].phi[mask].flatten())
             ezfill('ak4_pt0',    jetpt=ak4[leadak4_index].pt[mask].flatten())
@@ -156,9 +193,14 @@ class hltProcessor(processor.ProcessorABC):
 
             ezfill('ak4_abseta0_pt0',   jeteta=ak4[leadak4_index].abseta[mask].flatten(), jetpt=ak4[leadak4_index].pt[mask].flatten())
 
-            #with open('fail40.txt', 'a') as f:
-                #for event in output['selected_events'][region]:
-                    #f.write('\n' + str(event))
+            if 'fail_jet500' in region:
+                ezfill('ak4_chf0',     frac=ak4[leadak4_index].chf[mask].flatten())
+                ezfill('ak4_nhf0',     frac=ak4[leadak4_index].nhf[mask].flatten())
+                ezfill('ak4_mufrac0',  frac=ak4[leadak4_index].mufrac[mask].flatten())
+
+            # with open('eventlist.txt', 'a') as f:
+            #     for event in output['selected_events'][region]:
+            #         f.write('\n' + str(event))
 
         # Return the output accumulator once the histograms are filled
         return output
