@@ -155,6 +155,11 @@ class hltProcessor(processor.ProcessorABC):
                 output['kinematics']['ak4_cef0'] += [ak4[leadak4_index][event_mask].cef]
                 output['kinematics']['ak4_mufrac0'] += [ak4[leadak4_index][event_mask].mufrac]
 
+                output['kinematics']['mu_pt0'] += [muons[leadmuon_index][event_mask].pt]
+                output['kinematics']['mu_eta0'] += [muons[leadmuon_index][event_mask].eta]
+                output['kinematics']['mu_phi0'] += [muons[leadmuon_index][event_mask].phi]
+                output['kinematics']['mu_tightId0'] += [muons[leadmuon_index][event_mask].tightId]
+
         regions = hlt_regions()
 	
         for region, cuts in regions.items():
