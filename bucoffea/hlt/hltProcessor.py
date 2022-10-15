@@ -52,18 +52,16 @@ class hltProcessor(processor.ProcessorABC):
         json = bucoffea_path("data/json/Cert_Collisions2022_355100_357900_Golden.json") #era C+D json
         lumi_mask = LumiMask(json)(df['run'], df['luminosityBlock'])
         selection.add('lumi_mask', lumi_mask)
-        
-        #index of leading (highest energy Jet)
-        leadak4_index = ak4.pt.argmax()
 
-        #require that lead jet > 40 GeV and |eta| < 4.5
-        leadak4_pt_eta = (ak4.pt.max() > 40) & (ak4.abseta[leadak4_index] < 4.5)
+        # Requirements on the leading jet
+        leadak4_index = ak4.pt.argmax()
+        leadak4_pt_eta = (ak4.pt.max() > 30) & (ak4.abseta[leadak4_index] < 5.0)
         selection.add('leadak4_pt_eta', leadak4_pt_eta.any())
         
         ht = ak4[ak4.pt>20].pt.sum()
 
         # Tight ID on leading AK4 jet
-        selection.add('leadak4_id', (ak4.looseId[leadak4_index].any()))
+        selection.add('leadak4_id', (ak4.tightIdLepVeto[leadak4_index].any()))
         
         # Requirement on hadronic energy fractions of the jet (for jets within tracker range)
         has_track = ak4[leadak4_index].abseta <= 2.5
