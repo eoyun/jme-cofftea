@@ -32,7 +32,9 @@ def main():
         #"dimuon_mass-SingleMuon-2017C" : rootfiles0,
         #"MET-all_tightid_withtrig-2017C" : rootfiles0,
         #"trigger-turnon-SingleMuon-2017C" : rootfiles0,
-        "SingleMuon-2022D" : rootfiles0,
+        "JetMET_2022C" : [
+            "root://cmsxrootd.fnal.gov//store/data/Run2022C/JetMET/NANOAOD/PromptNanoAODv10-v1/30000/11d5498c-2a79-4848-b22e-558e2850a81c.root"
+        ]
     }
 
     years = list(set(map(extract_year, fileset.keys())))
