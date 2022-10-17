@@ -203,7 +203,7 @@ def hlt_regions():
     common_cuts = [
         'leadak4_id', 
         'lumi_mask',
-        'filt_met',
+        # 'filt_met',
         ]
 
     # W(mu nu) + jet selection for METNoMu trigger measurement
@@ -218,14 +218,14 @@ def hlt_regions():
     regions['tr_metnomu_num'] = metnomu_cuts + ['HLT_PFMETNoMu120']
     regions['tr_metnomu_den'] = metnomu_cuts
 
-    # Region for events with high pt jet, but failing HLT_PFJet500
-    # regions['tr_jet_fail_jet500_high_ak4_pt0'] = common_cuts + ['leadak4_high_pt'] + ['fail_HLT_PFJet500']
+    regions['tr_metnomu110_filterhf_num'] = metnomu_cuts + ['HLT_PFMETNoMu110_FilterHF']
+    regions['tr_metnomu110_filterhf_den'] = metnomu_cuts
 
-    regions['tr_jet_num'] = common_cuts + ['HLT_PFJet500']
-    regions['tr_jet_den'] = common_cuts
+    # regions['tr_jet_num'] = common_cuts + ['HLT_PFJet500']
+    # regions['tr_jet_den'] = common_cuts
 
     # PFJet500 trigger num and denom regions with energy fraction cuts
-    regions['tr_jet_num_energy_frac'] = common_cuts + ['leadak4_energy_frac'] + ['HLT_PFJet500']
-    regions['tr_jet_den_energy_frac'] = common_cuts + ['leadak4_energy_frac']
+    # regions['tr_jet_num_energy_frac'] = common_cuts + ['leadak4_energy_frac'] + ['HLT_PFJet500']
+    # regions['tr_jet_den_energy_frac'] = common_cuts + ['leadak4_energy_frac']
 
     return regions

@@ -49,7 +49,7 @@ class hltProcessor(processor.ProcessorABC):
         selection = processor.PackedSelection()
 
         # Create mask for events with good lumis (using the golden JSON)
-        json = bucoffea_path("data/json/Cert_Collisions2022_355100_357900_Golden.json") #era C+D json
+        json = bucoffea_path("data/json/Cert_Collisions2022_355100_359812_Golden.json")
         lumi_mask = LumiMask(json)(df['run'], df['luminosityBlock'])
         selection.add('lumi_mask', lumi_mask)
 
@@ -70,6 +70,7 @@ class hltProcessor(processor.ProcessorABC):
 
         # Trigger requirements
         selection.add('HLT_PFMETNoMu120', df['HLT_PFMETNoMu120_PFMHTNoMu120_IDTight'])
+        selection.add('HLT_PFMETNoMu110_FilterHF', df['HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_FilterHF'])
         selection.add('HLT_PFMETNoMu120_FilterHF', df['HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_FilterHF'])
         selection.add('HLT_IsoMu27', df['HLT_IsoMu27'])
 
