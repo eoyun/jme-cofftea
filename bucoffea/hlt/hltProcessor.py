@@ -70,7 +70,6 @@ class hltProcessor(processor.ProcessorABC):
 
         # Trigger requirements
         selection.add('HLT_PFMETNoMu120', df['HLT_PFMETNoMu120_PFMHTNoMu120_IDTight'])
-        selection.add('HLT_PFMETNoMu110_FilterHF', df['HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_FilterHF'])
         selection.add('HLT_PFMETNoMu120_FilterHF', df['HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_FilterHF'])
         selection.add('HLT_IsoMu27', df['HLT_IsoMu27'])
 
@@ -192,11 +191,6 @@ class hltProcessor(processor.ProcessorABC):
                 ezfill('ak4_nhf0',     frac=ak4[leadak4_index].nhf[mask].flatten())
                 ezfill('ak4_mufrac0',  frac=ak4[leadak4_index].mufrac[mask].flatten())
 
-            # with open('eventlist.txt', 'a') as f:
-            #     for event in output['selected_events'][region]:
-            #         f.write('\n' + str(event))
-
-        # Return the output accumulator once the histograms are filled
         return output
 
     def postprocess(self, accumulator):
