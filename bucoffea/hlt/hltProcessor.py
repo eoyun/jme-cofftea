@@ -52,7 +52,8 @@ class hltProcessor(processor.ProcessorABC):
         json = bucoffea_path("data/json/Cert_Collisions2022_355100_359812_Golden.json")
         lumi_mask = LumiMask(json)(df['run'], df['luminosityBlock'])
         if '2022F' in df['dataset']:
-            selection.add('lumi_mask', df['run'] == 360389)
+            pass_all = np.zeros(df.size) == 0
+            selection.add('lumi_mask', pass_all)
         else:
             selection.add('lumi_mask', lumi_mask)
 
