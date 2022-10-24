@@ -80,6 +80,13 @@ class hltProcessor(processor.ProcessorABC):
         selection.add('leadak4_high_pt', (ak4.pt.max() > 600))
         selection.add('fail_HLT_PFJet500', ~df['HLT_PFJet500'])
 
+        # Run selection for 2022F dataset
+        if '2022F' in df['dataset']:
+            selection.add('run_360389_2022F', df['run'] == 360389)
+        else:
+            pass_all = np.zeros(df.size) == 0
+            selection.add('run_360389_2022F', pass_all)
+
         # HF jet cuts
         high_pt_ak4 = ak4[ak4.pt>80]
         seta_minus_sphi = high_pt_ak4.setaeta - high_pt_ak4.sphiphi

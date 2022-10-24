@@ -207,6 +207,7 @@ def hlt_regions():
         'one_muon',
         'HLT_IsoMu27',
         'muon_pt>30',
+        'run_360389_2022F',
         # 'filt_met',
         ]
 

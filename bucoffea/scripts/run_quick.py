@@ -16,25 +16,13 @@ def parse_commandline():
     return args
 
 def main():
-
-    rootfiles0 = []
-    path = "/eos/user/c/cericeci/Run3/data/"
-    for i in range(40):
-        pass
-        #rootfiles0.append(path + "SingleMuon_C_" + str(i+1) + ".root")
-        #rootfiles0.append(path + "MET_C_" + str(i+1) + ".root")
-
-    #rootfiles0.append("root://cmsxrootd.fnal.gov//store/data/Run2022D/Muon/NANOAOD/PromptNanoAODv10-v1/40000/a19737e2-db88-499b-aec9-17ff4a5c9f77.root")
-    rootfiles0.append("root://cmsxrootd.fnal.gov//store/data/Run2022C/Muon/NANOAOD/PromptNanoAODv10-v1/40000/c1673786-edbb-4ab3-94a1-226fda6c140a.root")
-    #rootfiles0.remove(path + "SingleMuon_C_16.root")
-
     fileset = {
-        #"dimuon_mass-SingleMuon-2017C" : rootfiles0,
-        #"MET-all_tightid_withtrig-2017C" : rootfiles0,
-        #"trigger-turnon-SingleMuon-2017C" : rootfiles0,
         "JetMET_2022C" : [
             "root://cmsxrootd.fnal.gov//store/data/Run2022C/JetMET/NANOAOD/PromptNanoAODv10-v1/30000/11d5498c-2a79-4848-b22e-558e2850a81c.root"
-        ]
+        ],
+        "Muon_2022F" : [
+            "root://cmsxrootd.fnal.gov//store/data/Run2022F/Muon/NANOAOD/PromptNanoAODv10_v1-v2/2530000/36220bbd-e1a5-4f68-a606-0b1da6682e41.root"
+        ],
     }
 
     years = list(set(map(extract_year, fileset.keys())))
