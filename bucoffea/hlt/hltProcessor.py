@@ -49,13 +49,9 @@ class hltProcessor(processor.ProcessorABC):
         selection = processor.PackedSelection()
 
         # Create mask for events with good lumis (using the golden JSON)
-        json = bucoffea_path("data/json/Cert_Collisions2022_355100_359812_Golden.json")
+        json = bucoffea_path("data/json/Cert_Collisions2022_355100_360491_Golden.json")
         lumi_mask = LumiMask(json)(df['run'], df['luminosityBlock'])
-        if '2022F' in df['dataset']:
-            pass_all = np.zeros(df.size) == 0
-            selection.add('lumi_mask', pass_all)
-        else:
-            selection.add('lumi_mask', lumi_mask)
+        selection.add('lumi_mask', lumi_mask)
 
         # Requirements on the leading jet
         leadak4_index = ak4.pt.argmax()
