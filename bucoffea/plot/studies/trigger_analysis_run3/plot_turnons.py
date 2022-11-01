@@ -44,13 +44,25 @@ DISTRIBUTIONS = {
     'tr_ht' : 'ht',
 }
 
-def err_func(x, mean, width):
-    """Error function to use for fitting."""
-    return scipy.special.erf((x-mean)*width)
+def sigmoid(x,a,b):
+    return 1 / (1 + np.exp(-a * (x-b)) )
+
+def do_sigmoid_fit(h_num, h_den, fit_func, p0):
+    """
+    Given the num and denom histogram objects, do the sigmoid fit.
+    Return the array of fit parameters.
+    """
+    ratio = h_num.values()[()] / h_den.values()[()]
+    x = h_num.axes()[0].centers()
+
+    valid = ~(np.isnan(ratio) | np.isinf(ratio))
+
+    popt, pcov = scipy.optimize.curve_fit(fit_func, x[valid], ratio[valid], p0=p0)
+    return popt
 
 
-def plot_turnons_CD_vs_E(acc, outdir, region='tr_metnomu', plotF=True):
-    """Plot METNoMu trigger turn on for Runs C+D vs E."""
+def plot_turnons_for_different_runs(acc, outdir, fit_init, region='tr_metnomu'):
+    """Plot METNoMu trigger turn on for different set of runs."""
     distribution = DISTRIBUTIONS[region]
     acc.load(distribution)
     h = acc[distribution]
@@ -64,45 +76,41 @@ def plot_turnons_CD_vs_E(acc, outdir, region='tr_metnomu', plotF=True):
 
     fig, ax = plt.subplots()
 
-    hist.plotratio(
-        h_num.integrate('dataset', re.compile('Muon.*2022[CD]')),
-        h_den.integrate('dataset', re.compile('Muon.*2022[CD]')),
-        ax=ax,
-        label='2022C+D',
-        error_opts=error_opts,
-        clear=False
-    )
-    hist.plotratio(
-        h_num.integrate('dataset', re.compile('Muon.*2022E')),
-        h_den.integrate('dataset', re.compile('Muon.*2022E')),
-        ax=ax,
-        label='2022E',
-        error_opts=error_opts,
-        clear=False
-    )
-    if plotF:
+    # Dataset regex -> Legend label to plot
+    datasets_labels = {
+        'Muon.*2022[CD]' : '2022C+D',
+        'Muon.*2022E'    : '2022E',
+        'Muon.*2022F'    : '2022F',
+    }
+
+    for index, (regex, label) in enumerate(datasets_labels.items()):
+        num = h_num.integrate('dataset', re.compile(regex))
+        den = h_den.integrate('dataset', re.compile(regex))
+        error_opts['color'] = f'C{index}'
+        
+        # Do the sigmoid fit
+        popt = do_sigmoid_fit(num, den, sigmoid, p0=fit_init)
+
+        # Plot the fit result
+        centers = num.axes()[0].centers()
+        x = np.linspace(min(centers), max(centers), 200)
+        ax.plot(x,
+            sigmoid(x, *popt), 
+            color=f'C{index}',
+        )
+
+        # Plot the individual ratio of histograms
         hist.plotratio(
-            h_num.integrate('dataset', re.compile('Muon.*2022F')),
-            h_den.integrate('dataset', re.compile('Muon.*2022F')),
+            num,
+            den,
             ax=ax,
-            label='2022F',
+            label=f'{label}, $\\mu={popt[1]:.2f}$, $\\sigma={1/popt[0]:.2f}$',
             error_opts=error_opts,
             clear=False
         )
 
-    # Fit error function to individual curves
-    h_num_cd = h_num.integrate('dataset', re.compile('Muon.*2022[CD]'))
-    h_den_cd = h_den.integrate('dataset', re.compile('Muon.*2022[CD]'))
 
-    ratio_cd = h_num_cd.values()[()] / h_den_cd.values()[()]
-    centers = h_num_cd.axes()[0].centers()  
-
-    popt, pcov = scipy.curve_fit(err_func, centers, ratio_cd)
-    print(popt)
-
-    ax.plot(centers, err_func(centers, *popt), label='Fit C+D')
-
-    ax.legend(title='Run')
+    ax.legend(title='Run', prop={'size' : 8})
     ax.set_ylabel('Trigger Efficiency')
 
     ax.text(0,1,'Muon 2022',
@@ -119,11 +127,18 @@ def plot_turnons_CD_vs_E(acc, outdir, region='tr_metnomu', plotF=True):
         transform=ax.transAxes
     )
 
+    ax.text(0.98,0.3,r'$Eff(x) = \frac{1}{1 + e^{-(x - \mu) / \sigma}}$',
+        fontsize=12,
+        ha='right',
+        va='bottom',
+        transform=ax.transAxes
+    )
+
     ax.axhline(1, xmin=0, xmax=1, color='k', ls='--')
 
     ax.set_ylim(bottom=0)
 
-    outpath = pjoin(outdir, f'turnons_CD_vs_E_{region}.pdf')
+    outpath = pjoin(outdir, f'turnons_{region}.pdf')
     fig.savefig(outpath)
     plt.close(fig)
 
@@ -285,20 +300,24 @@ def main():
     if not os.path.exists(outdir):
         os.makedirs(outdir)
     
-    regions = [
-        'tr_metnomu',
-        'tr_metnomu_filterhf',
-        'tr_jet',
-        'tr_ht',
-    ]
+    regions_fit_guesses = {
+        'tr_jet' : (0.02, 500),
+        'tr_ht' : (0.04, 1050),
+        'tr_metnomu' : (0.05, 200),
+        'tr_metnomu_filterhf' : (0.05, 200),
+    }
 
-    for region in regions:
-        plot_turnons_CD_vs_E(acc, outdir, region=region)
+    for region, fit_init in tqdm(regions_fit_guesses.items(), desc='Plotting turn-ons'):
+        plot_turnons_for_different_runs(acc, 
+            outdir, 
+            fit_init=fit_init, 
+            region=region
+        )
 
     # Eta-separated plots for leading jet eta (PFJet500)
-    plot_turnons_by_eta(acc, outdir, region='tr_jet')
+    # plot_turnons_by_eta(acc, outdir, region='tr_jet')
 
-    plot_eta_efficiency(acc, outdir, region='tr_jet')
+    # plot_eta_efficiency(acc, outdir, region='tr_jet')
 
 if __name__ == '__main__':
     main()
