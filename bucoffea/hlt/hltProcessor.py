@@ -68,6 +68,13 @@ class hltProcessor(processor.ProcessorABC):
         energy_frac_good = has_track * ((ak4[leadak4_index].chf > 0.1) & (ak4[leadak4_index].nhf < 0.8)) + ~has_track
         selection.add('leadak4_energy_frac', energy_frac_good.any())
 
+        # Selection for leading jet - whether it is within the water leak region or not
+        leading_ak4_in_water_leak = ((ak4[leadak4_index].eta > 1.4) & (ak4[leadak4_index].eta < 2.2) & \
+            (ak4[leadak4_index].phi > 1.8) & (ak4[leadak4_index].phi < 2.6))
+
+        selection.add('ak4_not_in_water_leak', ~leading_ak4_in_water_leak.any())
+        selection.add('ak4_in_water_leak', leading_ak4_in_water_leak.any())
+
         # Trigger requirements
         selection.add('HLT_PFMETNoMu120', df['HLT_PFMETNoMu120_PFMHTNoMu120_IDTight'])
         selection.add('HLT_PFMETNoMu120_FilterHF', df['HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_FilterHF'])

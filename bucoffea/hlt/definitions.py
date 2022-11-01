@@ -213,6 +213,20 @@ def hlt_regions():
     regions['tr_jet_num'] = common_cuts + ['HLT_PFJet500']
     regions['tr_jet_den'] = common_cuts
 
+    # Jet500 regions where the leading jet is in water leak region
+    # vs. NOT in the water leak region
+    regions['tr_jet_water_leak_veto_num'] = copy.deepcopy(regions['tr_jet_num'])
+    regions['tr_jet_water_leak_veto_num'].append('ak4_not_in_water_leak')
+
+    regions['tr_jet_water_leak_veto_den'] = copy.deepcopy(regions['tr_jet_den'])
+    regions['tr_jet_water_leak_veto_den'].append('ak4_not_in_water_leak')
+
+    regions['tr_jet_water_leak_num'] = copy.deepcopy(regions['tr_jet_num'])
+    regions['tr_jet_water_leak_num'].append('ak4_in_water_leak')
+
+    regions['tr_jet_water_leak_den'] = copy.deepcopy(regions['tr_jet_den'])
+    regions['tr_jet_water_leak_den'].append('ak4_in_water_leak')
+
     # Additional jet requirement for the HT and MET triggers
     cuts_for_ht_met = common_cuts + ['leadak4_pt_eta']
 
