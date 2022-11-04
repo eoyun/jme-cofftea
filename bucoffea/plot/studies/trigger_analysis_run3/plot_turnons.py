@@ -290,6 +290,68 @@ def plot_eta_efficiency(acc, outdir, region, plotF=True):
     fig.savefig(outpath)
     plt.close(fig)
 
+def plot_turnons_with_without_water_leak(acc, outdir, dataset='Muon.*2022E'):
+    """
+    Plot Jet500 trigger turn-on for two cases:
+    1. Leading jet is NOT in the water leak region
+    2. Leading jet is in the water leak region
+    """
+    distribution = 'ak4_pt0'
+    acc.load(distribution)
+    h = acc[distribution]
+
+    if distribution in NEW_BINS:
+        new_ax = NEW_BINS[distribution]
+        h = h.rebin(new_ax.name, new_ax)
+
+    h = h.integrate('dataset', re.compile(dataset))
+
+    histos = {}
+    histos['water_leak'] = {
+        'num' : h.integrate('region', 'tr_jet_water_leak_num'),
+        'den' : h.integrate('region', 'tr_jet_water_leak_den'),
+    }
+    histos['no_water_leak'] = {
+        'num' : h.integrate('region', 'tr_jet_water_leak_veto_num'),
+        'den' : h.integrate('region', 'tr_jet_water_leak_veto_den'),
+    }
+
+    # Plot the two turn-ons side by side
+    fig, ax = plt.subplots()
+    for label, histograms in histos.items():
+        hist.plotratio(
+            histograms['num'],
+            histograms['den'],
+            ax=ax,
+            error_opts=error_opts,
+            label=label,
+            clear=False
+        )
+
+    ax.legend()
+    ax.set_ylabel('Trigger Efficiency')
+
+    ax.text(0,1,'Muon 2022E',
+        fontsize=14,
+        ha='left',
+        va='bottom',
+        transform=ax.transAxes
+    )
+    
+    ax.text(1,1,'HLT_PFJet500',
+        fontsize=10,
+        ha='right',
+        va='bottom',
+        transform=ax.transAxes
+    )
+
+    ax.axhline(1, xmin=0, xmax=1, color='k', ls='--')
+    ax.set_ylim(bottom=0)
+
+    outpath = pjoin(outdir, 'turnons_water_leak_Muon2022E.pdf')
+    fig.savefig(outpath)
+    plt.close(fig)
+
 
 def main():
     inpath = sys.argv[1]
@@ -315,9 +377,11 @@ def main():
         )
 
     # Eta-separated plots for leading jet eta (PFJet500)
-    # plot_turnons_by_eta(acc, outdir, region='tr_jet')
+    plot_turnons_by_eta(acc, outdir, region='tr_jet')
 
-    # plot_eta_efficiency(acc, outdir, region='tr_jet')
+    plot_eta_efficiency(acc, outdir, region='tr_jet')
+
+    plot_turnons_with_without_water_leak(acc, outdir, dataset='Muon.*2022E')
 
 if __name__ == '__main__':
     main()
