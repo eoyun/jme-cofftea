@@ -44,10 +44,15 @@ DISTRIBUTIONS = {
     'tr_ht' : 'ht',
 }
 
-def sigmoid(x,a,b):
+def sigmoid(x, a, b):
     return 1 / (1 + np.exp(-a * (x-b)) )
 
-def do_sigmoid_fit(h_num, h_den, fit_func, p0):
+def error_func(x, a, b):
+    """Returns an error function where the range is adjusted to [0,1]."""
+    return 0.5 * (1 + scipy.special.erf(a * (x - b)))
+
+
+def fit_turnon(h_num, h_den, fit_func, p0):
     """
     Given the num and denom histogram objects, do the sigmoid fit.
     Return the array of fit parameters.
@@ -61,7 +66,7 @@ def do_sigmoid_fit(h_num, h_den, fit_func, p0):
     return popt
 
 
-def plot_turnons_for_different_runs(acc, outdir, fit_init, region='tr_metnomu'):
+def plot_turnons_for_different_runs(acc, outdir, fit_init, fit_func, region='tr_metnomu'):
     """Plot METNoMu trigger turn on for different set of runs."""
     distribution = DISTRIBUTIONS[region]
     acc.load(distribution)
@@ -88,8 +93,8 @@ def plot_turnons_for_different_runs(acc, outdir, fit_init, region='tr_metnomu'):
         den = h_den.integrate('dataset', re.compile(regex))
         error_opts['color'] = f'C{index}'
         
-        # Do the sigmoid fit
-        popt = do_sigmoid_fit(num, den, sigmoid, p0=fit_init)
+        # Fit the turn-on curve with the given fit function
+        popt = fit_turnon(num, den, fit_func, p0=fit_init)
 
         # Plot the fit result
         centers = num.axes()[0].centers()
@@ -127,8 +132,18 @@ def plot_turnons_for_different_runs(acc, outdir, fit_init, region='tr_metnomu'):
         transform=ax.transAxes
     )
 
-    ax.text(0.98,0.3,r'$Eff(x) = \frac{1}{1 + e^{-(x - \mu) / \sigma}}$',
-        fontsize=12,
+    # Setup the equation label
+    if fit_func == sigmoid:
+        eqlabel = r'$Eff(x) = \frac{1}{1 + e^{-(x - \mu) / \sigma}}$' 
+        fontsize = 12
+    elif fit_func == error_func:
+        eqlabel = r'$Eff(x) = 0.5 * (1 + erf(x - \mu) / \sigma)$'
+        fontsize = 10
+    else:
+        raise RuntimeError('An unknown fit function is specified.')
+
+    ax.text(0.98,0.3,eqlabel,
+        fontsize=fontsize,
         ha='right',
         va='bottom',
         transform=ax.transAxes
@@ -372,7 +387,8 @@ def main():
     for region, fit_init in tqdm(regions_fit_guesses.items(), desc='Plotting turn-ons'):
         plot_turnons_for_different_runs(acc, 
             outdir, 
-            fit_init=fit_init, 
+            fit_init=fit_init,
+            fit_func=error_func,
             region=region
         )
 
