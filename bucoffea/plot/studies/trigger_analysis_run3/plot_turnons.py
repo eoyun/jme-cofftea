@@ -368,6 +368,60 @@ def plot_turnons_with_without_water_leak(acc, outdir, dataset='Muon.*2022E'):
     plt.close(fig)
 
 
+def plot_l1_vs_hlt_HT1050(acc, outdir, dataset='Muon.*2022E.*'):
+    """Plot the L1 vs HLT turn-ons for HT1050 trigger."""
+    distribution = 'ht'
+    acc.load(distribution)
+    h = acc[distribution]
+
+    if distribution in NEW_BINS:
+        new_ax = NEW_BINS[distribution]
+        h = h.rebin(new_ax.name, new_ax)
+
+    h = h.integrate('dataset', re.compile(dataset))
+
+    # Get the histograms for L1 and HLT turn-ons
+    histos = {}
+    histos['hlt_ht1050'] = {
+        'num' : h.integrate('region', 'tr_ht_num'),
+        'den' : h.integrate('region', 'tr_ht_den'),
+    }
+
+    histos['l1_ht1050'] = {
+        'num' : h.integrate('region', 'tr_l1_ht_num'),
+        'den' : h.integrate('region', 'tr_l1_ht_den'),
+    }
+
+    fig, ax = plt.subplots()
+
+    for triglabel, histograms in histos.items():
+        hist.plotratio(
+            histograms['num'],
+            histograms['den'],
+            ax=ax,
+            label=triglabel.upper(),
+            error_opts=error_opts,
+            clear=False,
+        )
+
+    ax.legend()
+    ax.set_ylabel('Trigger Efficiency')
+    ax.set_ylim(bottom=0)
+
+    ax.axhline(1, xmin=0, xmax=1, color='k', ls='--')
+
+    ax.text(0,1,'Muon 2022E',
+        fontsize=14,
+        ha='left',
+        va='bottom',
+        transform=ax.transAxes
+    )
+
+    outpath = pjoin(outdir, 'l1_vs_hlt_HT1050.pdf')
+    fig.savefig(outpath)
+    plt.close(fig)
+
+
 def main():
     inpath = sys.argv[1]
     acc = dir_archive(inpath)
@@ -392,12 +446,15 @@ def main():
             region=region
         )
 
-    # Eta-separated plots for leading jet eta (PFJet500)
+    Eta-separated plots for leading jet eta (PFJet500)
     plot_turnons_by_eta(acc, outdir, region='tr_jet')
 
     plot_eta_efficiency(acc, outdir, region='tr_jet')
 
     plot_turnons_with_without_water_leak(acc, outdir, dataset='Muon.*2022E')
+
+    # L1 vs HLT turn-on plotting
+    plot_l1_vs_hlt_HT1050(acc, outdir, dataset='Muon.*2022E.*')
 
 if __name__ == '__main__':
     main()

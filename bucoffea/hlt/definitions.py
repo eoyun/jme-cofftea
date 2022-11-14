@@ -233,6 +233,9 @@ def hlt_regions():
     regions['tr_ht_num'] = cuts_for_ht_met + ['HLT_PFHT1050']
     regions['tr_ht_den'] = cuts_for_ht_met
 
+    regions['tr_l1_ht_num'] = cuts_for_ht_met + ['L1_pass_HT1050']
+    regions['tr_l1_ht_den'] = cuts_for_ht_met
+
     regions['tr_metnomu_num'] = cuts_for_ht_met + ['HLT_PFMETNoMu120']
     regions['tr_metnomu_den'] = cuts_for_ht_met
 

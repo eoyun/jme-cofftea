@@ -83,6 +83,31 @@ class hltProcessor(processor.ProcessorABC):
         selection.add('HLT_PFJet500', df['HLT_PFJet500'])
         selection.add('HLT_PFHT1050', df['HLT_PFHT1050'])
 
+        # L1 requirement for HT1050
+        l1_seeds = [
+            'L1_HTT120er',
+            'L1_HTT160er',
+            'L1_HTT200er',
+            'L1_HTT255er',
+            'L1_HTT280er',
+            'L1_HTT280er_QuadJet_70_55_40_35_er2p5',
+            'L1_HTT320er_QuadJet_80_60_er2p1_45_40_er2p3',
+            'L1_HTT320er_QuadJet_80_60_er2p1_50_45_er2p3',
+            'L1_HTT320er',
+            'L1_HTT360er',
+            'L1_ETT2000',
+            'L1_HTT400er',
+            'L1_HTT450er',
+        ]
+
+        pass_all = np.ones(df.size)==1
+        l1_pass_ht1050 = ~pass_all
+
+        for seed in l1_seeds:
+            l1_pass_ht1050 |= df[seed]
+        
+        selection.add('L1_pass_HT1050', l1_pass_ht1050)
+
         # For events failing PFJet500 with a high leading jet pt
         selection.add('leadak4_high_pt', (ak4.pt.max() > 600))
         selection.add('fail_HLT_PFJet500', ~df['HLT_PFJet500'])
