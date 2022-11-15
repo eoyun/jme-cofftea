@@ -45,11 +45,11 @@ DISTRIBUTIONS = {
 }
 
 def sigmoid(x, a, b):
-    return 1 / (1 + np.exp(-a * (x-b)) )
+    return 1 / (1 + np.exp((x - a) / b) )
 
 def error_func(x, a, b):
     """Returns an error function where the range is adjusted to [0,1]."""
-    return 0.5 * (1 + scipy.special.erf(a * (x - b)))
+    return 0.5 * (1 + scipy.special.erf((x - a) / b))
 
 
 def fit_turnon(h_num, h_den, fit_func, p0):
@@ -100,7 +100,7 @@ def plot_turnons_for_different_runs(acc, outdir, fit_init, fit_func, region='tr_
         centers = num.axes()[0].centers()
         x = np.linspace(min(centers), max(centers), 200)
         ax.plot(x,
-            sigmoid(x, *popt), 
+            fit_func(x, *popt), 
             color=f'C{index}',
         )
 
@@ -109,7 +109,7 @@ def plot_turnons_for_different_runs(acc, outdir, fit_init, fit_func, region='tr_
             num,
             den,
             ax=ax,
-            label=f'{label}, $\\mu={popt[1]:.2f}$, $\\sigma={1/popt[0]:.2f}$',
+            label=f'{label}, $\\mu={popt[0]:.2f}$, $\\sigma={popt[1]:.2f}$',
             error_opts=error_opts,
             clear=False
         )
@@ -432,10 +432,10 @@ def main():
         os.makedirs(outdir)
     
     regions_fit_guesses = {
-        'tr_jet' : (0.02, 500),
-        'tr_ht' : (0.04, 1050),
-        'tr_metnomu' : (0.05, 200),
-        'tr_metnomu_filterhf' : (0.05, 200),
+        'tr_jet' : (500, 50),
+        'tr_ht' : (1050, 25),
+        'tr_metnomu' : (200, 20),
+        'tr_metnomu_filterhf' : (200, 20),
     }
 
     for region, fit_init in tqdm(regions_fit_guesses.items(), desc='Plotting turn-ons'):
@@ -446,7 +446,7 @@ def main():
             region=region
         )
 
-    Eta-separated plots for leading jet eta (PFJet500)
+    # Eta-separated plots for leading jet eta (PFJet500)
     plot_turnons_by_eta(acc, outdir, region='tr_jet')
 
     plot_eta_efficiency(acc, outdir, region='tr_jet')
