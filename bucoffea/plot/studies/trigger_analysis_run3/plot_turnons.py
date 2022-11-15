@@ -4,12 +4,18 @@ import os
 import sys
 import re
 import scipy
+import argparse
+import warnings
 import numpy as np
 
 from matplotlib import pyplot as plt
 from coffea import hist
 from klepto.archives import dir_archive
 from tqdm import tqdm
+from tabulate import tabulate
+
+# Ignore division warnings from Coffea + Numpy
+warnings.filterwarnings('ignore', category=RuntimeWarning)
 
 pjoin = os.path.join
 
@@ -44,12 +50,50 @@ DISTRIBUTIONS = {
     'tr_ht' : 'ht',
 }
 
+
+def parse_cli():
+    """Command line parser."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument('inpath', help='Path to input merged coffea accumulator.')
+    parser.add_argument('-f', '--fit-func', help='Fit function to use.', default='erf', choices=['sigmoid', 'erf'])
+    args = parser.parse_args()
+    return args
+
+
 def sigmoid(x, a, b):
-    return 1 / (1 + np.exp((x - a) / b) )
+    return 1 / (1 + np.exp( - (x - a) / b) )
+
 
 def error_func(x, a, b):
     """Returns an error function where the range is adjusted to [0,1]."""
     return 0.5 * (1 + scipy.special.erf((x - a) / b))
+
+
+def compute_chi2(h_num, h_den, fit_func, *popt):
+    """
+    Given a fit to the ratio of h_num / h_den using fit_func,
+    this function computes the chi2 of the fit and returns it.
+    """
+    xdata = h_num.axes()[0].centers()
+    
+    # Compute the ratio and the error on ratio
+    sumw_num = h_num.values()[()]
+    sumw_den = h_den.values()[()]
+    ydata = sumw_num / sumw_den
+
+    yerr = np.abs(
+        hist.clopper_pearson_interval(sumw_num, sumw_den) - ydata
+    )
+    
+    # Symmetrize
+    yerr = (yerr[0] + yerr[1]) / 2
+
+    # Compute the absolute difference
+    r = ydata - fit_func(xdata, *popt)
+    r /= yerr
+    r[np.isinf(r) | np.isnan(r)] = 0.
+
+    return np.sum(r**2) / (len(r)-1)
 
 
 def fit_turnon(h_num, h_den, fit_func, p0):
@@ -63,7 +107,7 @@ def fit_turnon(h_num, h_den, fit_func, p0):
     valid = ~(np.isnan(ratio) | np.isinf(ratio))
 
     popt, pcov = scipy.optimize.curve_fit(fit_func, x[valid], ratio[valid], p0=p0)
-    return popt
+    return popt, pcov
 
 
 def plot_turnons_for_different_runs(acc, outdir, fit_init, fit_func, region='tr_metnomu'):
@@ -88,16 +132,28 @@ def plot_turnons_for_different_runs(acc, outdir, fit_init, fit_func, region='tr_
         'Muon.*2022F'    : '2022F',
     }
 
+    chi2_vals = {
+        "Dataset"     : [],
+        "Chi2 / dof"  : [],
+    }
+
     for index, (regex, label) in enumerate(datasets_labels.items()):
         num = h_num.integrate('dataset', re.compile(regex))
         den = h_den.integrate('dataset', re.compile(regex))
         error_opts['color'] = f'C{index}'
         
         # Fit the turn-on curve with the given fit function
-        popt = fit_turnon(num, den, fit_func, p0=fit_init)
+        popt, pcov = fit_turnon(num, den, fit_func, p0=fit_init)
 
         # Plot the fit result
         centers = num.axes()[0].centers()
+
+        # Compute the chi2 for this fit
+        chi2 = compute_chi2(num, den, fit_func, *popt)
+
+        chi2_vals["Dataset"].append(label)
+        chi2_vals["Chi2 / dof"].append(chi2)
+
         x = np.linspace(min(centers), max(centers), 200)
         ax.plot(x,
             fit_func(x, *popt), 
@@ -132,22 +188,31 @@ def plot_turnons_for_different_runs(acc, outdir, fit_init, fit_func, region='tr_
         transform=ax.transAxes
     )
 
-    # Setup the equation label
+    # Setup the equation label and the output directory to save
     if fit_func == sigmoid:
         eqlabel = r'$Eff(x) = \frac{1}{1 + e^{-(x - \mu) / \sigma}}$' 
         fontsize = 12
+        outdir = pjoin(outdir, 'sigmoid_fit')
     elif fit_func == error_func:
         eqlabel = r'$Eff(x) = 0.5 * (1 + erf(x - \mu) / \sigma)$'
         fontsize = 10
+        outdir = pjoin(outdir, 'erf_fit')
     else:
         raise RuntimeError('An unknown fit function is specified.')
 
+    if not os.path.exists(outdir):
+        os.makedirs(outdir)
+
+    # Equation label
     ax.text(0.98,0.3,eqlabel,
         fontsize=fontsize,
         ha='right',
         va='bottom',
         transform=ax.transAxes
     )
+
+    # Print out chi2 information for the fits
+    print(tabulate(chi2_vals, headers='keys', floatfmt=".2f"))
 
     ax.axhline(1, xmin=0, xmax=1, color='k', ls='--')
 
@@ -423,9 +488,11 @@ def plot_l1_vs_hlt_HT1050(acc, outdir, dataset='Muon.*2022E.*'):
 
 
 def main():
-    inpath = sys.argv[1]
+    args = parse_cli()
+    inpath = args.inpath
     acc = dir_archive(inpath)
 
+    # Output directory to save plots
     outtag = os.path.basename(inpath.rstrip('/'))
     outdir = f'./output/{outtag}'
     if not os.path.exists(outdir):
@@ -438,23 +505,41 @@ def main():
         'tr_metnomu_filterhf' : (200, 20),
     }
 
+    # Determine the fit function based on CLI argument
+    if args.fit_func == 'sigmoid':
+        fit_func = sigmoid
+    else:
+        fit_func = error_func
+
     for region, fit_init in tqdm(regions_fit_guesses.items(), desc='Plotting turn-ons'):
         plot_turnons_for_different_runs(acc, 
             outdir, 
             fit_init=fit_init,
-            fit_func=error_func,
+            fit_func=fit_func,
             region=region
         )
 
     # Eta-separated plots for leading jet eta (PFJet500)
-    plot_turnons_by_eta(acc, outdir, region='tr_jet')
+    try:
+        plot_turnons_by_eta(acc, outdir, region='tr_jet')
+    except KeyError:
+        print('Skipping eta-split turn-on plots.')
 
-    plot_eta_efficiency(acc, outdir, region='tr_jet')
+    try:
+        plot_eta_efficiency(acc, outdir, region='tr_jet')
+    except KeyError:
+        print('Skipping eta-based efficiency plots.')
 
-    plot_turnons_with_without_water_leak(acc, outdir, dataset='Muon.*2022E')
+    try:
+        plot_turnons_with_without_water_leak(acc, outdir, dataset='Muon.*2022E')
+    except KeyError:
+        print('Skipping water-leak plots.')
 
     # L1 vs HLT turn-on plotting
-    plot_l1_vs_hlt_HT1050(acc, outdir, dataset='Muon.*2022E.*')
+    try:
+        plot_l1_vs_hlt_HT1050(acc, outdir, dataset='Muon.*2022E.*')
+    except KeyError:
+        print('Skipping L1 vs HLT turn-on plots.')
 
 if __name__ == '__main__':
     main()
