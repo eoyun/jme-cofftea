@@ -53,6 +53,7 @@ def load_lists():
         bucoffea_path(f"data/datasets/datasets_nanoaod_v7_2016.txt"),
         bucoffea_path(f"data/datasets/datasets_nanoaod_v7_2017.txt"),
         bucoffea_path(f"data/datasets/datasets_nanoaod_v7_2018.txt"),
+        bucoffea_path(f"data/datasets/datasets_nanoaod_v9_2018.txt"),
         bucoffea_path(f"data/datasets/datasets_nanoaod_v10_2022.txt")
     ]
     lines = []
