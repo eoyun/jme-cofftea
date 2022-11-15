@@ -1,0 +1,84 @@
+default:
+  ak4:
+    pt: 30        # Min pt
+    abseta: 5.0   # Max |eta|
+    chf: 0.1      # Min chf     
+    nhf: 0.8      # Max nhf     
+  ht:
+    jetpt: 20     # Pt threshold on jets for HT computation
+  muon:
+    cuts:
+      tight:
+        pt : 20
+        eta : 2.4
+        iso : 0.15
+      loose:
+        pt : 10
+        eta : 2.4
+        iso : 0.25
+  electron:
+    cuts:
+      tight:
+        pt : 40
+        eta : 2.5
+      loose:
+        pt : 10
+        eta : 2.5
+        dxy: # https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
+          barrel: 0.05
+          endcap: 0.10
+        dz: # https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
+          barrel: 0.10
+          endcap: 0.20
+    branch:
+      id: Electron_cutBased
+  photon:
+    cuts:
+      loose:
+        pt: 15
+        eta: 2.5
+      tight:
+        pt: 230
+        pttrig: 230
+    branch: # No eta cut here bc we use "isScEtaEB"
+      id: Photon_cutBasedBitmap
+      idv7: Photon_cutBased
+  tau:
+    cuts:
+      pt: 20
+      eta: 2.3
+    branch:
+      id: Tau_idDecayModeNewDMs
+      iso: Tau_idDeepTau2017v2p1VSjet
+  recoil:
+    pt: 250       # Min recoil pt
+  dpfcalo: 0.5    # Minimum Delta(PFMET,CaloMET)  
+  studies:
+    water_leak: False
+    l1_turnon: False
+  run:
+    kinematics:
+      save: False
+    events:
+      - 492220275
+    save:
+      passing: False    # Save (run,lumi,event) info for passing events
+  
+  filters: # MET filters on data and MC
+    data:
+      - Flag_goodVertices
+      - Flag_globalSuperTightHalo2016Filter
+      - Flag_HBHENoiseFilter
+      - Flag_HBHENoiseIsoFilter
+      - Flag_EcalDeadCellTriggerPrimitiveFilter
+      - Flag_BadPFMuonFilter
+      - Flag_eeBadScFilter
+      - Flag_ecalBadCalibFilterV2
+    mc:
+      - Flag_goodVertices
+      - Flag_globalSuperTightHalo2016Filter
+      - Flag_HBHENoiseFilter
+      - Flag_HBHENoiseIsoFilter
+      - Flag_EcalDeadCellTriggerPrimitiveFilter
+      - Flag_BadPFMuonFilter
+      - Flag_ecalBadCalibFilterV2

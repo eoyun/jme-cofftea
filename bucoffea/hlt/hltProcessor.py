@@ -23,17 +23,16 @@ class hltProcessor(processor.ProcessorABC):
     def _configure(self, df=None):
         cfg.DYNACONF_WORKS="merge_configs"
         cfg.MERGE_ENABLED_FOR_DYNACONF = True
-        cfg.SETTINGS_FILE_FOR_DYNACONF = bucoffea_path("config/vbfhinv.yaml")
+        cfg.SETTINGS_FILE_FOR_DYNACONF = bucoffea_path("config/hlt.yaml")
 
         # Reload config based on year
         if df:
             dataset = df['dataset']
             self._year = extract_year(dataset)
             df["year"] = self._year
-            #cfg.ENV_FOR_DYNACONF = f"era{self._year}"
-            cfg.ENV_FOR_DYNACONF = "era2017"
+            cfg.ENV_FOR_DYNACONF = "default"
         else:
-            cfg.ENV_FOR_DYNACONF = f"default"
+            cfg.ENV_FOR_DYNACONF = "default"
         cfg.reload()
 
     def process(self, df):
@@ -48,6 +47,8 @@ class hltProcessor(processor.ProcessorABC):
         # Implement selections
         selection = processor.PackedSelection()
 
+        pass_all = np.ones(df.size)==1
+
         # Create mask for events with good lumis (using the golden JSON)
         json = bucoffea_path("data/json/Cert_Collisions2022_355100_360491_Golden.json")
         lumi_mask = LumiMask(json)(df['run'], df['luminosityBlock'])
@@ -55,17 +56,17 @@ class hltProcessor(processor.ProcessorABC):
 
         # Requirements on the leading jet
         leadak4_index = ak4.pt.argmax()
-        leadak4_pt_eta = (ak4.pt.max() > 30) & (ak4.abseta[leadak4_index] < 5.0)
+        leadak4_pt_eta = (ak4.pt.max() > cfg.AK4.PT) & (ak4.abseta[leadak4_index] < cfg.AK4.ABSETA)
         selection.add('leadak4_pt_eta', leadak4_pt_eta.any())
         
-        ht = ak4[ak4.pt>20].pt.sum()
+        ht = ak4[ak4.pt>cfg.HT.JETPT].pt.sum()
 
         # Tight ID on leading AK4 jet
         selection.add('leadak4_id', (ak4.tightIdLepVeto[leadak4_index].any()))
         
         # Requirement on hadronic energy fractions of the jet (for jets within tracker range)
         has_track = ak4[leadak4_index].abseta <= 2.5
-        energy_frac_good = has_track * ((ak4[leadak4_index].chf > 0.1) & (ak4[leadak4_index].nhf < 0.8)) + ~has_track
+        energy_frac_good = has_track * ((ak4[leadak4_index].chf > cfg.AK4.CHF) & (ak4[leadak4_index].nhf < cfg.AK4.NHF)) + ~has_track
         selection.add('leadak4_energy_frac', energy_frac_good.any())
 
         # Selection for leading jet - whether it is within the water leak region or not
@@ -77,36 +78,45 @@ class hltProcessor(processor.ProcessorABC):
 
         # Trigger requirements
         selection.add('HLT_PFMETNoMu120', df['HLT_PFMETNoMu120_PFMHTNoMu120_IDTight'])
-        selection.add('HLT_PFMETNoMu120_FilterHF', df['HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_FilterHF'])
         selection.add('HLT_IsoMu27', df['HLT_IsoMu27'])
+        
+        # HF-filtered METNoMu120 trigger - only available for 2022 data taking!
+        if df['year'] == 2022:        
+            selection.add('HLT_PFMETNoMu120_FilterHF', df['HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_FilterHF'])
+        else:
+            selection.add('HLT_PFMETNoMu120_FilterHF', ~pass_all)
 
+        # Jet+HT triggers
         selection.add('HLT_PFJet500', df['HLT_PFJet500'])
         selection.add('HLT_PFHT1050', df['HLT_PFHT1050'])
 
-        # L1 requirement for HT1050
-        l1_seeds = [
-            'L1_HTT120er',
-            'L1_HTT160er',
-            'L1_HTT200er',
-            'L1_HTT255er',
-            'L1_HTT280er',
-            'L1_HTT280er_QuadJet_70_55_40_35_er2p5',
-            'L1_HTT320er_QuadJet_80_60_er2p1_45_40_er2p3',
-            'L1_HTT320er_QuadJet_80_60_er2p1_50_45_er2p3',
-            'L1_HTT320er',
-            'L1_HTT360er',
-            'L1_ETT2000',
-            'L1_HTT400er',
-            'L1_HTT450er',
-        ]
+        # L1 requirement for HT1050 (only for 2022 era datasets)
+        if df['year'] == 2022:
+            l1_seeds = [
+                'L1_HTT120er',
+                'L1_HTT160er',
+                'L1_HTT200er',
+                'L1_HTT255er',
+                'L1_HTT280er',
+                'L1_HTT280er_QuadJet_70_55_40_35_er2p5',
+                'L1_HTT320er_QuadJet_80_60_er2p1_45_40_er2p3',
+                'L1_HTT320er_QuadJet_80_60_er2p1_50_45_er2p3',
+                'L1_HTT320er',
+                'L1_HTT360er',
+                'L1_ETT2000',
+                'L1_HTT400er',
+                'L1_HTT450er',
+            ]
+            
+            l1_pass_ht1050 = ~pass_all
 
-        pass_all = np.ones(df.size)==1
-        l1_pass_ht1050 = ~pass_all
-
-        for seed in l1_seeds:
-            l1_pass_ht1050 |= df[seed]
+            for seed in l1_seeds:
+                l1_pass_ht1050 |= df[seed]
         
-        selection.add('L1_pass_HT1050', l1_pass_ht1050)
+            selection.add('L1_pass_HT1050', l1_pass_ht1050)
+        
+        else:
+            selection.add('L1_pass_HT1050', ~pass_all)
 
         # For events failing PFJet500 with a high leading jet pt
         selection.add('leadak4_high_pt', (ak4.pt.max() > 600))
@@ -127,21 +137,15 @@ class hltProcessor(processor.ProcessorABC):
         dimuons = muons.distincts()
         dimuon_charge = dimuons.i0['charge'] + dimuons.i1['charge']
 
-        # Dimuon CR
+        # Single Muon CR
         leadmuon_index=muons.pt.argmax()
-        selection.add('at_least_one_tight_mu', df['is_tight_muon'].any())
-        selection.add('dimuon_mass', ((dimuons.mass > cfg.SELECTION.CONTROL.DOUBLEMU.MASS.MIN) \
-                                    & (dimuons.mass < cfg.SELECTION.CONTROL.DOUBLEMU.MASS.MAX)).any())
-        selection.add('dimuon_charge', (dimuon_charge==0).any())
-        selection.add('two_muons', muons.counts==2)
-        
-        #Single Muon CR
         selection.add('one_muon', muons.counts==1)
-        selection.add('muon_pt>30', muons.pt.max() > 30)
+        selection.add('muon_pt>30', muons.pt.max() > cfg.MUON.CUTS.TIGHT.PT)
+        selection.add('at_least_one_tight_mu', df['is_tight_muon'].any())
 
-        #Recoil
+        # Recoil
         df['recoil_pt'], df['recoil_phi'] = metnomu(met_pt, met_phi, muons)
-        selection.add('recoil>250', df['recoil_pt'] > 250)
+        selection.add('recoil>250', df['recoil_pt'] > cfg.RECOIL.PT)
 
         run_mask = df['run'] < 356800
         selection.add('run_bf_356800', run_mask)
@@ -156,10 +160,12 @@ class hltProcessor(processor.ProcessorABC):
         #Photon Veto
         selection.add('veto_pho', photons.counts==0)
 
-        #MET filters
+        # MET filters
         selection.add('filt_met', mask_and(df, cfg.FILTERS.DATA)) 
+        
+        # Delta(PFMET, CaloMET)
         df["dPFCaloCR"] = (met_pt - df["CaloMET_pt"]) / df['recoil_pt']
-        selection.add('calo_diff', np.abs(df["dPFCaloCR"]) < 0.5)
+        selection.add('calo_diff', np.abs(df["dPFCaloCR"]) < cfg.DPFCALO)
 
         # Fill histograms
         output = self.accumulator.identity()
@@ -190,7 +196,7 @@ class hltProcessor(processor.ProcessorABC):
                 output['kinematics']['mu_phi0'] += [muons[leadmuon_index][event_mask].phi]
                 output['kinematics']['mu_tightId0'] += [muons[leadmuon_index][event_mask].tightId]
 
-        regions = hlt_regions()
+        regions = hlt_regions(cfg)
 	
         for region, cuts in regions.items():
 

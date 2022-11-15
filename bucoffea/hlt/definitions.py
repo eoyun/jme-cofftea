@@ -100,26 +100,12 @@ def setup_candidates(df, cfg):
         pfcand = df['Muon_isPFcand']
     ) 
 
-    #HLT muons
-    hltMuons = JaggedCandidateArray.candidatesfromcounts(
-        df['nTrigObj'],
-        pt=df['TrigObj_pt'],
-        eta=df['TrigObj_eta'],
-        abseta=np.abs(df['TrigObj_eta']),
-        phi=df['TrigObj_phi'],
-        mass=0
-    )
-
     # Pre-filter: All muons must be at least loose
     muons = muons[muons.looseId \
                     & (muons.iso < cfg.MUON.CUTS.LOOSE.ISO) \
                     & (muons.pt > cfg.MUON.CUTS.LOOSE.PT) \
                     & (muons.abseta < cfg.MUON.CUTS.LOOSE.ETA)
                     ]
-
-    #HLT Muon matching
-    #hltMuons = hltMuons[hltMuons.id == 13]
-    #muons = muons[muons.match(hltMuons, deltaRCut = 0.4)]
 
     #electrons
     electrons = JaggedCandidateArray.candidatesfromcounts(
@@ -193,7 +179,7 @@ def setup_candidates(df, cfg):
 
     return met_pt, met_phi, ak4, muons, electrons, taus, photons
 
-def hlt_regions():
+def hlt_regions(cfg):
     """
     Returns the following mapping:
     Region name -> List of cuts for the region
@@ -215,17 +201,18 @@ def hlt_regions():
 
     # Jet500 regions where the leading jet is in water leak region
     # vs. NOT in the water leak region
-    regions['tr_jet_water_leak_veto_num'] = copy.deepcopy(regions['tr_jet_num'])
-    regions['tr_jet_water_leak_veto_num'].append('ak4_not_in_water_leak')
+    if cfg.STUDIES.WATER_LEAK:
+        regions['tr_jet_water_leak_veto_num'] = copy.deepcopy(regions['tr_jet_num'])
+        regions['tr_jet_water_leak_veto_num'].append('ak4_not_in_water_leak')
 
-    regions['tr_jet_water_leak_veto_den'] = copy.deepcopy(regions['tr_jet_den'])
-    regions['tr_jet_water_leak_veto_den'].append('ak4_not_in_water_leak')
+        regions['tr_jet_water_leak_veto_den'] = copy.deepcopy(regions['tr_jet_den'])
+        regions['tr_jet_water_leak_veto_den'].append('ak4_not_in_water_leak')
 
-    regions['tr_jet_water_leak_num'] = copy.deepcopy(regions['tr_jet_num'])
-    regions['tr_jet_water_leak_num'].append('ak4_in_water_leak')
+        regions['tr_jet_water_leak_num'] = copy.deepcopy(regions['tr_jet_num'])
+        regions['tr_jet_water_leak_num'].append('ak4_in_water_leak')
 
-    regions['tr_jet_water_leak_den'] = copy.deepcopy(regions['tr_jet_den'])
-    regions['tr_jet_water_leak_den'].append('ak4_in_water_leak')
+        regions['tr_jet_water_leak_den'] = copy.deepcopy(regions['tr_jet_den'])
+        regions['tr_jet_water_leak_den'].append('ak4_in_water_leak')
 
     # Additional jet requirement for the HT and MET triggers
     cuts_for_ht_met = common_cuts + ['leadak4_pt_eta']
@@ -233,13 +220,15 @@ def hlt_regions():
     regions['tr_ht_num'] = cuts_for_ht_met + ['HLT_PFHT1050']
     regions['tr_ht_den'] = cuts_for_ht_met
 
-    regions['tr_l1_ht_num'] = cuts_for_ht_met + ['L1_pass_HT1050']
-    regions['tr_l1_ht_den'] = cuts_for_ht_met
-
     regions['tr_metnomu_num'] = cuts_for_ht_met + ['HLT_PFMETNoMu120']
     regions['tr_metnomu_den'] = cuts_for_ht_met
 
     regions['tr_metnomu_filterhf_num'] = cuts_for_ht_met + ['HLT_PFMETNoMu120_FilterHF']
     regions['tr_metnomu_filterhf_den'] = cuts_for_ht_met
+
+    # Studies for the L1 turn-on for HT1050
+    if cfg.STUDIES.L1_TURNON:
+        regions['tr_l1_ht_num'] = cuts_for_ht_met + ['L1_pass_HT1050']
+        regions['tr_l1_ht_den'] = cuts_for_ht_met
 
     return regions
