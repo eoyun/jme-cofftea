@@ -50,7 +50,13 @@ class hltProcessor(processor.ProcessorABC):
         pass_all = np.ones(df.size)==1
 
         # Create mask for events with good lumis (using the golden JSON)
-        json = bucoffea_path("data/json/Cert_Collisions2022_355100_360491_Golden.json")
+        if df["year"] == 2022:
+            json = bucoffea_path("data/json/Cert_Collisions2022_355100_360491_Golden.json")
+        elif df["year"] == 2018:
+            json = bucoffea_path("data/json/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt")
+        else:
+            raise RuntimeError(f"Golden JSON filtering not implemented for year: {df['year']}")
+
         lumi_mask = LumiMask(json)(df['run'], df['luminosityBlock'])
         selection.add('lumi_mask', lumi_mask)
 
