@@ -56,11 +56,13 @@ def parse_cli():
     parser = argparse.ArgumentParser()
     parser.add_argument('inpath', help='Path to input merged coffea accumulator.')
     parser.add_argument('-f', '--fit-func', help='Fit function to use.', default='erf', choices=['sigmoid', 'erf'])
+    parser.add_argument('-r', '--region', default='.*', help='Regex specifying the regions to look for turn-ons.')
     args = parser.parse_args()
     return args
 
 
 def sigmoid(x, a, b):
+    """Sigmoid function to use for turn-on fits."""
     return 1 / (1 + np.exp( - (x - a) / b) )
 
 
@@ -92,7 +94,6 @@ def compute_chi2(h_num, h_den, fit_func, *popt):
     r = ydata - fit_func(xdata, *popt)
     r /= yerr
     r[np.isinf(r) | np.isnan(r)] = 0.
-
     return np.sum(r**2) / (len(r)-1)
 
 
@@ -498,6 +499,7 @@ def main():
     if not os.path.exists(outdir):
         os.makedirs(outdir)
     
+    # Turn-on regions + initial parameter guesses for the fit 
     regions_fit_guesses = {
         'tr_jet' : (500, 50),
         'tr_ht' : (1050, 25),
@@ -512,6 +514,9 @@ def main():
         fit_func = error_func
 
     for region, fit_init in tqdm(regions_fit_guesses.items(), desc='Plotting turn-ons'):
+        if not re.match(args.region, region):
+            continue
+        
         plot_turnons_for_different_runs(acc, 
             outdir, 
             fit_init=fit_init,
