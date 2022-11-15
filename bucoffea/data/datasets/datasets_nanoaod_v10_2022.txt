@@ -1,6 +1,6 @@
 /Muon/Run2022C-PromptNanoAODv10-v1/NANOAOD
-/Muon/Run2022D-PromptNanoAODv10-v1/NANOAOD
 /Muon/Run2022D-PromptNanoAODv10_v1-v1/NANOAOD
+/Muon/Run2022D-PromptNanoAODv10_v2-v1/NANOAOD
 /Muon/Run2022E-PromptNanoAODv10_v1-v3/NANOAOD
 /Muon/Run2022F-PromptNanoAODv10_v1-v2/NANOAOD
 
