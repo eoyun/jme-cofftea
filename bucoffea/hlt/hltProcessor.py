@@ -65,7 +65,8 @@ class hltProcessor(processor.ProcessorABC):
         leadak4_pt_eta = (ak4.pt.max() > cfg.AK4.PT) & (ak4.abseta[leadak4_index] < cfg.AK4.ABSETA)
         selection.add('leadak4_pt_eta', leadak4_pt_eta.any())
         
-        ht = ak4[ak4.pt>cfg.HT.JETPT].pt.sum()
+        # Compute HT, follow the computation recipe of HLT_PFHT1050
+        ht = ak4[(ak4.pt > cfg.HT.JETPT) & (ak4.abseta < cfg.HT.ABSETA)].pt.sum()
 
         # Tight ID on leading AK4 jet
         selection.add('leadak4_id', (ak4.tightIdLepVeto[leadak4_index].any()))

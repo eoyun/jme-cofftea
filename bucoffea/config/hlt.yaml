@@ -5,7 +5,8 @@ default:
     chf: 0.1      # Min chf     
     nhf: 0.8      # Max nhf     
   ht:
-    jetpt: 20     # Pt threshold on jets for HT computation
+    abseta: 2.5   # Maximum jet eta for HT
+    jetpt: 30     # Minimum pt on jets for HT
   muon:
     cuts:
       tight:
