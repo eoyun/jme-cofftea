@@ -231,4 +231,22 @@ def hlt_regions(cfg):
         regions['tr_l1_ht_num'] = cuts_for_ht_met + ['L1_pass_HT1050']
         regions['tr_l1_ht_den'] = cuts_for_ht_met
 
+    # Before/after comparison for specific runs
+    for run_num in cfg.RUN.COMPARE:
+        regions_to_clone = [
+            'tr_jet_num',
+            'tr_jet_den',
+            'tr_ht_num',
+            'tr_ht_den',
+            'tr_metnomu_num',
+            'tr_metnomu_den',
+        ]
+
+        for base_region in regions_to_clone:
+            regions[f'{base_region}_bf_{run_num}'] = copy.deepcopy(regions[base_region])
+            regions[f'{base_region}_bf_{run_num}'].append(f'run_bf_{run_num}')
+
+            regions[f'{base_region}_af_{run_num}'] = copy.deepcopy(regions[base_region])
+            regions[f'{base_region}_af_{run_num}'].append(f'run_af_{run_num}')
+
     return regions

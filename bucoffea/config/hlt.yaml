@@ -64,7 +64,10 @@ default:
       - 492220275
     save:
       passing: False    # Save (run,lumi,event) info for passing events
-  
+    compare:            # Runs to compare before and after
+      - 361514
+      - 361971
+
   filters: # MET filters on data and MC
     data:
       - Flag_goodVertices

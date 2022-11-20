@@ -154,9 +154,10 @@ class hltProcessor(processor.ProcessorABC):
         df['recoil_pt'], df['recoil_phi'] = metnomu(met_pt, met_phi, muons)
         selection.add('recoil>250', df['recoil_pt'] > cfg.RECOIL.PT)
 
-        run_mask = df['run'] < 356800
-        selection.add('run_bf_356800', run_mask)
-        selection.add('run_af_356800', ~run_mask)
+        for run_num in cfg.RUN.COMPARE:
+            run_mask = df['run'] < run_num
+            selection.add(f'run_bf_{run_num}', run_mask)
+            selection.add(f'run_af_{run_num}', ~run_mask)
 
         #Electron veto
         selection.add('veto_ele', electrons.counts==0)
