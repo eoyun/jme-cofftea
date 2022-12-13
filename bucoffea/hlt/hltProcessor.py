@@ -51,7 +51,7 @@ class hltProcessor(processor.ProcessorABC):
 
         # Create mask for events with good lumis (using the golden JSON)
         if df["year"] == 2022:
-            json = bucoffea_path("data/json/Cert_Collisions2022_355100_361580_Golden.json")
+            json = bucoffea_path("data/json/Cert_Collisions2022_355100_362760_Golden.json")
         elif df["year"] == 2018:
             json = bucoffea_path("data/json/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt")
         else:
