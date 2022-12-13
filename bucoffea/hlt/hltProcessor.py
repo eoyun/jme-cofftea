@@ -98,7 +98,7 @@ class hltProcessor(processor.ProcessorABC):
         selection.add('HLT_PFHT1050', df['HLT_PFHT1050'])
 
         # L1 requirement for HT1050 (only for 2022 era datasets)
-        if df['year'] == 2022:
+        if df['year'] == 2022 and cfg.STUDIES.L1_TURNON:
             l1_seeds = [
                 'L1_HTT120er',
                 'L1_HTT160er',
@@ -231,6 +231,10 @@ class hltProcessor(processor.ProcessorABC):
             ezfill('ht',         ht=ht[mask])
 
             ezfill('ak4_abseta0_pt0',   jeteta=ak4[leadak4_index].abseta[mask].flatten(), jetpt=ak4[leadak4_index].pt[mask].flatten())
+
+            # PU plots -> Number of vertices vs. METNoMu
+            ezfill('recoil_npv',       recoil=df["recoil_pt"][mask],  nvtx=df["PV_npvs"][mask])
+            ezfill('recoil_npvgood',   recoil=df["recoil_pt"][mask],  nvtx=df["PV_npvsGood"][mask])
 
             if 'fail_jet500' in region:
                 ezfill('ak4_chf0',     frac=ak4[leadak4_index].chf[mask].flatten())

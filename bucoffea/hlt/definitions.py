@@ -28,7 +28,9 @@ def hlt_accumulator():
     recoil_ax = Bin("recoil", "Recoil (GeV)", 50, 0, 1000)
     met_ax = Bin("met", "MET (GeV)", 50, 0, 1000)
     ht_ax = Bin("ht", r"$H_{T}$ (GeV)", 200, 0, 4000)
+    
     frac_ax = Bin('frac','Fraction', 50, 0, 1)
+    nvtx_ax = Bin('nvtx','Number of vertices',100,-0.5,99.5)
 
     # Histogram definitions
     items = {}
@@ -45,6 +47,10 @@ def hlt_accumulator():
     items["ak4_mufrac0"] = Hist("Counts", dataset_ax, region_ax, frac_ax)
 
     items["ak4_abseta0_pt0"] = Hist("Counts", dataset_ax, region_ax, jet_abseta_ax, jet_pt_ax)
+
+    # PU-related plots
+    items["recoil_npv"] = Hist("Counts", dataset_ax, region_ax, recoil_ax, nvtx_ax)
+    items["recoil_npvgood"] = Hist("Counts", dataset_ax, region_ax, recoil_ax, nvtx_ax)
 
     # Keep track of events that fail PFJet500
     items['selected_runs'] = processor.defaultdict_accumulator(list)  
