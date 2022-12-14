@@ -30,7 +30,7 @@ error_opts = {
 
 NEW_BINS = {
     'recoil' : Bin("recoil", "Recoil (GeV)", list(range(0,500,20)) + list(range(500,1000,40))),
-    'ak4_pt0' : Bin("jetpt", r"Leading Jet $p_{T}$ (GeV)", list(range(0,500,20)) + list(range(500,1000,40))),
+    'ak4_pt0' : Bin("jetpt", r"Leading Jet $p_{T}$ (GeV)", list(range(0,500,20)) + list(range(500,1000,20))),
     'ak4_eta0' : Bin("jeteta", r"Leading Jet $\eta$", 25, -5, 5),
     'ak4_abseta0_pt0' : Bin("jetpt", r"Leading Jet $p_{T}$ (GeV)", list(range(0,500,20)) + list(range(500,1000,40))),
     'ht' : Bin("ht", r"$H_{T}$ (GeV)", list(range(0,2000,80)) + list(range(2000,4000,160))),
@@ -111,7 +111,14 @@ def fit_turnon(h_num, h_den, fit_func, p0):
     return popt, pcov
 
 
-def plot_turnons_for_different_runs(acc, outdir, fit_init, fit_func, region='tr_metnomu'):
+def plot_turnons_for_different_runs(
+    acc, 
+    outdir, 
+    fit_init, 
+    fit_func, 
+    region='tr_metnomu',
+    plot_fit=True,
+    ):
     """Plot METNoMu trigger turn on for different set of runs."""
     distribution = DISTRIBUTIONS[region]
     acc.load(distribution)
@@ -131,6 +138,7 @@ def plot_turnons_for_different_runs(acc, outdir, fit_init, fit_func, region='tr_
         'Muon.*2022[CD]' : '2022C+D',
         'Muon.*2022E'    : '2022E',
         'Muon.*2022F'    : '2022F',
+        'Muon.*2022G'    : '2022G',
     }
 
     chi2_vals = {
@@ -141,7 +149,9 @@ def plot_turnons_for_different_runs(acc, outdir, fit_init, fit_func, region='tr_
     for index, (regex, label) in enumerate(datasets_labels.items()):
         num = h_num.integrate('dataset', re.compile(regex))
         den = h_den.integrate('dataset', re.compile(regex))
-        error_opts['color'] = f'C{index}'
+        
+        err_opts_copy = error_opts.copy()
+        err_opts_copy['color'] = f'C{index}'
         
         # Fit the turn-on curve with the given fit function
         popt, pcov = fit_turnon(num, den, fit_func, p0=fit_init)
@@ -156,10 +166,13 @@ def plot_turnons_for_different_runs(acc, outdir, fit_init, fit_func, region='tr_
         chi2_vals["Chi2 / dof"].append(chi2)
 
         x = np.linspace(min(centers), max(centers), 200)
-        ax.plot(x,
-            fit_func(x, *popt), 
-            color=f'C{index}',
-        )
+        
+        # Plot the fitted erf function if we want to
+        if plot_fit:
+            ax.plot(x,
+                fit_func(x, *popt), 
+                color=f'C{index}',
+            )
 
         # Plot the individual ratio of histograms
         hist.plotratio(
@@ -167,7 +180,7 @@ def plot_turnons_for_different_runs(acc, outdir, fit_init, fit_func, region='tr_
             den,
             ax=ax,
             label=f'{label}, $\\mu={popt[0]:.2f}$, $\\sigma={popt[1]:.2f}$',
-            error_opts=error_opts,
+            error_opts=err_opts_copy,
             clear=False
         )
 
@@ -204,13 +217,14 @@ def plot_turnons_for_different_runs(acc, outdir, fit_init, fit_func, region='tr_
     if not os.path.exists(outdir):
         os.makedirs(outdir)
 
-    # Equation label
-    ax.text(0.98,0.3,eqlabel,
-        fontsize=fontsize,
-        ha='right',
-        va='bottom',
-        transform=ax.transAxes
-    )
+    # Equation label (if we're plotting the fitted function)
+    if plot_fit:
+        ax.text(0.98,0.3,eqlabel,
+            fontsize=fontsize,
+            ha='right',
+            va='bottom',
+            transform=ax.transAxes
+        )
 
     # Print out chi2 information for the fits
     print(tabulate(chi2_vals, headers='keys', floatfmt=".2f"))
@@ -488,6 +502,68 @@ def plot_l1_vs_hlt_HT1050(acc, outdir, dataset='Muon.*2022E.*'):
     plt.close(fig)
 
 
+def plot_efficiency_vs_nvtx(acc, 
+    outdir, 
+    region,
+    distribution='recoil_npvgood',
+    dataset='Muon.*2022[FG].*'
+    ):
+    """
+    Plots the efficiency vs number of vertices.
+    """
+    acc.load(distribution)
+    h = acc[distribution]
+
+    h = h.integrate('dataset', re.compile(dataset))
+    
+    # List of recoil slices to plot (i.e. recoil > X)   
+    recoil_slices = [
+        slice(250,None),
+        slice(300,None),
+    ]
+
+    fig, ax = plt.subplots()
+
+    for recoil_slice in tqdm(recoil_slices, desc="Plotting eff vs nvtx"):
+        # Integrate out the recoil slice
+        histo = h.integrate('recoil', recoil_slice)
+
+        # Get the num and denom histograms and plot!
+        hist.plotratio(
+            histo.integrate('region', f'{region}_num'),
+            histo.integrate('region', f'{region}_den'),
+            ax=ax,
+            error_opts=error_opts,
+            label=f'$p_T^{{miss}} > {recoil_slice.start:.0f} \\ GeV$',
+            clear=False,
+        )
+
+    ax.legend(title=r'$p_{T}^{miss}$ Threshold (no-$\mu$)')
+    ax.axhline(1, xmin=0, xmax=1, color='k', ls='--')
+    ax.set_ylim(bottom=0.8)
+    ax.set_ylabel('Trigger Efficiency')
+
+    ax.text(0,1,'Muon 2022 F+G',
+        fontsize=14,
+        ha='left',
+        va='bottom',
+        transform=ax.transAxes
+    )
+
+    ax.text(1,1,TRIGGER_NAMES[region],
+        fontsize=10,
+        ha='right',
+        va='bottom',
+        transform=ax.transAxes
+    )
+
+    # Save the plot
+    filename = f'{region}_eff_vs_nvtx.pdf'
+    outpath = pjoin(outdir, filename)
+    fig.savefig(outpath)
+    plt.close(fig)
+
+
 def main():
     args = parse_cli()
     inpath = args.inpath
@@ -521,7 +597,8 @@ def main():
             outdir, 
             fit_init=fit_init,
             fit_func=fit_func,
-            region=region
+            region=region,
+            plot_fit=False,
         )
 
     # Eta-separated plots for leading jet eta (PFJet500)
@@ -545,6 +622,10 @@ def main():
         plot_l1_vs_hlt_HT1050(acc, outdir, dataset='Muon.*2022E.*')
     except KeyError:
         print('Skipping L1 vs HLT turn-on plots.')
+
+    # Efficiency vs Nvtx plots for METNoMu triggers
+    plot_efficiency_vs_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_metnomu')
+    plot_efficiency_vs_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_metnomu_filterhf')
 
 if __name__ == '__main__':
     main()
