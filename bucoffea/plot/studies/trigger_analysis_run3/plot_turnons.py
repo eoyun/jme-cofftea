@@ -518,6 +518,7 @@ def plot_efficiency_vs_nvtx(acc,
     
     # List of recoil slices to plot (i.e. recoil > X)   
     recoil_slices = [
+        slice(200,None),
         slice(250,None),
         slice(300,None),
     ]
