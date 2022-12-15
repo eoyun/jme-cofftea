@@ -84,9 +84,13 @@ class hltProcessor(processor.ProcessorABC):
         selection.add('ak4_in_water_leak', leading_ak4_in_water_leak.any())
 
         # Trigger requirements
+        selection.add('HLT_PFMET120', df['HLT_PFMET120_PFMHT120_IDTight'])
         selection.add('HLT_PFMETNoMu120', df['HLT_PFMETNoMu120_PFMHTNoMu120_IDTight'])
         selection.add('HLT_IsoMu27', df['HLT_IsoMu27'])
         
+        # L1 seed requirements
+        selection.add('L1_ETMHF100', df['L1_ETMHF100'])
+
         # HF-filtered METNoMu120 trigger - only available for 2022 data taking!
         if df['year'] == 2022:        
             selection.add('HLT_PFMETNoMu120_FilterHF', df['HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_FilterHF'])

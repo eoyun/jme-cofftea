@@ -226,11 +226,18 @@ def hlt_regions(cfg):
     regions['tr_ht_num'] = cuts_for_ht_met + ['HLT_PFHT1050']
     regions['tr_ht_den'] = cuts_for_ht_met
 
+    regions['tr_met_num'] = cuts_for_ht_met + ['HLT_PFMET120']
+    regions['tr_met_den'] = cuts_for_ht_met
+
     regions['tr_metnomu_num'] = cuts_for_ht_met + ['HLT_PFMETNoMu120']
     regions['tr_metnomu_den'] = cuts_for_ht_met
 
     regions['tr_metnomu_filterhf_num'] = cuts_for_ht_met + ['HLT_PFMETNoMu120_FilterHF']
     regions['tr_metnomu_filterhf_den'] = cuts_for_ht_met
+
+    # METNoMu120 together with L1_ETMHF100
+    regions['tr_metnomu_L1ETMHF100_num'] = cuts_for_ht_met + ['HLT_PFMETNoMu120', 'L1_ETMHF100']
+    regions['tr_metnomu_L1ETMHF100_den'] = cuts_for_ht_met
 
     # Studies for the L1 turn-on for HT1050
     if cfg.STUDIES.L1_TURNON:
