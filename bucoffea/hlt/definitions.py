@@ -49,6 +49,8 @@ def hlt_accumulator():
     items["ak4_abseta0_pt0"] = Hist("Counts", dataset_ax, region_ax, jet_abseta_ax, jet_pt_ax)
 
     # PU-related plots
+    items["met_npv"] = Hist("Counts", dataset_ax, region_ax, met_ax, nvtx_ax)
+    items["met_npvgood"] = Hist("Counts", dataset_ax, region_ax, met_ax, nvtx_ax)
     items["recoil_npv"] = Hist("Counts", dataset_ax, region_ax, recoil_ax, nvtx_ax)
     items["recoil_npvgood"] = Hist("Counts", dataset_ax, region_ax, recoil_ax, nvtx_ax)
 

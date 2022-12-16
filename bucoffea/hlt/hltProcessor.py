@@ -236,7 +236,9 @@ class hltProcessor(processor.ProcessorABC):
 
             ezfill('ak4_abseta0_pt0',   jeteta=ak4[leadak4_index].abseta[mask].flatten(), jetpt=ak4[leadak4_index].pt[mask].flatten())
 
-            # PU plots -> Number of vertices vs. METNoMu
+            # PU plots -> Number of vertices vs. MET/METNoMu
+            ezfill('met_npv',          met=met_pt[mask],   nvtx=df["PV_npvs"][mask])
+            ezfill('met_npvgood',      met=met_pt[mask],   nvtx=df["PV_npvsGood"][mask])
             ezfill('recoil_npv',       recoil=df["recoil_pt"][mask],  nvtx=df["PV_npvs"][mask])
             ezfill('recoil_npvgood',   recoil=df["recoil_pt"][mask],  nvtx=df["PV_npvsGood"][mask])
 
