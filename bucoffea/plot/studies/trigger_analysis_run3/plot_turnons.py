@@ -29,6 +29,7 @@ error_opts = {
 }
 
 NEW_BINS = {
+    'met' : Bin("met", r"$p_T^{miss}$ (GeV)", list(range(0,500,20)) + list(range(500,1000,40))),
     'recoil' : Bin("recoil", "Recoil (GeV)", list(range(0,500,20)) + list(range(500,1000,40))),
     'ak4_pt0' : Bin("jetpt", r"Leading Jet $p_{T}$ (GeV)", list(range(0,500,20)) + list(range(500,1000,20))),
     'ak4_eta0' : Bin("jeteta", r"Leading Jet $\eta$", 25, -5, 5),
@@ -530,7 +531,12 @@ def plot_efficiency_vs_nvtx(acc,
 
     for recoil_slice in tqdm(recoil_slices, desc="Plotting eff vs nvtx"):
         # Integrate out the recoil slice
-        histo = h.integrate('recoil', recoil_slice)
+        if distribution == 'recoil_npvgood':
+            histo = h.integrate('recoil', recoil_slice)
+        elif distribution == 'met_npvgood':
+            histo = h.integrate('met', recoil_slice)
+        else:
+            raise RuntimeError(f'Unrecognized distribution: {distribution}')
 
         # Get the num and denom histograms and plot!
         hist.plotratio(
@@ -576,7 +582,12 @@ def plot_turnon_wrt_nvtx(acc, outdir, region, distribution, dataset='Muon.*2022[
     h = acc[distribution]
 
     # Rebinning
-    h = h.rebin('recoil', NEW_BINS['recoil'])
+    if distribution == 'recoil_npvgood':
+        h = h.rebin('recoil', NEW_BINS['recoil'])
+    elif distribution == 'met_npvgood':
+        h = h.rebin('met', NEW_BINS['met'])
+    else:
+        raise RuntimeError(f'Unrecognized distribution: {distribution}')
     
     h = h.integrate('dataset', re.compile(dataset))
 
@@ -730,12 +741,12 @@ def main():
         print('Skipping L1 vs HLT turn-on plots.')
 
     # Efficiency vs Nvtx plots for MET/METNoMu triggers
-    plot_efficiency_vs_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_met')
+    plot_efficiency_vs_nvtx(acc, outdir, distribution='met_npvgood', region='tr_met')
     plot_efficiency_vs_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_metnomu')
     plot_efficiency_vs_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_metnomu_filterhf')
     plot_efficiency_vs_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_metnomu_L1ETMHF100')
 
-    plot_turnon_wrt_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_met')
+    plot_turnon_wrt_nvtx(acc, outdir, distribution='met_npvgood', region='tr_met')
     plot_turnon_wrt_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_metnomu')
 
     # Turn-on comparisons between two regions
