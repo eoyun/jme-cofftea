@@ -37,13 +37,16 @@ NEW_BINS = {
 }
 
 TRIGGER_NAMES = {
+    'tr_met' : 'HLT_PFMET120_PFMHT120_IDTight',
     'tr_metnomu' : 'HLT_PFMETNoMu120_PFMHTNoMu120_IDTight',
+    'tr_metnomu_L1ETMHF100' : 'HLT_PFMETNoMu120 (+ L1_ETMHF100)',
     'tr_metnomu_filterhf' : 'HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_FilterHF',
     'tr_jet' : 'HLT_PFJet500',
     'tr_ht' : 'HLT_PFHT1050',
 }
 
 DISTRIBUTIONS = {
+    'tr_met' : 'recoil',
     'tr_metnomu' : 'recoil',
     'tr_metnomu_filterhf' : 'recoil',
     'tr_jet' : 'ak4_pt0',
@@ -565,6 +568,108 @@ def plot_efficiency_vs_nvtx(acc,
     plt.close(fig)
 
 
+def plot_turnon_wrt_nvtx(acc, outdir, region, distribution, dataset='Muon.*2022[FG].*'):
+    """
+    Plot METNoMu turn-on on different Nvtx bins.
+    """
+    acc.load(distribution)
+    h = acc[distribution]
+
+    # Rebinning
+    h = h.rebin('recoil', NEW_BINS['recoil'])
+    
+    h = h.integrate('dataset', re.compile(dataset))
+
+    # Different Nvtx bins
+    nvtx_bins = [
+        slice(10, 20),
+        slice(20, 40),
+        slice(40, 60),
+    ]
+
+    fig, ax = plt.subplots()
+
+    for nvtx_bin in nvtx_bins:
+        histo = h.integrate('nvtx', nvtx_bin)
+
+        hist.plotratio(
+            histo.integrate('region', f'{region}_num'),
+            histo.integrate('region', f'{region}_den'),
+            ax=ax,
+            label=f'{nvtx_bin.start:.0f} < $N_{{vtx}}$ < {nvtx_bin.stop:.0f}',
+            error_opts=error_opts,
+            clear=False,
+        )
+
+    ax.legend(title='Number of Vertices')
+    ax.axhline(1, xmin=0, xmax=1, color='k', ls='--')
+    ax.set_ylim(bottom=0)
+    ax.set_ylabel('Trigger Efficiency')
+
+    ax.text(0,1,'Muon 2022 F+G',
+        fontsize=14,
+        ha='left',
+        va='bottom',
+        transform=ax.transAxes
+    )
+    
+    ax.text(1,1,TRIGGER_NAMES[region],
+        fontsize=10,
+        ha='right',
+        va='bottom',
+        transform=ax.transAxes
+    )
+
+    outpath = pjoin(outdir, f'{region}_turnon_vs_nvtx.pdf')
+    fig.savefig(outpath)
+    plt.close(fig)
+
+
+def compare_turnons(acc, outdir, regions, dataset, distribution='recoil'):
+    """
+    Compare the turn-ons in the two regions.
+    """
+    acc.load(distribution)
+    h = acc[distribution]
+
+    # Rebin
+    if distribution in NEW_BINS:
+        new_ax = NEW_BINS[distribution]
+        h = h.rebin(new_ax.name, new_ax)
+    
+    h = h.integrate('dataset', re.compile(dataset))
+
+    # Retrieve num and denom histograms + plot
+    fig, ax = plt.subplots()
+    for region, region_label in regions.items():
+        hist.plotratio(
+            h.integrate('region', f'{region}_num'),
+            h.integrate('region', f'{region}_den'),
+            ax=ax,
+            label=region_label,
+            error_opts=error_opts,
+            clear=False,
+        )
+
+    ax.legend(title='Passing')
+    ax.axhline(1, xmin=0, xmax=1, color='k', ls='--')
+    ax.set_ylim(bottom=0)
+    ax.set_ylabel('Trigger Efficiency')
+
+    ax.text(0,1,'Muon 2022 F+G',
+        fontsize=14,
+        ha='left',
+        va='bottom',
+        transform=ax.transAxes
+    )
+    
+    # Save figure
+    outpath = pjoin(outdir, f'L1ETMHF_check.pdf')
+    fig.savefig(outpath)
+    plt.close(fig)
+
+
+
 def main():
     args = parse_cli()
     inpath = args.inpath
@@ -624,9 +729,21 @@ def main():
     except KeyError:
         print('Skipping L1 vs HLT turn-on plots.')
 
-    # Efficiency vs Nvtx plots for METNoMu triggers
+    # Efficiency vs Nvtx plots for MET/METNoMu triggers
+    plot_efficiency_vs_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_met')
     plot_efficiency_vs_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_metnomu')
     plot_efficiency_vs_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_metnomu_filterhf')
+    plot_efficiency_vs_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_metnomu_L1ETMHF100')
+
+    plot_turnon_wrt_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_met')
+    plot_turnon_wrt_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_metnomu')
+
+    # Turn-on comparisons between two regions
+    regions_to_compare = {
+        'tr_metnomu' : 'METNoMu120',
+        'tr_metnomu_L1ETMHF100' : 'METNoMu120 + L1ETMHF100',
+    }
+    compare_turnons(acc, outdir, dataset='Muon.*2022[FG].*', regions=regions_to_compare)
 
 if __name__ == '__main__':
     main()
