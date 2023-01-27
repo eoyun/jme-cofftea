@@ -179,6 +179,9 @@ class hltProcessor(processor.ProcessorABC):
         df["dPFCaloCR"] = (met_pt - df["CaloMET_pt"]) / df['recoil_pt']
         selection.add('calo_diff', np.abs(df["dPFCaloCR"]) < cfg.DPFCALO)
 
+        # Selection to get high PU (=60) fill
+        selection.add("pu60_fill", (df["run"] >= 362613) & (df["run"] <= 362618))
+
         # Fill histograms
         output = self.accumulator.identity()
 

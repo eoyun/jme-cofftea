@@ -246,6 +246,16 @@ def hlt_regions(cfg):
         regions['tr_l1_ht_num'] = cuts_for_ht_met + ['L1_pass_HT1050']
         regions['tr_l1_ht_den'] = cuts_for_ht_met
 
+    if cfg.STUDIES.HIGH_PU_FILL:
+        regions['tr_metnomu_highpu_num'] = cuts_for_ht_met + ['HLT_PFMETNoMu120', 'pu60_fill']
+        regions['tr_metnomu_highpu_den'] = cuts_for_ht_met + ['pu60_fill']
+
+        regions['tr_ht_highpu_num'] = cuts_for_ht_met + ['HLT_PFHT1050', 'pu60_fill']
+        regions['tr_ht_highpu_den'] = cuts_for_ht_met + ['pu60_fill']
+
+        regions['tr_jet_highpu_num'] = cuts_for_ht_met + ['HLT_PFJet500', 'pu60_fill']
+        regions['tr_jet_highpu_den'] = cuts_for_ht_met + ['pu60_fill']
+
     # Before/after comparison for specific runs
     for run_num in cfg.RUN.COMPARE:
         regions_to_clone = [

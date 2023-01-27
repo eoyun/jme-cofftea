@@ -57,6 +57,7 @@ default:
   studies:
     water_leak: False
     l1_turnon: False
+    high_pu_fill: True
   run:
     kinematics:
       save: False

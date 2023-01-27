@@ -23,6 +23,9 @@ def main():
         "Muon_2022F" : [
             "root://cmsxrootd.fnal.gov//store/data/Run2022F/Muon/NANOAOD/PromptNanoAODv10_v1-v2/2530000/36220bbd-e1a5-4f68-a606-0b1da6682e41.root"
         ],
+        "Muon_2022G" : [
+            "root://cmsxrootd.fnal.gov//store/data/Run2022G/Muon/NANOAOD/PromptNanoAODv10_v1-v1/2820000/1959f286-7f5e-492c-97ac-5c34ae05010b.root"
+        ],
     }
 
     years = list(set(map(extract_year, fileset.keys())))
