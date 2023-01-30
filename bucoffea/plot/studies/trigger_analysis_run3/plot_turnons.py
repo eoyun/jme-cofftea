@@ -680,6 +680,76 @@ def compare_turnons(acc, outdir, regions, dataset, distribution='recoil'):
     plt.close(fig)
 
 
+def compare_turnons_with_PU60_fill(acc, outdir, region):
+    """
+    Compare turn-ons comparing the PU60 fill with other fills.
+    """
+    distribution = DISTRIBUTIONS[region]
+    acc.load(distribution)
+    h = acc[distribution]
+
+    if distribution in NEW_BINS:
+        new_ax = NEW_BINS[distribution]
+        h = h.rebin(new_ax.name, new_ax)
+
+    histograms = {}
+
+    # 2022F histograms
+    h_2022F = h.integrate("dataset", re.compile("Muon.*2022F"))
+    histograms["2022F"] = {
+        "num" : h_2022F.integrate("region", f"{region}_num"),
+        "den" : h_2022F.integrate("region", f"{region}_den"),
+    }
+
+    # PU=60 histograms
+    h_2022G = h.integrate("dataset", re.compile("Muon.*2022G"))
+
+    histograms["2022G"] = {
+        "num" : h_2022G.integrate("region", f"{region}_num"),
+        "den" : h_2022G.integrate("region", f"{region}_den"),
+    }
+
+    histograms["2022G (PU=60)"] = {
+        "num" : h_2022G.integrate("region", f"{region}_highpu_num"),
+        "den" : h_2022G.integrate("region", f"{region}_highpu_den"),
+    }
+
+    # Plot the histograms!
+    fig, ax = plt.subplots()
+    for label, histos in histograms.items():
+        hist.plotratio(
+            histos["num"],
+            histos["den"],
+            ax=ax,
+            error_opts=error_opts,
+            clear=False,
+            label=label
+        )
+
+    ax.set_ylabel("Trigger Efficiency")
+    ax.legend(title="Dataset")
+
+    ax.axhline(1, xmin=0, xmax=1, color='k', ls='--')
+    ax.set_ylim(bottom=0)
+    
+    ax.text(0,1,'Muon 2022',
+        fontsize=14,
+        ha='left',
+        va='bottom',
+        transform=ax.transAxes
+    )
+
+    ax.text(1,1,TRIGGER_NAMES[region],
+        fontsize=10,
+        ha='right',
+        va='bottom',
+        transform=ax.transAxes
+    )
+
+    outpath = pjoin(outdir, f"{region}_pu60_comparison.pdf")
+    fig.savefig(outpath)
+    plt.close(fig)
+
 
 def main():
     args = parse_cli()
@@ -710,13 +780,13 @@ def main():
         if not re.match(args.region, region):
             continue
         
-        plot_turnons_for_different_runs(acc, 
-            outdir, 
-            fit_init=fit_init,
-            fit_func=fit_func,
-            region=region,
-            plot_fit=False,
-        )
+        # plot_turnons_for_different_runs(acc, 
+        #     outdir, 
+        #     fit_init=fit_init,
+        #     fit_func=fit_func,
+        #     region=region,
+        #     plot_fit=False,
+        # )
 
     # Eta-separated plots for leading jet eta (PFJet500)
     try:
@@ -739,6 +809,14 @@ def main():
         plot_l1_vs_hlt_HT1050(acc, outdir, dataset='Muon.*2022E.*')
     except KeyError:
         print('Skipping L1 vs HLT turn-on plots.')
+
+    # PU=60 study
+    try:
+        compare_turnons_with_PU60_fill(acc, outdir, region='tr_jet')
+        compare_turnons_with_PU60_fill(acc, outdir, region='tr_ht')
+        compare_turnons_with_PU60_fill(acc, outdir, region='tr_metnomu')
+    except KeyError:
+        print('Skipping PU=60 plots.')
 
     # Efficiency vs Nvtx plots for MET/METNoMu triggers
     plot_efficiency_vs_nvtx(acc, outdir, distribution='met_npvgood', region='tr_met')
