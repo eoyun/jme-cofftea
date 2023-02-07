@@ -178,18 +178,26 @@ def plot_turnons_for_different_runs(
                 color=f'C{index}',
             )
 
+            legend_label = f'{label}, $\\mu={popt[0]:.2f}$, $\\sigma={popt[1]:.2f}$'
+        
+        else:
+            legend_label = label
+
         # Plot the individual ratio of histograms
         hist.plotratio(
             num,
             den,
             ax=ax,
-            label=f'{label}, $\\mu={popt[0]:.2f}$, $\\sigma={popt[1]:.2f}$',
+            label=legend_label,
             error_opts=err_opts_copy,
             clear=False
         )
 
-
-    ax.legend(title='Run', prop={'size' : 8})
+    if plot_fit:
+        ax.legend(title='Run', prop={'size' : 8})
+    else:
+        ax.legend(title='Run')
+    
     ax.set_ylabel('Trigger Efficiency')
 
     ax.text(0,1,'Muon 2022',
@@ -242,7 +250,7 @@ def plot_turnons_for_different_runs(
     plt.close(fig)
 
 
-def plot_turnons_by_eta(acc, outdir, region, plotF=True):
+def plot_turnons_by_eta(acc, outdir, region, datasets):
     """
     Plot the turn-ons for runs 2022C+D vs run 2022E, split by 
     different leading jet eta slices.
@@ -271,32 +279,16 @@ def plot_turnons_by_eta(acc, outdir, region, plotF=True):
 
         fig, ax = plt.subplots()
 
-        hist.plotratio(
-            h_num.integrate('dataset', re.compile('Muon.*2022[CD]')),
-            h_den.integrate('dataset', re.compile('Muon.*2022[CD]')),
-            ax=ax,
-            label='2022C+D',
-            error_opts=error_opts,
-            clear=False
-        )
-        hist.plotratio(
-            h_num.integrate('dataset', re.compile('Muon.*2022E')),
-            h_den.integrate('dataset', re.compile('Muon.*2022E')),
-            ax=ax,
-            label='2022E',
-            error_opts=error_opts,
-            clear=False
-        )
-        if plotF:
+        for dataset in datasets:
             hist.plotratio(
-                h_num.integrate('dataset', re.compile('Muon.*2022F')),
-                h_den.integrate('dataset', re.compile('Muon.*2022F')),
+                h_num.integrate('dataset', re.compile(dataset["regex"])),
+                h_den.integrate('dataset', re.compile(dataset["regex"])),
                 ax=ax,
-                label='2022F',
+                label=dataset["label"],
                 error_opts=error_opts,
                 clear=False
             )
-
+        
         ax.legend(title='Run')
         ax.set_ylabel('Trigger Efficiency')
 
@@ -325,7 +317,7 @@ def plot_turnons_by_eta(acc, outdir, region, plotF=True):
         plt.close(fig)
 
 
-def plot_eta_efficiency(acc, outdir, region, plotF=True):
+def plot_eta_efficiency(acc, outdir, region, datasets):
     """Plot the efficiency of the jet500 trigger as a function of leading jet eta."""
     distribution = 'ak4_eta0'
     acc.load(distribution)
@@ -340,28 +332,12 @@ def plot_eta_efficiency(acc, outdir, region, plotF=True):
 
     fig, ax = plt.subplots()
 
-    hist.plotratio(
-        h_num.integrate('dataset', re.compile('Muon.*2022[CD]')),
-        h_den.integrate('dataset', re.compile('Muon.*2022[CD]')),
-        ax=ax,
-        label='2022C+D',
-        error_opts=error_opts,
-        clear=False
-    )
-    hist.plotratio(
-        h_num.integrate('dataset', re.compile('Muon.*2022E')),
-        h_den.integrate('dataset', re.compile('Muon.*2022E')),
-        ax=ax,
-        label='2022E',
-        error_opts=error_opts,
-        clear=False
-    )
-    if plotF:
+    for dataset in datasets:
         hist.plotratio(
-            h_num.integrate('dataset', re.compile('Muon.*2022F')),
-            h_den.integrate('dataset', re.compile('Muon.*2022F')),
+            h_num.integrate('dataset', re.compile(dataset["regex"])),
+            h_den.integrate('dataset', re.compile(dataset["regex"])),
             ax=ax,
-            label='2022F',
+            label=dataset["label"],
             error_opts=error_opts,
             clear=False
         )
@@ -780,22 +756,30 @@ def main():
         if not re.match(args.region, region):
             continue
         
-        # plot_turnons_for_different_runs(acc, 
-        #     outdir, 
-        #     fit_init=fit_init,
-        #     fit_func=fit_func,
-        #     region=region,
-        #     plot_fit=False,
-        # )
+        plot_turnons_for_different_runs(acc, 
+            outdir, 
+            fit_init=fit_init,
+            fit_func=fit_func,
+            region=region,
+            plot_fit=False,
+        )
+
+    # List of datasets to overlay in the same plot
+    datasets = [
+        {"regex": "Muon.*2022[CD]", "label": "2022C+D"},
+        {"regex": "Muon.*2022E", "label": "2022E"},
+        {"regex": "Muon.*2022F", "label": "2022F"},
+        {"regex": "Muon.*2022G", "label": "2022G"},
+    ]
 
     # Eta-separated plots for leading jet eta (PFJet500)
     try:
-        plot_turnons_by_eta(acc, outdir, region='tr_jet')
+        plot_turnons_by_eta(acc, outdir, region='tr_jet', datasets=datasets)
     except KeyError:
         print('Skipping eta-split turn-on plots.')
 
     try:
-        plot_eta_efficiency(acc, outdir, region='tr_jet')
+        plot_eta_efficiency(acc, outdir, region='tr_jet', datasets=datasets)
     except KeyError:
         print('Skipping eta-based efficiency plots.')
 
