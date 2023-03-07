@@ -234,7 +234,12 @@ def hlt_regions(cfg):
     regions['tr_metnomu_num'] = cuts_for_ht_met + ['HLT_PFMETNoMu120']
     regions['tr_metnomu_den'] = cuts_for_ht_met
 
-    regions['tr_metnomu_filterhf_num'] = cuts_for_ht_met + ['HLT_PFMETNoMu120_FilterHF']
+    # Numerator regions for different METNoMuX_FilterHF paths
+    metnomu_thresholds = [110, 120, 130, 140]
+    for thresh in metnomu_thresholds:
+        regions[f'tr_metnomu{thresh}_filterhf_num'] = cuts_for_ht_met + [f'HLT_PFMETNoMu{thresh}_FilterHF']
+    
+    # Denominator region for all METNoMu paths
     regions['tr_metnomu_filterhf_den'] = cuts_for_ht_met
 
     # METNoMu120 together with L1_ETMHF100

@@ -91,11 +91,17 @@ class hltProcessor(processor.ProcessorABC):
         # L1 seed requirements
         selection.add('L1_ETMHF100', df['L1_ETMHF100'])
 
-        # HF-filtered METNoMu120 trigger - only available for 2022 data taking!
+        # HF-filtered METNoMu120 trigger - available starting from 2022 data taking
         if df['year'] == 2022:        
+            selection.add('HLT_PFMETNoMu110_FilterHF', df['HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_FilterHF'])
             selection.add('HLT_PFMETNoMu120_FilterHF', df['HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_FilterHF'])
+            selection.add('HLT_PFMETNoMu130_FilterHF', df['HLT_PFMETNoMu130_PFMHTNoMu130_IDTight_FilterHF'])
+            selection.add('HLT_PFMETNoMu140_FilterHF', df['HLT_PFMETNoMu140_PFMHTNoMu140_IDTight_FilterHF'])
         else:
+            selection.add('HLT_PFMETNoMu110_FilterHF', ~pass_all)
             selection.add('HLT_PFMETNoMu120_FilterHF', ~pass_all)
+            selection.add('HLT_PFMETNoMu130_FilterHF', ~pass_all)
+            selection.add('HLT_PFMETNoMu140_FilterHF', ~pass_all)
 
         # Jet+HT triggers
         selection.add('HLT_PFJet500', df['HLT_PFJet500'])
@@ -214,6 +220,9 @@ class hltProcessor(processor.ProcessorABC):
         regions = hlt_regions(cfg)
 	
         for region, cuts in regions.items():
+            # Only run on the regions we want to run
+            if not re.match(cfg.RUN.REGIONS, region):
+                continue
 
             mask = selection.all(*cuts)
 
