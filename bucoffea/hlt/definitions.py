@@ -32,6 +32,8 @@ def hlt_accumulator():
     frac_ax = Bin('frac','Fraction', 50, 0, 1)
     nvtx_ax = Bin('nvtx','Number of vertices',100,-0.5,99.5)
 
+    ratio_ax = Bin('ratio', 'Ratio', 100, 0.5, 1.5)
+
     # Histogram definitions
     items = {}
     items["ak4_pt0"] = Hist("Counts", dataset_ax, region_ax, jet_pt_ax)
@@ -41,6 +43,8 @@ def hlt_accumulator():
     items["recoil"] = Hist("Counts", dataset_ax, region_ax, recoil_ax)
     items["met"] = Hist("Counts", dataset_ax, region_ax, met_ax)
     items["ht"] = Hist("Counts", dataset_ax, region_ax, ht_ax)
+
+    items["ak4_pt_jec_over_nano"] = Hist("Counts", dataset_ax, region_ax, ratio_ax)
 
     items["ak4_chf0"] = Hist("Counts", dataset_ax, region_ax, frac_ax)
     items["ak4_nhf0"] = Hist("Counts", dataset_ax, region_ax, frac_ax)
@@ -71,12 +75,15 @@ def setup_candidates(df, cfg):
     """
     ak4 = JaggedCandidateArray.candidatesfromcounts(
         df['nJet'],
-        pt=df['Jet_pt'],
+        pt=df['Jet_pt']*(1-df['Jet_rawFactor']),
+        ptnano=df['Jet_pt'],
         eta=df['Jet_eta'],
         abseta=np.abs(df['Jet_eta']),
         phi=df['Jet_phi'],
         mass=np.zeros_like(df['Jet_pt']),
         tightIdLepVeto=(df['Jet_jetId'] & 4) == 4, # bitmask: 1 = loose, 2 = tight, 3 = tight + lep veto
+        # ptraw=df['Jet_pt']*(1-df['Jet_rawFactor']),
+        area=df['Jet_area'],
         cef=df['Jet_chEmEF'],
         chf=df['Jet_chHEF'],
         nef=df['Jet_neEmEF'],

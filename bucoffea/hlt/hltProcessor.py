@@ -11,6 +11,7 @@ from bucoffea.helpers import bucoffea_path, recoil, metnomu, mask_and, mask_or, 
 from coffea.lumi_tools import LumiMask
 from bucoffea.helpers.dataset import extract_year
 from bucoffea.helpers.paths import bucoffea_path
+from bucoffea.helpers.jme import get_jme_correctors
 
 class hltProcessor(processor.ProcessorABC):
     def __init__(self):
@@ -44,10 +45,23 @@ class hltProcessor(processor.ProcessorABC):
 
         met_pt, met_phi, ak4, muons, electrons, taus, photons = setup_candidates(df, cfg)
 
+        # JECs
+        jme_correctors = get_jme_correctors()
+
+        rho = ak4.pt.ones_like() * df["Rho_fixedGridRhoFastjetAll"]
+
+        # Apply the proper JECs, pre or post HCAL for data
+        # The getCorrection() call below changes ak4.pt IN PLACE (dangerous!)
+        if re.match(".*2022[CDE]", df["dataset"]):
+            jme_correctors["preHCAL"].getCorrection(JetPt=ak4.pt, JetEta=ak4.eta, Rho=rho, JetA=ak4.area)
+        elif re.match(".*2022[FG]", df["dataset"]):
+            jme_correctors["postHCAL"].getCorrection(JetPt=ak4.pt, JetEta=ak4.eta, Rho=rho, JetA=ak4.area)
+
         # Implement selections
         selection = processor.PackedSelection()
 
         pass_all = np.ones(df.size)==1
+        selection.add('inclusive', pass_all)
 
         # Create mask for events with good lumis (using the golden JSON)
         if df["year"] == 2022:
@@ -65,6 +79,8 @@ class hltProcessor(processor.ProcessorABC):
         leadak4_pt_eta = (ak4.pt.max() > cfg.AK4.PT) & (ak4.abseta[leadak4_index] < cfg.AK4.ABSETA)
         selection.add('leadak4_pt_eta', leadak4_pt_eta.any())
         
+        selection.add("leadak4_pt_cut", ak4.pt.max() > 300)
+
         # Compute HT, follow the computation recipe of HLT_PFHT1050
         ht = ak4[(ak4.pt > cfg.HT.JETPT) & (ak4.abseta < cfg.HT.ABSETA)].pt.sum()
 
@@ -253,6 +269,9 @@ class hltProcessor(processor.ProcessorABC):
             ezfill('met_npvgood',      met=met_pt[mask],   nvtx=df["PV_npvsGood"][mask])
             ezfill('recoil_npv',       recoil=df["recoil_pt"][mask],  nvtx=df["PV_npvs"][mask])
             ezfill('recoil_npvgood',   recoil=df["recoil_pt"][mask],  nvtx=df["PV_npvsGood"][mask])
+
+            pt_ratio = (ak4[mask].pt / ak4[mask].ptnano).flatten()
+            ezfill('ak4_pt_jec_over_nano',   ratio=pt_ratio)
 
             if 'fail_jet500' in region:
                 ezfill('ak4_chf0',     frac=ak4[leadak4_index].chf[mask].flatten())

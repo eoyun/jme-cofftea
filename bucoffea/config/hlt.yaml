@@ -59,7 +59,7 @@ default:
     l1_turnon: False
     high_pu_fill: False
   run:
-    regions: 'tr_metnomu.*filterhf.*'
+    regions: '.*'
     kinematics:
       save: False
     events:
