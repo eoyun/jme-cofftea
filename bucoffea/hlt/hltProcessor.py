@@ -45,9 +45,6 @@ class hltProcessor(processor.ProcessorABC):
 
         met_pt, met_phi, ak4, muons, electrons, taus, photons = setup_candidates(df, cfg)
 
-        # Keep a copy of uncorrected 4-momenta to fix MET
-        initial_p4 = copy.deepcopy(ak4.p4)
-
         # JECs
         jme_correctors = get_jme_correctors()
 
@@ -55,10 +52,14 @@ class hltProcessor(processor.ProcessorABC):
 
         # Apply the proper JECs, pre or post HCAL for data
         # The getCorrection() call below changes ak4.pt IN PLACE (dangerous!)
+        jme_correctors["L1L2L3"].getCorrection(JetPt=ak4.pt, JetEta=ak4.eta, Rho=rho, JetA=ak4.area)
+
+        # Keep a copy of uncorrected 4-momenta to fix MET
+        initial_p4 = copy.deepcopy(ak4.p4)
         if re.match(".*2022[CDE]", df["dataset"]):
-            jme_correctors["preHCAL"].getCorrection(JetPt=ak4.pt, JetEta=ak4.eta, Rho=rho, JetA=ak4.area)
+            jme_correctors["L2L3Res"].getCorrection(JetPt=ak4.pt, JetEta=ak4.eta, Rho=rho, JetA=ak4.area)
         elif re.match(".*2022[FG]", df["dataset"]):
-            jme_correctors["postHCAL"].getCorrection(JetPt=ak4.pt, JetEta=ak4.eta, Rho=rho, JetA=ak4.area)
+            jme_correctors["L2Res"].getCorrection(JetPt=ak4.pt, JetEta=ak4.eta, Rho=rho, JetA=ak4.area)
 
         # Update met_pt and met_phi
         met_px_old = met_pt * np.cos(met_phi)

@@ -19,17 +19,18 @@ def get_jme_correctors():
     # Define pre and post-HCAL update JEC correctors.
     correctors = {}
 
-    correctors["preHCAL"] = FactorizedJetCorrector(
+    correctors["L1L2L3"] = FactorizedJetCorrector(
         Winter22Run3_RunC_V2_DATA_L1FastJet_AK4PFPuppi = evaluator["Winter22Run3_RunC_V2_DATA_L1FastJet_AK4PFPuppi"],
         Winter22Run3_RunC_V2_DATA_L2Relative_AK4PFPuppi = evaluator["Winter22Run3_RunC_V2_DATA_L2Relative_AK4PFPuppi"],
         Winter22Run3_RunC_V2_DATA_L3Absolute_AK4PFPuppi = evaluator["Winter22Run3_RunC_V2_DATA_L3Absolute_AK4PFPuppi"],
-        Winter22Run3_RunC_V2_DATA_L2L3Residual_AK4PFPuppi = evaluator["Winter22Run3_RunC_V2_DATA_L2L3Residual_AK4PFPuppi"],
     )
-    correctors["postHCAL"] = FactorizedJetCorrector(
-        Winter22Run3_RunC_V2_DATA_L1FastJet_AK4PFPuppi = evaluator["Winter22Run3_RunC_V2_DATA_L1FastJet_AK4PFPuppi"],
-        Winter22Run3_RunC_V2_DATA_L2Relative_AK4PFPuppi = evaluator["Winter22Run3_RunC_V2_DATA_L2Relative_AK4PFPuppi"],
-        Winter22Run3_RunC_V2_DATA_L2Residual_AK4PFPuppi = evaluator["Winter22Run3_RunC_V2_DATA_L2Residual_AK4PFPuppi"],
-        Winter22Run3_RunC_V2_DATA_L3Absolute_AK4PFPuppi = evaluator["Winter22Run3_RunC_V2_DATA_L3Absolute_AK4PFPuppi"],
+
+    correctors["L2L3Res"] = FactorizedJetCorrector(
+        Winter22Run3_RunC_V2_DATA_L2L3Residual_AK4PFPuppi = evaluator["Winter22Run3_RunC_V2_DATA_L2L3Residual_AK4PFPuppi"]
+    )
+
+    correctors["L2Res"] = FactorizedJetCorrector(
+        Winter22Run3_RunC_V2_DATA_L2Residual_AK4PFPuppi = evaluator["Winter22Run3_RunC_V2_DATA_L2Residual_AK4PFPuppi"]
     )
 
     return correctors
