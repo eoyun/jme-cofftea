@@ -7,6 +7,7 @@ import scipy
 import argparse
 import warnings
 import numpy as np
+import mplhep as hep
 
 from matplotlib import pyplot as plt
 from coffea import hist
@@ -17,6 +18,9 @@ from tabulate import tabulate
 # Ignore division warnings from Coffea + Numpy
 warnings.filterwarnings('ignore', category=RuntimeWarning)
 
+# Use default CMS styling
+plt.style.use(hep.style.CMS)
+
 pjoin = os.path.join
 
 Bin = hist.Bin
@@ -24,17 +28,18 @@ Bin = hist.Bin
 error_opts = {
     'linestyle':'none',
     'marker': '.',
-    'markersize': 10.,
+    'markersize': 14.,
     'elinewidth': 1,
 }
 
 NEW_BINS = {
-    'met' : Bin("met", r"$p_T^{miss}$ (GeV)", list(range(0,500,20)) + list(range(500,1000,40))),
-    'recoil' : Bin("recoil", "Recoil (GeV)", list(range(0,500,20)) + list(range(500,1000,40))),
-    'ak4_pt0' : Bin("jetpt", r"Leading Jet $p_{T}$ (GeV)", list(range(0,500,20)) + list(range(500,1000,20))),
-    'ak4_eta0' : Bin("jeteta", r"Leading Jet $\eta$", 25, -5, 5),
-    'ak4_abseta0_pt0' : Bin("jetpt", r"Leading Jet $p_{T}$ (GeV)", list(range(0,500,20)) + list(range(500,1000,40))),
-    'ht' : Bin("ht", r"$H_{T}$ (GeV)", list(range(0,2000,80)) + list(range(2000,4000,160))),
+    'met' : Bin("met", r"Offline $p_T^{miss}$ [GeV]", list(range(0,500,20)) + list(range(500,1000,40))),
+    'recoil' : Bin("recoil", r"Offline $p_{T,no-\mu}^{miss}$ [GeV]", list(range(0,500,20)) + list(range(500,1000,40))),
+    'ak4_pt0' : Bin("jetpt", r"Offline leading jet $p_{T}$ [GeV]", list(range(0,500,20)) + list(range(500,1000,20))),
+    'ak4_eta0' : Bin("jeteta", r"Offline leading jet $\eta$", 25, -5, 5),
+    'ak4_abseta0_pt0' : Bin("jetpt", r"Offline leading jet $p_{T}$ [GeV]", list(range(0,500,20)) + list(range(500,1000,40))),
+    'ht' : Bin("ht", r"Offline $H_{T}$ [GeV]", list(range(0,2000,80)) + list(range(2000,3200,200))),
+    # 'ht' : Bin("ht", r"Offline $H_{T}$ [GeV]", list(range(0,2000,80)) + list(range(2000,4000,160))),
 }
 
 TRIGGER_NAMES = {
@@ -44,6 +49,13 @@ TRIGGER_NAMES = {
     'tr_metnomu_filterhf' : 'HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_FilterHF',
     'tr_jet' : 'HLT_PFJet500',
     'tr_ht' : 'HLT_PFHT1050',
+}
+
+TRIGGER_LABELS = {
+    'tr_jet'     : 'AK4PF jet with \n $p_T > 500 \ GeV$',
+    'tr_ht'      : '$H_T > 1050 \ GeV$',
+    'tr_metnomu' : '$p_{T,no-\mu}^{miss} > 120 \ GeV$ \n$H_{T,no-\mu}^{miss} > 120 \ GeV$',
+    'tr_metnomu_filterhf' : '$p_{T,no-\mu}^{miss} > 120 \ GeV$ \n$H_{T,no-\mu}^{miss} > 120 \ GeV$',
 }
 
 DISTRIBUTIONS = {
@@ -139,10 +151,8 @@ def plot_turnons_for_different_runs(
 
     # Dataset regex -> Legend label to plot
     datasets_labels = {
-        'Muon.*2022[CD]' : '2022C+D',
-        'Muon.*2022E'    : '2022E',
-        'Muon.*2022F'    : '2022F',
-        'Muon.*2022G'    : '2022G',
+        "Muon.*2022[CDE]" : "pre-HCAL update",
+        "Muon.*2022[FG]"  : "post-HCAL update",
     }
 
     chi2_vals = {
@@ -193,26 +203,38 @@ def plot_turnons_for_different_runs(
             clear=False
         )
 
-    if plot_fit:
-        ax.legend(title='Run', prop={'size' : 8})
-    else:
-        ax.legend(title='Run')
-    
-    ax.set_ylabel('Trigger Efficiency')
+    ax.set_xlabel(NEW_BINS[distribution].label, horizontalalignment='right', x=1)
+    ax.set_ylabel('Efficiency', verticalalignment='bottom', y=0.9)
+    ax.legend()
+    ax.grid(True, which='major')
 
-    ax.text(0,1,'Muon 2022',
-        fontsize=14,
-        ha='left',
+    ax.text(0.8, 0.05, TRIGGER_LABELS[region],
+        fontsize=24,
+        ha='center',
         va='bottom',
-        transform=ax.transAxes
+        transform=ax.transAxes,
     )
+
+    if "recoil" in distribution:
+        ax.set_xscale("log")
+        ax.set_xlim(1e1,1e3)
+
+    # ax.text(0,1,'Muon 2022',
+    #     fontsize=14,
+    #     ha='left',
+    #     va='bottom',
+    #     transform=ax.transAxes
+    # )
     
-    ax.text(1,1,TRIGGER_NAMES[region],
-        fontsize=10,
-        ha='right',
-        va='bottom',
-        transform=ax.transAxes
-    )
+    # ax.text(1,1,TRIGGER_NAMES[region],
+    #     fontsize=10,
+    #     ha='right',
+    #     va='bottom',
+    #     transform=ax.transAxes
+    # )
+
+    hep.cms.label(year="2022", paper=True, llabel=" Preliminary", rlabel=r"$34.3 \ fb^{-1}$, 2022 (13.6 TeV)")
+    hep.cms.text()
 
     # Setup the equation label and the output directory to save
     if fit_func == sigmoid:
@@ -243,7 +265,7 @@ def plot_turnons_for_different_runs(
 
     ax.axhline(1, xmin=0, xmax=1, color='k', ls='--')
 
-    ax.set_ylim(bottom=0)
+    ax.set_ylim((0,1.5))
 
     outpath = pjoin(outdir, f'turnons_{region}.pdf')
     fig.savefig(outpath)
@@ -496,6 +518,11 @@ def plot_efficiency_vs_nvtx(acc,
 
     h = h.integrate('dataset', re.compile(dataset))
     
+    # Rebin Nvtx axis
+    new_bin_edges = [-0.5,9.5,14.5] + list(np.arange(15.5,50.5,1)) + list(np.arange(50.5,56.5,2)) + [56.5,60.5,64.5,69.5,79.5]
+    new_ax = hist.Bin('nvtx','Number of vertices',new_bin_edges)
+    h = h.rebin("nvtx", new_ax)
+
     # List of recoil slices to plot (i.e. recoil > X)   
     recoil_slices = [
         slice(200,None),
@@ -520,28 +547,43 @@ def plot_efficiency_vs_nvtx(acc,
             histo.integrate('region', f'{region}_den'),
             ax=ax,
             error_opts=error_opts,
-            label=f'$p_T^{{miss}} > {recoil_slice.start:.0f} \\ GeV$',
+            label=f'Offline $p_{{T,no-\\mu}}^{{miss}} > {recoil_slice.start:.0f} \\ GeV$',
             clear=False,
         )
 
-    ax.legend(title=r'$p_{T}^{miss}$ Threshold (no-$\mu$)')
+    ax.legend()
     ax.axhline(1, xmin=0, xmax=1, color='k', ls='--')
-    ax.set_ylim(bottom=0.8)
-    ax.set_ylabel('Trigger Efficiency')
+    ax.set_ylim(0.5,1.3)
 
-    ax.text(0,1,'Muon 2022 F+G',
-        fontsize=14,
-        ha='left',
+    ax.set_xlabel(new_ax.label, horizontalalignment='right', x=1)
+    ax.set_ylabel('Efficiency', verticalalignment='bottom', y=0.9)
+    ax.grid(True, which='major')
+
+    ax.text(0.8, 0.05, TRIGGER_LABELS[region],
+        fontsize=24,
+        ha='center',
         va='bottom',
-        transform=ax.transAxes
+        transform=ax.transAxes,
     )
 
-    ax.text(1,1,TRIGGER_NAMES[region],
-        fontsize=10,
-        ha='right',
-        va='bottom',
-        transform=ax.transAxes
-    )
+    # CMS label & text
+    hep.cms.label(year="2022", paper=True, llabel=" Preliminary", rlabel=r"$34.3 \ fb^{-1}$, 2022 (13.6 TeV)")
+    hep.cms.text()
+
+
+    # ax.text(0,1,'Muon 2022 F+G',
+    #     fontsize=14,
+    #     ha='left',
+    #     va='bottom',
+    #     transform=ax.transAxes
+    # )
+
+    # ax.text(1,1,TRIGGER_NAMES[region],
+    #     fontsize=10,
+    #     ha='right',
+    #     va='bottom',
+    #     transform=ax.transAxes
+    # )
 
     # Save the plot
     filename = f'{region}_eff_vs_nvtx.pdf'
@@ -559,12 +601,14 @@ def plot_turnon_wrt_nvtx(acc, outdir, region, distribution, dataset='Muon.*2022[
 
     # Rebinning
     if distribution == 'recoil_npvgood':
-        h = h.rebin('recoil', NEW_BINS['recoil'])
+        new_ax = NEW_BINS['recoil']
     elif distribution == 'met_npvgood':
-        h = h.rebin('met', NEW_BINS['met'])
+        new_ax = NEW_BINS['met']
     else:
         raise RuntimeError(f'Unrecognized distribution: {distribution}')
-    
+
+    h = h.rebin(new_ax.name, new_ax)
+
     h = h.integrate('dataset', re.compile(dataset))
 
     # Different Nvtx bins
@@ -588,24 +632,43 @@ def plot_turnon_wrt_nvtx(acc, outdir, region, distribution, dataset='Muon.*2022[
             clear=False,
         )
 
-    ax.legend(title='Number of Vertices')
+    ax.legend()
     ax.axhline(1, xmin=0, xmax=1, color='k', ls='--')
     ax.set_ylim(bottom=0)
-    ax.set_ylabel('Trigger Efficiency')
-
-    ax.text(0,1,'Muon 2022 F+G',
-        fontsize=14,
-        ha='left',
-        va='bottom',
-        transform=ax.transAxes
-    )
     
-    ax.text(1,1,TRIGGER_NAMES[region],
-        fontsize=10,
-        ha='right',
+    ax.set_xscale("log")
+    ax.set_xlim(1e1,1e3)
+    ax.set_ylim(0,1.5)
+
+    ax.set_xlabel(new_ax.label, horizontalalignment='right', x=1)
+    ax.set_ylabel('Efficiency', verticalalignment='bottom', y=0.9)
+    
+    ax.grid(True, which='major')
+
+    ax.text(0.8, 0.05, TRIGGER_LABELS[region],
+        fontsize=24,
+        ha='center',
         va='bottom',
-        transform=ax.transAxes
+        transform=ax.transAxes,
     )
+
+    # CMS text & labels
+    hep.cms.label(year="2022", paper=True, llabel=" Preliminary", rlabel=r"$34.3 \ fb^{-1}$, 2022 (13.6 TeV)")
+    hep.cms.text()
+
+    # ax.text(0,1,'Muon 2022 F+G',
+    #     fontsize=14,
+    #     ha='left',
+    #     va='bottom',
+    #     transform=ax.transAxes
+    # )
+    
+    # ax.text(1,1,TRIGGER_NAMES[region],
+    #     fontsize=10,
+    #     ha='right',
+    #     va='bottom',
+    #     transform=ax.transAxes
+    # )
 
     outpath = pjoin(outdir, f'{region}_turnon_vs_nvtx.pdf')
     fig.savefig(outpath)
@@ -727,6 +790,45 @@ def compare_turnons_with_PU60_fill(acc, outdir, region):
     plt.close(fig)
 
 
+def compare_metnomu_turnon_for_different_thresh(acc, outdir, regions_num, region_den, dataset='Muon.*2022.*'):
+    """
+    Compare the METNoMu turn-on for different paths.
+    """
+    acc.load("recoil")
+    h = acc["recoil"]
+
+    h = h.integrate("dataset", re.compile(dataset))
+
+    fig, ax = plt.subplots()
+    for region_num, label in regions_num.items():
+        hist.plotratio(
+            h.integrate("region", region_num),
+            h.integrate("region", region_den),
+            ax=ax,
+            error_opts=error_opts,
+            label=label,
+            clear=False,
+        )
+
+    ax.legend()
+    ax.set_xlabel(r"Offline METNo$\mu$ [GeV]", horizontalalignment='right', x=1)
+    ax.set_ylabel('Efficiency', verticalalignment='bottom', y=0.9)
+
+    ax.set_xlim(80, 280)
+
+    ax.grid(True, which='major')
+    ax.set_ylim(bottom=0)
+    
+    ax.axhline(1, xmin=0, xmax=1, color='k', ls='--')
+
+    hep.cms.label(year="2022", paper=True, llabel=" Preliminary", rlabel=r"$34.3 \ fb^{-1}$, 2022 (13.6 TeV)")
+    hep.cms.text()
+
+    outpath = pjoin(outdir, "metnomu_turnon_comparison.pdf")
+    fig.savefig(outpath)
+    plt.close(fig)
+
+
 def main():
     args = parse_cli()
     inpath = args.inpath
@@ -803,20 +905,35 @@ def main():
         print('Skipping PU=60 plots.')
 
     # Efficiency vs Nvtx plots for MET/METNoMu triggers
-    plot_efficiency_vs_nvtx(acc, outdir, distribution='met_npvgood', region='tr_met')
-    plot_efficiency_vs_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_metnomu')
-    plot_efficiency_vs_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_metnomu_filterhf')
-    plot_efficiency_vs_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_metnomu_L1ETMHF100')
+    plot_efficiency_vs_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_metnomu', dataset='Muon.*2022.*')
+    
+    # plot_efficiency_vs_nvtx(acc, outdir, distribution='met_npvgood', region='tr_met')
+    # plot_efficiency_vs_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_metnomu_filterhf')
+    # plot_efficiency_vs_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_metnomu_L1ETMHF100')
 
-    plot_turnon_wrt_nvtx(acc, outdir, distribution='met_npvgood', region='tr_met')
-    plot_turnon_wrt_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_metnomu')
+    # plot_turnon_wrt_nvtx(acc, outdir, distribution='met_npvgood', region='tr_met', dataset='Muon.*2022.*')
+    plot_turnon_wrt_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_metnomu', dataset='Muon.*2022.*')
 
     # Turn-on comparisons between two regions
     regions_to_compare = {
         'tr_metnomu' : 'METNoMu120',
         'tr_metnomu_L1ETMHF100' : 'METNoMu120 + L1ETMHF100',
     }
-    compare_turnons(acc, outdir, dataset='Muon.*2022[FG].*', regions=regions_to_compare)
+    # compare_turnons(acc, outdir, dataset='Muon.*2022[FG].*', regions=regions_to_compare)
+
+    # 
+    # METNoMu turn-on comparison for different thresholds
+    # 
+    regions_num = {
+        f"tr_metnomu{thresh}_filterhf_num" : f"METNo$\\mu$ > {thresh} GeV" for thresh in [110,120,130,140]
+    }
+    # compare_metnomu_turnon_for_different_thresh(
+    #     acc, 
+    #     outdir,
+    #     regions_num=regions_num,
+    #     region_den="tr_metnomu_filterhf_den",
+    #     dataset="Muon.*2022.*"
+    # )
 
 if __name__ == '__main__':
     main()
