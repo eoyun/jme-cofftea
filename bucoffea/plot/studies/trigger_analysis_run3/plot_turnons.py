@@ -267,8 +267,10 @@ def plot_turnons_for_different_runs(
 
     ax.set_ylim((0,1.5))
 
-    outpath = pjoin(outdir, f'turnons_{region}.pdf')
-    fig.savefig(outpath)
+    for fformat in ['png', 'pdf']:
+        outpath = pjoin(outdir, f'turnons_{region}.{fformat}')
+        fig.savefig(outpath)
+
     plt.close(fig)
 
 
@@ -586,9 +588,10 @@ def plot_efficiency_vs_nvtx(acc,
     # )
 
     # Save the plot
-    filename = f'{region}_eff_vs_nvtx.pdf'
-    outpath = pjoin(outdir, filename)
-    fig.savefig(outpath)
+    for fformat in ['pdf', 'png']:
+        filename = f'{region}_eff_vs_nvtx.{fformat}'
+        outpath = pjoin(outdir, filename)
+        fig.savefig(outpath)
     plt.close(fig)
 
 
@@ -670,8 +673,9 @@ def plot_turnon_wrt_nvtx(acc, outdir, region, distribution, dataset='Muon.*2022[
     #     transform=ax.transAxes
     # )
 
-    outpath = pjoin(outdir, f'{region}_turnon_vs_nvtx.pdf')
-    fig.savefig(outpath)
+    for fformat in ['pdf', 'png']:
+        outpath = pjoin(outdir, f'{region}_turnon_vs_nvtx.{fformat}')
+        fig.savefig(outpath)
     plt.close(fig)
 
 
@@ -836,14 +840,14 @@ def main():
 
     # Output directory to save plots
     outtag = os.path.basename(inpath.rstrip('/'))
-    outdir = f'./output/{outtag}'
+    outdir = f'./output/{outtag}/latest'
     if not os.path.exists(outdir):
         os.makedirs(outdir)
     
     # Turn-on regions + initial parameter guesses for the fit 
     regions_fit_guesses = {
-        'tr_jet' : (500, 50),
-        'tr_ht' : (1050, 25),
+        # 'tr_jet' : (500, 50),
+        # 'tr_ht' : (1050, 25),
         'tr_metnomu' : (200, 20),
         'tr_metnomu_filterhf' : (200, 20),
     }
