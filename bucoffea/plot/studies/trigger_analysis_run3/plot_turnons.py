@@ -846,8 +846,8 @@ def main():
     
     # Turn-on regions + initial parameter guesses for the fit 
     regions_fit_guesses = {
-        # 'tr_jet' : (500, 50),
-        # 'tr_ht' : (1050, 25),
+        'tr_jet' : (500, 50),
+        'tr_ht' : (1050, 25),
         'tr_metnomu' : (200, 20),
         'tr_metnomu_filterhf' : (200, 20),
     }
