@@ -4,9 +4,9 @@ import coffea.processor as processor
 import numpy as np
 
 from coffea.btag_tools.btagscalefactor import BTagScaleFactor
-from bucoffea.helpers.dataset import extract_year
-from bucoffea.helpers.gen import get_gen_photon_pt
-from bucoffea.helpers.paths import bucoffea_path
+from jmecofftea.helpers.dataset import extract_year
+from jmecofftea.helpers.gen import get_gen_photon_pt
+from jmecofftea.helpers.paths import bucoffea_path
 
 def gen_check_for_leptons(leptons, veto_weights, tau=False):
     '''

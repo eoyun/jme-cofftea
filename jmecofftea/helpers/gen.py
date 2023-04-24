@@ -3,7 +3,7 @@
 import numpy as np
 from awkward import JaggedArray
 from coffea.analysis_objects import JaggedCandidateArray
-from bucoffea.helpers.dataset import (
+from jmecofftea.helpers.dataset import (
                                       is_lo_w,
                                       is_lo_w_ewk,
                                       is_lo_z,

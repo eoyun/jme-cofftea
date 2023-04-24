@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from bucoffea.execute.dataset_definitions import load_lists, short_name
+from jmecofftea.execute.dataset_definitions import load_lists, short_name
 from tabulate import tabulate
 import argparse
 import re

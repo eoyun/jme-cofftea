@@ -3,7 +3,7 @@
 import tarfile
 import os
 
-from bucoffea.helpers.paths import bucoffea_path
+from jmecofftea.helpers.paths import bucoffea_path
 
 
 def get_repo_files():

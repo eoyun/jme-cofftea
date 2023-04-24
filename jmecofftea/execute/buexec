@@ -11,14 +11,14 @@ import uproot
 from coffea import processor
 from coffea.util import save
 
-from bucoffea.execute.dataset_definitions import (files_from_ac,
+from jmecofftea.execute.dataset_definitions import (files_from_ac,
                                                   files_from_das,
                                                   files_from_eos)
-from bucoffea.helpers import bucoffea_path, vo_proxy_path, xrootd_format
-from bucoffea.helpers.condor import condor_submit
-from bucoffea.helpers.git import git_rev_parse, git_diff
-from bucoffea.helpers.deployment import pack_repo
-from bucoffea.processor.executor import run_uproot_job_nanoaod
+from jmecofftea.helpers import bucoffea_path, vo_proxy_path, xrootd_format
+from jmecofftea.helpers.condor import condor_submit
+from jmecofftea.helpers.git import git_rev_parse, git_diff
+from jmecofftea.helpers.deployment import pack_repo
+from jmecofftea.processor.executor import run_uproot_job_nanoaod
 
 import socket
 
@@ -26,7 +26,7 @@ pjoin = os.path.join
 
 def choose_processor(args):
     if args.processor == 'hlt':
-        from bucoffea.hlt.hltProcessor import hltProcessor
+        from jmecofftea.hlt.hltProcessor import hltProcessor
         return hltProcessor
     else:
         raise ValueError(f"Unknown value given for the processor: {args.processor}")

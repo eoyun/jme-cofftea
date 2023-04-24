@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-from bucoffea.helpers.dataset import extract_year
-from bucoffea.processor.executor import run_uproot_job_nanoaod
-from bucoffea.helpers.cutflow import print_cutflow
+from jmecofftea.helpers.dataset import extract_year
+from jmecofftea.processor.executor import run_uproot_job_nanoaod
+from jmecofftea.helpers.cutflow import print_cutflow
 from coffea.util import save
 import coffea.processor as processor
 import argparse
@@ -35,7 +35,7 @@ def main():
     processor_class = args.processor
 
     if args.processor == 'hlt':
-        from bucoffea.hlt.hltProcessor import hltProcessor
+        from jmecofftea.hlt.hltProcessor import hltProcessor
         processorInstance = hltProcessor()
     else:
         raise ValueError(f"Unknown value given for the processor argument: {args.processor}")

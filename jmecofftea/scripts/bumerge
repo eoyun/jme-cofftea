@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import argparse
-from bucoffea.helpers.merging import CoffeaMerger
+from jmecofftea.helpers.merging import CoffeaMerger
 
 
 def parse_commandline():

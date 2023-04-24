@@ -1,4 +1,4 @@
-from bucoffea.helpers.paths import bucoffea_path
+from jmecofftea.helpers.paths import bucoffea_path
 import numpy as np
 
 def dphi(phi1, phi2):

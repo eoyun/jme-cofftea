@@ -6,11 +6,11 @@ from dynaconf import settings as cfg
 
 from coffea.lumi_tools import LumiMask
 
-from bucoffea.hlt.definitions import hlt_accumulator, hlt_regions, setup_candidates
-from bucoffea.helpers import bucoffea_path, recoil, metnomu, mask_and, mask_or, object_overlap
-from bucoffea.helpers.dataset import extract_year
-from bucoffea.helpers.paths import bucoffea_path
-from bucoffea.helpers.jme import get_jme_correctors
+from jmecofftea.hlt.definitions import hlt_accumulator, hlt_regions, setup_candidates
+from jmecofftea.helpers import bucoffea_path, recoil, metnomu, mask_and, mask_or, object_overlap
+from jmecofftea.helpers.dataset import extract_year
+from jmecofftea.helpers.paths import bucoffea_path
+from jmecofftea.helpers.jme import get_jme_correctors
 
 class hltProcessor(processor.ProcessorABC):
     def __init__(self):

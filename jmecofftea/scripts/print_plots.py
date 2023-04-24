@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import sys
-from bucoffea.plot.debug import debug_plot_output
+from jmecofftea.plot.debug import debug_plot_output
 from coffea.util import load, save
 import argparse
 def commandline():

@@ -1,6 +1,6 @@
 import numpy as np
 import re
-from bucoffea.helpers import dasgowrapper, bucoffea_path
+from jmecofftea.helpers import dasgowrapper, bucoffea_path
 import os
 import yaml
 import socket

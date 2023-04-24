@@ -1,7 +1,7 @@
 from coffea.lookup_tools import extractor
 from coffea.jetmet_tools import FactorizedJetCorrector
 
-from bucoffea.helpers.paths import bucoffea_path
+from jmecofftea.helpers.paths import bucoffea_path
 
 def get_jme_correctors():
     ext = extractor()

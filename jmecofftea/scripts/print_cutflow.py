@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from bucoffea.helpers.cutflow import print_cutflow
+from jmecofftea.helpers.cutflow import print_cutflow
 import sys
 from coffea.util import load
 

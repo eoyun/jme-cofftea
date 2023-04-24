@@ -15,9 +15,9 @@ from coffea.util import load, save
 from matplotlib import pyplot as plt
 from tqdm import tqdm
 
-from bucoffea.execute.dataset_definitions import short_name
-from bucoffea.helpers.dataset import extract_year, is_data
-from bucoffea.helpers.paths import bucoffea_path
+from jmecofftea.execute.dataset_definitions import short_name
+from jmecofftea.helpers.dataset import extract_year, is_data
+from jmecofftea.helpers.paths import bucoffea_path
 
 from klepto.archives import dir_archive
 import uproot_methods.classes.TH1

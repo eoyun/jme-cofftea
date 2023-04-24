@@ -1,6 +1,6 @@
 import re
 
-from bucoffea.execute.dataset_definitions import short_name
+from jmecofftea.execute.dataset_definitions import short_name
 
 def is_lo_znunu(dataset):
     return bool(re.match(r'Z(\d*)Jet.*(mg|MLM|madgraph).*', dataset))

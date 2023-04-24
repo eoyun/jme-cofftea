@@ -4,8 +4,8 @@ import os
 import sys
 import re
 from pprint import pprint
-from bucoffea.plot.util import create_dataset_mapping
-from bucoffea.execute.dataset_definitions import short_name
+from jmecofftea.plot.util import create_dataset_mapping
+from jmecofftea.execute.dataset_definitions import short_name
 
 # Script to quickly test the validity of dataset mapping in its current form
 

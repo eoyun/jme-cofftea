@@ -9,7 +9,7 @@ import time
 
 from tabulate import tabulate
 
-from bucoffea.helpers.condor import ConMan
+from jmecofftea.helpers.condor import ConMan
 
 pjoin = os.path.join
 

@@ -4,7 +4,7 @@ import copy
 import numpy as np
 import yaml
 from pprint import pprint
-from bucoffea.execute.dataset_definitions import short_name
+from jmecofftea.execute.dataset_definitions import short_name
 
 """Script to convert the GenXSecAnalyzer list into YAML
 
