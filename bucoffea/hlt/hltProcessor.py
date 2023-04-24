@@ -8,7 +8,6 @@ from coffea.lumi_tools import LumiMask
 
 from bucoffea.hlt.definitions import hlt_accumulator, hlt_regions, setup_candidates
 from bucoffea.helpers import bucoffea_path, recoil, metnomu, mask_and, mask_or, object_overlap
-from coffea.lumi_tools import LumiMask
 from bucoffea.helpers.dataset import extract_year
 from bucoffea.helpers.paths import bucoffea_path
 from bucoffea.helpers.jme import get_jme_correctors

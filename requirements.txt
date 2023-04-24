@@ -2,7 +2,7 @@ coffea==0.6.37
 mplhep==0.1.14
 htcondor
 dynaconf
-pyyaml
+PyYAML==6.0
 gitpython
 tabulate
 klepto

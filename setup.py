@@ -4,12 +4,12 @@ with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
 setup(
-    name = 'bucoffea',
+    name = 'jmecofftea',
     version = '0.0.1',
-    url = 'https://github.com/bu-cms/bucoffea',
+    url = 'https://github.com/cms-jet/jme-cofftea',
     author = 'Andreas Albert',
     author_email = 'andreas.albert@cern.ch',
-    description = 'Analysis using Coffea on NanoAOD',
+    description = 'JetMET trigger analysis using coffea on NanoAOD',
     packages = find_packages(),    
     install_requires = requirements,
     scripts=[
