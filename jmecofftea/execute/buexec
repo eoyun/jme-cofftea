@@ -14,7 +14,7 @@ from coffea.util import save
 from jmecofftea.execute.dataset_definitions import (files_from_ac,
                                                   files_from_das,
                                                   files_from_eos)
-from jmecofftea.helpers import bucoffea_path, vo_proxy_path, xrootd_format
+from jmecofftea.helpers import jmecofftea_path, vo_proxy_path, xrootd_format
 from jmecofftea.helpers.condor import condor_submit
 from jmecofftea.helpers.git import git_rev_parse, git_diff
 from jmecofftea.helpers.deployment import pack_repo
@@ -236,7 +236,7 @@ def do_submit(args):
             chunkname = f'{dataset}_{ichunk:03d}of{len(chunks):03d}'
             submission_settings = {
                 "Initialdir" : subdir,
-                "executable": bucoffea_path("execute/htcondor_wrap.sh"),
+                "executable": jmecofftea_path("execute/htcondor_wrap.sh"),
                 "should_transfer_files" : "YES",
                 "when_to_transfer_output" : "ON_EXIT",
                 "transfer_input_files" : ", ".join(job_input_files),

@@ -3,14 +3,14 @@
 import tarfile
 import os
 
-from jmecofftea.helpers.paths import bucoffea_path
+from jmecofftea.helpers.paths import jmecofftea_path
 
 
 def get_repo_files():
     '''Returns a list of tracked files in the bucoffea repo'''
     import git
 
-    repo = git.Repo(bucoffea_path('..'))
+    repo = git.Repo(jmecofftea_path('..'))
 
     to_iterate = [repo.tree()]
     to_add = []
@@ -34,7 +34,7 @@ def pack_repo(path_to_gridpack):
     for f in files:
         tar.add(
             name=f,
-            arcname=f.replace(os.path.abspath(bucoffea_path('..')),'bucoffea'),
+            arcname=f.replace(os.path.abspath(jmecofftea_path('..')),'bucoffea'),
             exclude=lambda x: ('tgz' in x or 'submission' in x)
             )
     tar.close()

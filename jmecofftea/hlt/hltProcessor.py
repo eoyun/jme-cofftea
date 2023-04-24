@@ -7,9 +7,9 @@ from dynaconf import settings as cfg
 from coffea.lumi_tools import LumiMask
 
 from jmecofftea.hlt.definitions import hlt_accumulator, hlt_regions, setup_candidates
-from jmecofftea.helpers import bucoffea_path, recoil, metnomu, mask_and, mask_or, object_overlap
+from jmecofftea.helpers import jmecofftea_path, recoil, metnomu, mask_and, mask_or, object_overlap
 from jmecofftea.helpers.dataset import extract_year
-from jmecofftea.helpers.paths import bucoffea_path
+from jmecofftea.helpers.paths import jmecofftea_path
 from jmecofftea.helpers.jme import get_jme_correctors
 
 class hltProcessor(processor.ProcessorABC):
@@ -23,7 +23,7 @@ class hltProcessor(processor.ProcessorABC):
     def _configure(self, df=None):
         cfg.DYNACONF_WORKS="merge_configs"
         cfg.MERGE_ENABLED_FOR_DYNACONF = True
-        cfg.SETTINGS_FILE_FOR_DYNACONF = bucoffea_path("config/hlt.yaml")
+        cfg.SETTINGS_FILE_FOR_DYNACONF = jmecofftea_path("config/hlt.yaml")
 
         # Reload config based on year
         if df:
@@ -77,9 +77,9 @@ class hltProcessor(processor.ProcessorABC):
 
         # Create mask for events with good lumis (using the golden JSON)
         if df["year"] == 2022:
-            json = bucoffea_path("data/json/Cert_Collisions2022_355100_362760_Golden.json")
+            json = jmecofftea_path("data/json/Cert_Collisions2022_355100_362760_Golden.json")
         elif df["year"] == 2018:
-            json = bucoffea_path("data/json/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt")
+            json = jmecofftea_path("data/json/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt")
         else:
             raise RuntimeError(f"Golden JSON filtering not implemented for year: {df['year']}")
 

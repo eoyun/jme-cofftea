@@ -1,12 +1,12 @@
 
 import os
-import bucoffea
+import jmecofftea
 import subprocess
 import re
 
 pjoin = os.path.join
 
-def bucoffea_path(path_in_repo):
+def jmecofftea_path(path_in_repo):
     return pjoin(bucoffea.__path__[0], path_in_repo)
 
 

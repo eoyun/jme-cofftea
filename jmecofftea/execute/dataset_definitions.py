@@ -1,6 +1,6 @@
 import numpy as np
 import re
-from jmecofftea.helpers import dasgowrapper, bucoffea_path
+from jmecofftea.helpers import dasgowrapper, jmecofftea_path
 import os
 import yaml
 import socket
@@ -50,11 +50,11 @@ def short_name(dataset):
 
 def load_lists():
     files = [
-        bucoffea_path(f"data/datasets/datasets_nanoaod_v7_2016.txt"),
-        bucoffea_path(f"data/datasets/datasets_nanoaod_v7_2017.txt"),
-        bucoffea_path(f"data/datasets/datasets_nanoaod_v7_2018.txt"),
-        bucoffea_path(f"data/datasets/datasets_nanoaod_v9_2018.txt"),
-        bucoffea_path(f"data/datasets/datasets_nanoaod_v10_2022.txt")
+        jmecofftea_path(f"data/datasets/datasets_nanoaod_v7_2016.txt"),
+        jmecofftea_path(f"data/datasets/datasets_nanoaod_v7_2017.txt"),
+        jmecofftea_path(f"data/datasets/datasets_nanoaod_v7_2018.txt"),
+        jmecofftea_path(f"data/datasets/datasets_nanoaod_v9_2018.txt"),
+        jmecofftea_path(f"data/datasets/datasets_nanoaod_v10_2022.txt")
     ]
     lines = []
     for fpath in files:
@@ -108,7 +108,7 @@ def files_from_ac(regex):
     :return: Mapping of dataset : [files]
     :rtype: dict
     """
-    path = bucoffea_path('data/datasets/crabfiles.yml')
+    path = jmecofftea_path('data/datasets/crabfiles.yml')
 
     with open(path, 'r') as stream:
         try:

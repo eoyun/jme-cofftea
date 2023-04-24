@@ -6,7 +6,7 @@ import numpy as np
 from coffea.btag_tools.btagscalefactor import BTagScaleFactor
 from jmecofftea.helpers.dataset import extract_year
 from jmecofftea.helpers.gen import get_gen_photon_pt
-from jmecofftea.helpers.paths import bucoffea_path
+from jmecofftea.helpers.paths import jmecofftea_path
 
 def gen_check_for_leptons(leptons, veto_weights, tau=False):
     '''
@@ -200,7 +200,7 @@ def btag_weights(bjets, cfg):
 
     # Heavy lifting done by coffea implementation
     bsf = BTagScaleFactor(
-                          filename=bucoffea_path(cfg.SF.DEEPCSV.FILE),
+                          filename=jmecofftea_path(cfg.SF.DEEPCSV.FILE),
                           workingpoint=cfg.BTAG.WP.upper(),
                           methods='comb,comb,incl' # Comb for b and c flavors, incl for light
                           )

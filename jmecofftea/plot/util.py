@@ -17,7 +17,7 @@ from tqdm import tqdm
 
 from jmecofftea.execute.dataset_definitions import short_name
 from jmecofftea.helpers.dataset import extract_year, is_data
-from jmecofftea.helpers.paths import bucoffea_path
+from jmecofftea.helpers.paths import jmecofftea_path
 
 from klepto.archives import dir_archive
 import uproot_methods.classes.TH1
@@ -358,7 +358,7 @@ def load_xs(ulxs=True):
     :return: Mapping dataset -> cross-section
     :rtype: dict
     """
-    xsfile = bucoffea_path(f'data/datasets/xs/xs{"_UL" if ulxs else ""}.yml')
+    xsfile = jmecofftea_path(f'data/datasets/xs/xs{"_UL" if ulxs else ""}.yml')
     with open(xsfile,'r') as f:
         xs_yml = yaml.load(f, Loader=yaml.FullLoader)
 
