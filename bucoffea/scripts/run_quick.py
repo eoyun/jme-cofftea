@@ -34,27 +34,11 @@ def main():
     args = parse_commandline()
     processor_class = args.processor
 
-    if processor_class == 'monojet':
-        from bucoffea.monojet import monojetProcessor
-        processorInstance = monojetProcessor()
-    elif processor_class == 'vbfhinv':
-        from bucoffea.vbfhinv import vbfhinvProcessor
-        processorInstance = vbfhinvProcessor()
-    elif processor_class == 'lhe':
-        from bucoffea.gen.lheVProcessor import lheVProcessor
-        processorInstance = lheVProcessor()
-    elif args.processor == 'purity':
-        from bucoffea.photon_purity import photonPurityProcessor
-        processorInstance = photonPurityProcessor()
-    elif args.processor == 'sumw':
-        from bucoffea.gen import mcSumwProcessor
-        processorInstance = mcSumwProcessor()
-    elif args.processor == 'gen':
-        from bucoffea.gen.genVbfProcessor import genVbfProcessor
-        processorInstance = genVbfProcessor()
-    elif args.processor == 'hlt':
+    if args.processor == 'hlt':
         from bucoffea.hlt.hltProcessor import hltProcessor
         processorInstance = hltProcessor()
+    else:
+        raise ValueError(f"Unknown value given for the processor argument: {args.processor}")
 
     for dataset, filelist in fileset.items():
         newlist = []

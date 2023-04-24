@@ -3,127 +3,127 @@ import ROOT as r
 import random
 import string
 def create_tdr_style(want_title=False):
-   tdrStyle =r.TStyle("tdrStyle","Style for P-TDR");
+   tdrStyle =r.TStyle("tdrStyle","Style for P-TDR")
 
-   tdrStyle.SetCanvasBorderMode(0);
-   tdrStyle.SetCanvasColor(r.kWhite);
-   tdrStyle.SetCanvasDefH(600); #Height of canvas
-   tdrStyle.SetCanvasDefW(600); #Width of canvas
-   tdrStyle.SetCanvasDefX(0);   #POsition on screen
-   tdrStyle.SetCanvasDefY(0);
+   tdrStyle.SetCanvasBorderMode(0)
+   tdrStyle.SetCanvasColor(r.kWhite)
+   tdrStyle.SetCanvasDefH(600) #Height of canvas
+   tdrStyle.SetCanvasDefW(600) #Width of canvas
+   tdrStyle.SetCanvasDefX(0)   #Position on screen
+   tdrStyle.SetCanvasDefY(0)
 
    # For the Pad:
-   tdrStyle.SetPadBorderMode(0);
-   tdrStyle.SetPadColor(r.kWhite);
-   tdrStyle.SetPadGridX(False);
-   tdrStyle.SetPadGridY(False);
-   tdrStyle.SetGridColor(0);
-   tdrStyle.SetGridStyle(3);
-   tdrStyle.SetGridWidth(1);
+   tdrStyle.SetPadBorderMode(0)
+   tdrStyle.SetPadColor(r.kWhite)
+   tdrStyle.SetPadGridX(False)
+   tdrStyle.SetPadGridY(False)
+   tdrStyle.SetGridColor(0)
+   tdrStyle.SetGridStyle(3)
+   tdrStyle.SetGridWidth(1)
 
    # For the frame:
-   tdrStyle.SetFrameBorderMode(0);
-   tdrStyle.SetFrameBorderSize(1);
-   tdrStyle.SetFrameFillColor(0);
-   tdrStyle.SetFrameFillStyle(0);
-   tdrStyle.SetFrameLineColor(1);
-   tdrStyle.SetFrameLineStyle(1);
-   tdrStyle.SetFrameLineWidth(1);
+   tdrStyle.SetFrameBorderMode(0)
+   tdrStyle.SetFrameBorderSize(1)
+   tdrStyle.SetFrameFillColor(0)
+   tdrStyle.SetFrameFillStyle(0)
+   tdrStyle.SetFrameLineColor(1)
+   tdrStyle.SetFrameLineStyle(1)
+   tdrStyle.SetFrameLineWidth(1)
 
    # For the histo:
-   tdrStyle.SetHistLineColor(1);
-   tdrStyle.SetHistLineStyle(0);
-   tdrStyle.SetHistLineWidth(2);
-   tdrStyle.SetErrorX(0.5);
+   tdrStyle.SetHistLineColor(1)
+   tdrStyle.SetHistLineStyle(0)
+   tdrStyle.SetHistLineWidth(2)
+   tdrStyle.SetErrorX(0.5)
 
 
    #For the fit/function:
-   tdrStyle.SetOptFit(0);
-   tdrStyle.SetFitFormat("5.4g");
-   tdrStyle.SetFuncColor(2);
-   tdrStyle.SetFuncStyle(1);
-   tdrStyle.SetFuncWidth(1);
+   tdrStyle.SetOptFit(0)
+   tdrStyle.SetFitFormat("5.4g")
+   tdrStyle.SetFuncColor(2)
+   tdrStyle.SetFuncStyle(1)
+   tdrStyle.SetFuncWidth(1)
 
    #For the date:
-   tdrStyle.SetOptDate(0);
+   tdrStyle.SetOptDate(0)
 
 
    # For the statistics box:
-   tdrStyle.SetOptFile(0);
-   tdrStyle.SetOptStat(""); # To display the mean and RMS:   SetOptStat("mr");
-   tdrStyle.SetStatColor(r.kWhite);
-   tdrStyle.SetStatFont(42);
-   tdrStyle.SetStatFontSize(0.04);
-   tdrStyle.SetStatFormat("6.4g");
-   tdrStyle.SetStatBorderSize(0);
+   tdrStyle.SetOptFile(0)
+   tdrStyle.SetOptStat("") # To display the mean and RMS:   SetOptStat("mr");
+   tdrStyle.SetStatColor(r.kWhite)
+   tdrStyle.SetStatFont(42)
+   tdrStyle.SetStatFontSize(0.04)
+   tdrStyle.SetStatFormat("6.4g")
+   tdrStyle.SetStatBorderSize(0)
 
 
    # Margins:
-   tdrStyle.SetPadTopMargin(0.07);
-   tdrStyle.SetPadBottomMargin(0.13);
-   tdrStyle.SetPadLeftMargin(0.13);
-   tdrStyle.SetPadRightMargin(0.06);
+   tdrStyle.SetPadTopMargin(0.07)
+   tdrStyle.SetPadBottomMargin(0.13)
+   tdrStyle.SetPadLeftMargin(0.13)
+   tdrStyle.SetPadRightMargin(0.06)
 
    # For the Global title:
    if( want_title ):
-      tdrStyle.SetOptTitle(1);
-      tdrStyle.SetTitleFont(42);
-      tdrStyle.SetTitleColor(1);
-      tdrStyle.SetTitleTextColor(r.kBlack);
-      tdrStyle.SetTitleFillColor(r.kWhite);
-      tdrStyle.SetTitleFontSize(0.14);
-      tdrStyle.SetTitleBorderSize(0);
-      tdrStyle.SetTitleAlign(23);
-      tdrStyle.SetTitleH(0.1); # Set the height of the title box
-      tdrStyle.SetTitleW(0.8); # Set the height of the title box
-      tdrStyle.SetTitleX(0.5); # Set the position of the title box
-      tdrStyle.SetTitleY(1.); # Set the position of the title box
-      tdrStyle.SetPadTopMargin(0.15);
+      tdrStyle.SetOptTitle(1)
+      tdrStyle.SetTitleFont(42)
+      tdrStyle.SetTitleColor(1)
+      tdrStyle.SetTitleTextColor(r.kBlack)
+      tdrStyle.SetTitleFillColor(r.kWhite)
+      tdrStyle.SetTitleFontSize(0.14)
+      tdrStyle.SetTitleBorderSize(0)
+      tdrStyle.SetTitleAlign(23)
+      tdrStyle.SetTitleH(0.1) # Set the height of the title box
+      tdrStyle.SetTitleW(0.8) # Set the height of the title box
+      tdrStyle.SetTitleX(0.5) # Set the position of the title box
+      tdrStyle.SetTitleY(1.) # Set the position of the title box
+      tdrStyle.SetPadTopMargin(0.15)
 
    else:
-      tdrStyle.SetOptTitle(0);
-      tdrStyle.SetTitleFont(42);
-      tdrStyle.SetTitleColor(1);
-      tdrStyle.SetTitleTextColor(1);
-      tdrStyle.SetTitleFillColor(10);
-      tdrStyle.SetTitleFontSize(0.05);
-      tdrStyle.SetTitleH(0.04); # Set the height of the title box
-      tdrStyle.SetTitleX(0.1); # Set the position of the title box
-      tdrStyle.SetTitleY(1.); # Set the position of the title box
+      tdrStyle.SetOptTitle(0)
+      tdrStyle.SetTitleFont(42)
+      tdrStyle.SetTitleColor(1)
+      tdrStyle.SetTitleTextColor(1)
+      tdrStyle.SetTitleFillColor(10)
+      tdrStyle.SetTitleFontSize(0.05)
+      tdrStyle.SetTitleH(0.04) # Set the height of the title box
+      tdrStyle.SetTitleX(0.1) # Set the position of the title box
+      tdrStyle.SetTitleY(1.) # Set the position of the title box
 
    # For the axis titles:
 
-   tdrStyle.SetTitleColor(1, "XYZ");
-   tdrStyle.SetTitleFont(42, "XYZ");
-   tdrStyle.SetTitleSize(0.05, "XYZ");
+   tdrStyle.SetTitleColor(1, "XYZ")
+   tdrStyle.SetTitleFont(42, "XYZ")
+   tdrStyle.SetTitleSize(0.05, "XYZ")
 
    # For the axis labels:
 
-   tdrStyle.SetLabelColor(1, "XYZ");
-   tdrStyle.SetLabelFont(42, "XYZ");
-   tdrStyle.SetLabelOffset(0.007, "XYZ");
-   tdrStyle.SetLabelSize(0.04, "XYZ");
+   tdrStyle.SetLabelColor(1, "XYZ")
+   tdrStyle.SetLabelFont(42, "XYZ")
+   tdrStyle.SetLabelOffset(0.007, "XYZ")
+   tdrStyle.SetLabelSize(0.04, "XYZ")
 
    # For the axis:
 
-   tdrStyle.SetAxisColor(1, "XYZ");
-   tdrStyle.SetStripDecimals(r.kTRUE);
-   tdrStyle.SetTickLength(0.03, "XYZ");
-   tdrStyle.SetNdivisions(510, "XYZ");
-   tdrStyle.SetPadTickX(1);  # To get tick marks on the opposite side of the frame
-   tdrStyle.SetPadTickY(1);
+   tdrStyle.SetAxisColor(1, "XYZ")
+   tdrStyle.SetStripDecimals(r.kTRUE)
+   tdrStyle.SetTickLength(0.03, "XYZ")
+   tdrStyle.SetNdivisions(510, "XYZ")
+   tdrStyle.SetPadTickX(1)  # To get tick marks on the opposite side of the frame
+   tdrStyle.SetPadTickY(1)
 
    # Change for log plots:
-   tdrStyle.SetOptLogx(0);
-   tdrStyle.SetOptLogy(0);
-   tdrStyle.SetOptLogz(0);
+   tdrStyle.SetOptLogx(0)
+   tdrStyle.SetOptLogy(0)
+   tdrStyle.SetOptLogz(0)
 
    # Postscript options:
-   tdrStyle.SetPaperSize(20.,20.);
+   tdrStyle.SetPaperSize(20.,20.)
 
    tdrStyle.SetLegendBorderSize(0)
-   tdrStyle.cd();
-   return tdrStyle;
+   tdrStyle.cd()
+   return tdrStyle
 
 
 def setup_canvas( want_ratio = False, width_x=None, width_y=None ):
@@ -157,7 +157,7 @@ def apply_style_to_axis( histogram, is_ratio, ymin=None, ymax=None, xtitle="", y
    title_offset = 1.0
    tick_length = 0.03
    if( is_ratio ):
-      yscale = (1.0-0.3)/(0.3-0);
+      yscale = (1.0-0.3)/(0.3-0)
       title_size *= yscale
       label_size *= yscale
       tick_length *= yscale
