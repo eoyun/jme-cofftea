@@ -9,3 +9,7 @@ __pycache__
 monitor_log.txt
 submission/
 pkl/
+
+# Ignore build products from setup.py
+build/
+dist/
