@@ -7,7 +7,7 @@ import re
 pjoin = os.path.join
 
 def jmecofftea_path(path_in_repo):
-    return pjoin(bucoffea.__path__[0], path_in_repo)
+    return pjoin(jmecofftea.__path__[0], path_in_repo)
 
 
 def xrootd_format(fpath):
