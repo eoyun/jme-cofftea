@@ -72,6 +72,7 @@ def files_from_das(regex):
     :return: Mapping of dataset : [files]
     :rtype: dict
     """
+    print("Searching for datasets from DAS.")
     datasets = {}
 
     for line in load_lists():
@@ -89,14 +90,14 @@ def files_from_das(regex):
         datasets[name] = files.split()
 
     for dataset, filelist in datasets.items():
-            newlist = []
-            for file in filelist:
-                file = file.decode("utf-8")
-                if file.startswith("/store/"):
-                    newlist.append("root://cms-xrd-global.cern.ch//" + file)
-                else:
-                    newlist.append(file)
-            datasets[dataset] = newlist
+        newlist = []
+        for file in filelist:
+            file = file.decode("utf-8")
+            if file.startswith("/store/"):
+                newlist.append("root://cms-xrd-global.cern.ch//" + file)
+            else:
+                newlist.append(file)
+        datasets[dataset] = newlist
 
     return datasets
 
