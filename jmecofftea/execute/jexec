@@ -199,6 +199,9 @@ def do_submit(args):
             chunks = chunk_by_files(files, nchunk=int(nchunk))
         else:
             chunks = chunk_by_events(files, chunksize=args.eventsperjob, workers=8)
+
+        print(f"Will submit {len(chunks)} jobs.")
+
         for ichunk, chunk in enumerate(chunks):
             # Save input files to a txt file and send to job
             tmpfile = pjoin(subdir, filedir, f"input_{dataset}_{ichunk:03d}of{len(chunks):03d}.txt")
