@@ -13,7 +13,7 @@ from jmecofftea.helpers.condor import ConMan
 
 pjoin = os.path.join
 
-logger = logging.getLogger( 'bumon' )
+logger = logging.getLogger( 'jmon' )
 format = '%(levelname)s (%(name)s) [%(asctime)s]: %(message)s'
 date = '%F %H:%M:%S'
 logging.basicConfig( level='DEBUG', format=format, datefmt=date, filename='monitor_log.txt', filemode='w')

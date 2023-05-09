@@ -16,6 +16,9 @@ def parse_commandline():
     return args
 
 def main():
+    # 
+    # Define the mapping between dataset name and the corresponding list of files we want to run on.
+    # 
     fileset = {
         "JetMET_2022C" : [
             "root://cmsxrootd.fnal.gov//store/data/Run2022C/JetMET/NANOAOD/PromptNanoAODv10-v1/30000/11d5498c-2a79-4848-b22e-558e2850a81c.root"
@@ -34,6 +37,7 @@ def main():
     args = parse_commandline()
     processor_class = args.processor
 
+    # Currently, we only support hlt processor.
     if args.processor == 'hlt':
         from jmecofftea.hlt.hltProcessor import hltProcessor
         processorInstance = hltProcessor()
@@ -49,6 +53,8 @@ def main():
         fileset[dataset] = newlist
 
     for dataset, filelist in fileset.items():
+        print(f"Running on dataset: {dataset}")
+        print(f"Number of files: {len(filelist)}")
         tmp = {dataset:filelist}
         output = run_uproot_job_nanoaod(tmp,
                                     treename='Runs' if args.processor=='sumw' else 'Events',
