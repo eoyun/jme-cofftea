@@ -22,14 +22,23 @@ if [ ! -z "${VIRTUAL_ENV}" ]; then
     echo "Found VIRTUAL_ENV variable."
     source ${VIRTUAL_ENV}/bin/activate
 else
+    # Untar gridpack to get the source files
     tar xf *tgz
     rm -rvf *tgz
-    ENVNAME="bucoffeaenv"
+    
+    echo "Untarred gridpack, directory content:"
+    ls -lah .
+    echo "===================="
+    
+    # Set up virtual environment
+    ENVNAME="jme-coffteaenv"
     python -m venv ${ENVNAME}
     source ${ENVNAME}/bin/activate
     export PYTHONPATH="${PWD}/${ENVNAME}/lib/python3.6/site-packages":${PYTHONPATH}
-    python -m pip install --upgrade pip
-    python -m pip install -e bucoffea --no-cache-dir
+    cd jme-cofftea
+    python -m pip install -e .
+    # python -m pip install --upgrade pip
+    # python -m pip install -e bucoffea --no-cache-dir
 fi
 
 # Copy files to local disk before running
@@ -51,7 +60,7 @@ echo "===================="
 
 
 echo "Setup done: $(date)"
-time buexec ${ARGS[@]}
+time jexec ${ARGS[@]}
 echo "Run done: $(date)"
 
 echo "Cleaning up."

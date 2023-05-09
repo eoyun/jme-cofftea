@@ -7,7 +7,7 @@ from jmecofftea.helpers.paths import jmecofftea_path
 
 
 def get_repo_files():
-    '''Returns a list of tracked files in the bucoffea repo'''
+    '''Returns a list of tracked files in the jme-cofftea repo'''
     import git
 
     repo = git.Repo(jmecofftea_path('..'))
@@ -26,7 +26,7 @@ def get_repo_files():
 
 
 def pack_repo(path_to_gridpack):
-    '''Creates a gridpack containing the bucoffea repo'''
+    '''Creates a gridpack containing the jme-cofftea repo'''
     if os.path.exists(path_to_gridpack):
         raise RuntimeError(f"Gridpack file already exists. Will not overwrite {path_to_gridpack}.")
     tar = tarfile.open(path_to_gridpack,'w')
@@ -34,7 +34,7 @@ def pack_repo(path_to_gridpack):
     for f in files:
         tar.add(
             name=f,
-            arcname=f.replace(os.path.abspath(jmecofftea_path('..')),'bucoffea'),
+            arcname=f.replace(os.path.abspath(jmecofftea_path('..')),'jme-cofftea'),
             exclude=lambda x: ('tgz' in x or 'submission' in x)
             )
     tar.close()
