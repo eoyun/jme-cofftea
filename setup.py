@@ -13,8 +13,8 @@ setup(
     packages = find_packages(),    
     install_requires = requirements,
     scripts=[
-        'jmecofftea/execute/buexec',
-        'jmecofftea/execute/bumon',
-        'jmecofftea/scripts/bumerge'
+        'jmecofftea/execute/jexec',
+        'jmecofftea/execute/jmon',
+        'jmecofftea/scripts/jmerge'
         ],
 )
