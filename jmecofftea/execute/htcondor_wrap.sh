@@ -37,8 +37,7 @@ else
     export PYTHONPATH="${PWD}/${ENVNAME}/lib/python3.6/site-packages":${PYTHONPATH}
     cd jme-cofftea
     python -m pip install -e .
-    # python -m pip install --upgrade pip
-    # python -m pip install -e bucoffea --no-cache-dir
+    cd -
 fi
 
 # Copy files to local disk before running
