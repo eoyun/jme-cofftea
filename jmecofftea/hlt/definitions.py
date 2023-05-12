@@ -244,15 +244,6 @@ def hlt_regions(cfg):
     regions['tr_metnomu_filterhf_num'] = cuts_for_ht_met + ["HLT_PFMETNoMu120_FilterHF"]
     regions['tr_metnomu_filterhf_den'] = cuts_for_ht_met
 
-    # Numerator regions for other different METNoMuX_FilterHF paths, where X != 120 GeV
-    # metnomu_thresholds = [110, 130, 140]
-    # for thresh in metnomu_thresholds:
-    #     regions[f'tr_metnomu{thresh}_filterhf_num'] = cuts_for_ht_met + [f'HLT_PFMETNoMu{thresh}_FilterHF']
-    
-    # METNoMu120 together with L1_ETMHF100
-    # regions['tr_metnomu_L1ETMHF100_num'] = cuts_for_ht_met + ['HLT_PFMETNoMu120', 'L1_ETMHF100']
-    # regions['tr_metnomu_L1ETMHF100_den'] = cuts_for_ht_met
-
     # Studies for the L1 turn-on for HT1050
     if cfg.STUDIES.L1_TURNON:
         regions['tr_l1_ht_num'] = cuts_for_ht_met + ['L1_pass_HT1050']

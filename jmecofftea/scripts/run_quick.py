@@ -26,13 +26,13 @@ def main():
         "Muon_2022F" : [
             "root://cmsxrootd.fnal.gov//store/data/Run2022F/Muon/NANOAOD/PromptNanoAODv10_v1-v2/2530000/36220bbd-e1a5-4f68-a606-0b1da6682e41.root"
         ],
-        "Muon_2022G" : [
-            "root://cmsxrootd.fnal.gov//store/data/Run2022G/Muon/NANOAOD/PromptNanoAODv10_v1-v1/2820000/1959f286-7f5e-492c-97ac-5c34ae05010b.root"
+        "Muon0_2023B" : [
+            "root://cmsxrootd.fnal.gov//store/data/Run2023B/Muon0/NANOAOD/PromptNanoAODv11p9_v1-v1/30000/76bdd785-b80d-4607-8dee-dc2aa806cc0b.root"
         ],
     }
 
-    years = list(set(map(extract_year, fileset.keys())))
-    assert(len(years)==1)
+    # years = list(set(map(extract_year, fileset.keys())))
+    # assert(len(years)==1)
 
     args = parse_commandline()
     processor_class = args.processor

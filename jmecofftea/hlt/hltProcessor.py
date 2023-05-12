@@ -25,11 +25,12 @@ class hltProcessor(processor.ProcessorABC):
         cfg.MERGE_ENABLED_FOR_DYNACONF = True
         cfg.SETTINGS_FILE_FOR_DYNACONF = jmecofftea_path("config/hlt.yaml")
 
-        # Reload config based on year
         if df:
             dataset = df['dataset']
             self._year = extract_year(dataset)
             df["year"] = self._year
+            
+            # Use the default config for now
             cfg.ENV_FOR_DYNACONF = "default"
         else:
             cfg.ENV_FOR_DYNACONF = "default"
@@ -76,14 +77,16 @@ class hltProcessor(processor.ProcessorABC):
         selection.add('inclusive', pass_all)
 
         # Create mask for events with good lumis (using the golden JSON)
+        # If no golden JSON is ready yet (i.e. early 2023 data, do not apply any filtering)
         if df["year"] == 2022:
             json = jmecofftea_path("data/json/Cert_Collisions2022_355100_362760_Golden.json")
+            lumi_mask = LumiMask(json)(df['run'], df['luminosityBlock'])
         elif df["year"] == 2018:
             json = jmecofftea_path("data/json/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt")
+            lumi_mask = LumiMask(json)(df['run'], df['luminosityBlock'])
         else:
-            raise RuntimeError(f"Golden JSON filtering not implemented for year: {df['year']}")
+            lumi_mask = pass_all
 
-        lumi_mask = LumiMask(json)(df['run'], df['luminosityBlock'])
         selection.add('lumi_mask', lumi_mask)
 
         # Requirements on the leading jet
@@ -120,7 +123,7 @@ class hltProcessor(processor.ProcessorABC):
         selection.add('L1_ETMHF100', df['L1_ETMHF100'])
 
         # HF-filtered METNoMu120 trigger - available starting from 2022 data taking
-        if df['year'] == 2022:        
+        if df['year'] >= 2022:        
             selection.add('HLT_PFMETNoMu110_FilterHF', df['HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_FilterHF'])
             selection.add('HLT_PFMETNoMu120_FilterHF', df['HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_FilterHF'])
             selection.add('HLT_PFMETNoMu130_FilterHF', df['HLT_PFMETNoMu130_PFMHTNoMu130_IDTight_FilterHF'])
@@ -131,7 +134,7 @@ class hltProcessor(processor.ProcessorABC):
             selection.add('HLT_PFMETNoMu130_FilterHF', ~pass_all)
             selection.add('HLT_PFMETNoMu140_FilterHF', ~pass_all)
 
-        # Jet+HT triggers
+        # Jet500 + HT1050 triggers
         selection.add('HLT_PFJet500', df['HLT_PFJet500'])
         selection.add('HLT_PFHT1050', df['HLT_PFHT1050'])
 
