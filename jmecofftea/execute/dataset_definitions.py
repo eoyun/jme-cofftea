@@ -49,12 +49,16 @@ def short_name(dataset):
 
 
 def load_lists():
+    """
+    Load list of datasets into memory from DAS.
+    """
     files = [
         jmecofftea_path(f"data/datasets/datasets_nanoaod_v7_2016.txt"),
         jmecofftea_path(f"data/datasets/datasets_nanoaod_v7_2017.txt"),
         jmecofftea_path(f"data/datasets/datasets_nanoaod_v7_2018.txt"),
         jmecofftea_path(f"data/datasets/datasets_nanoaod_v9_2018.txt"),
-        jmecofftea_path(f"data/datasets/datasets_nanoaod_v10_2022.txt")
+        jmecofftea_path(f"data/datasets/datasets_nanoaod_v10_2022.txt"),
+        jmecofftea_path(f"data/datasets/datasets_nanoaod_v11_2023.txt"),
     ]
     lines = []
     for fpath in files:
