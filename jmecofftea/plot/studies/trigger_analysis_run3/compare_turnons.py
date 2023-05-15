@@ -32,6 +32,9 @@ def parse_cli():
 
     args = parser.parse_args()
 
+    if not args.labels or not args.datasets:
+        raise IOError("Datasets and labels must be specified, please see --help.")
+
     # Sanity check
     if len(args.datasets) != len(args.labels):
         raise IOError("Number of datasets and labels must match.")
