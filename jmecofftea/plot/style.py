@@ -1,4 +1,7 @@
 from matplotlib import pyplot as plt
+from coffea import hist
+
+Bin = hist.Bin
 
 def markers(tag):
     if tag =='data':
@@ -6,9 +9,7 @@ def markers(tag):
             'linestyle':'none',
             'marker': '.',
             'markersize': 10.,
-            'color':'k',
             'elinewidth': 1,
-            'emarker': '_'
         }
     return ret
 
@@ -18,6 +19,28 @@ def matplotlib_rc():
     plt.rc('mathtext',bf='Helvetica')
     params = {'font.size':14, 'lines.linewidth' : 1}
     plt.rcParams.update(params)
+
+def trigger_names():
+    return {
+        'tr_met' : 'HLT_PFMET120_PFMHT120_IDTight',
+        'tr_metnomu' : 'HLT_PFMETNoMu120_PFMHTNoMu120_IDTight',
+        'tr_metnomu_L1ETMHF100' : 'HLT_PFMETNoMu120 (+ L1_ETMHF100)',
+        'tr_metnomu_filterhf' : 'HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_FilterHF',
+        'tr_jet' : 'HLT_PFJet500',
+        'tr_ht' : 'HLT_PFHT1050',
+    }
+
+
+def binnings():
+    return {
+        'met' : Bin("met", r"Offline $p_T^{miss}$ [GeV]", list(range(0,500,20)) + list(range(500,1000,40))),
+        'recoil' : Bin("recoil", r"Offline $p_{T,no-\mu}^{miss}$ [GeV]", list(range(0,500,20)) + list(range(500,1000,40))),
+        'ak4_pt0' : Bin("jetpt", r"Offline leading jet $p_{T}$ [GeV]", list(range(0,500,20)) + list(range(500,1000,20))),
+        'ak4_eta0' : Bin("jeteta", r"Offline leading jet $\eta$", 25, -5, 5),
+        'ak4_abseta0_pt0' : Bin("jetpt", r"Offline leading jet $p_{T}$ [GeV]", list(range(0,500,20)) + list(range(500,1000,40))),
+        'ht' : Bin("ht", r"Offline $H_{T}$ [GeV]", list(range(0,2000,80)) + list(range(2000,3200,200))),
+    }
+
 
 from collections import defaultdict
 def plot_settings():
