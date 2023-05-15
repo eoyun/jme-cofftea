@@ -62,12 +62,11 @@ default:
     regions: '.*'
     kinematics:
       save: False
-    events:
-      - 492220275
-    save:
-      passing: False    # Save (run,lumi,event) info for passing events
-    compare:            # Runs to compare before and after
-      - 361514
+      events:
+        - 492220275
+    save_passing:
+      regions: []       # Specify for which regions to save (run,lumi,event) info for passing events
+    compare: []         # Runs to compare before and after
 
   filters: # MET filters on data and MC
     data:

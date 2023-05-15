@@ -93,19 +93,12 @@ class hltProcessor(processor.ProcessorABC):
         leadak4_index = ak4.pt.argmax()
         leadak4_pt_eta = (ak4.pt.max() > cfg.AK4.PT) & (ak4.abseta[leadak4_index] < cfg.AK4.ABSETA)
         selection.add('leadak4_pt_eta', leadak4_pt_eta.any())
-        
-        selection.add("leadak4_pt_cut", ak4.pt.max() > 300)
 
         # Compute HT, follow the computation recipe of HLT_PFHT1050
         ht = ak4[(ak4.pt > cfg.HT.JETPT) & (ak4.abseta < cfg.HT.ABSETA)].pt.sum()
 
         # Tight ID on leading AK4 jet
         selection.add('leadak4_id', (ak4.tightIdLepVeto[leadak4_index].any()))
-        
-        # Requirement on hadronic energy fractions of the jet (for jets within tracker range)
-        has_track = ak4[leadak4_index].abseta <= 2.5
-        energy_frac_good = has_track * ((ak4[leadak4_index].chf > cfg.AK4.CHF) & (ak4[leadak4_index].nhf < cfg.AK4.NHF)) + ~has_track
-        selection.add('leadak4_energy_frac', energy_frac_good.any())
 
         # Selection for leading jet - whether it is within the water leak region or not
         leading_ak4_in_water_leak = ((ak4[leadak4_index].eta > 1.4) & (ak4[leadak4_index].eta < 2.2) & \
@@ -114,13 +107,14 @@ class hltProcessor(processor.ProcessorABC):
         selection.add('ak4_not_in_water_leak', ~leading_ak4_in_water_leak.any())
         selection.add('ak4_in_water_leak', leading_ak4_in_water_leak.any())
 
-        # Trigger requirements
+        # Trigger requirements: MET
         selection.add('HLT_PFMET120', df['HLT_PFMET120_PFMHT120_IDTight'])
         selection.add('HLT_PFMETNoMu120', df['HLT_PFMETNoMu120_PFMHTNoMu120_IDTight'])
+        # Jet500 + HT1050 triggers
+        selection.add('HLT_PFJet500', df['HLT_PFJet500'])
+        selection.add('HLT_PFHT1050', df['HLT_PFHT1050'])
+        # Single Muon trigger
         selection.add('HLT_IsoMu27', df['HLT_IsoMu27'])
-        
-        # L1 seed requirements
-        selection.add('L1_ETMHF100', df['L1_ETMHF100'])
 
         # HF-filtered METNoMu120 trigger - available starting from 2022 data taking
         if df['year'] >= 2022:        
@@ -134,12 +128,8 @@ class hltProcessor(processor.ProcessorABC):
             selection.add('HLT_PFMETNoMu130_FilterHF', ~pass_all)
             selection.add('HLT_PFMETNoMu140_FilterHF', ~pass_all)
 
-        # Jet500 + HT1050 triggers
-        selection.add('HLT_PFJet500', df['HLT_PFJet500'])
-        selection.add('HLT_PFHT1050', df['HLT_PFHT1050'])
-
-        # L1 requirement for HT1050 (only for 2022 era datasets)
-        if df['year'] == 2022 and cfg.STUDIES.L1_TURNON:
+        # L1 requirement for HT1050 (only for 2022 era datasets and beyond)
+        if df['year'] >= 2022 and cfg.STUDIES.L1_TURNON:
             l1_seeds = [
                 'L1_HTT120er',
                 'L1_HTT160er',
@@ -166,56 +156,32 @@ class hltProcessor(processor.ProcessorABC):
         else:
             selection.add('L1_pass_HT1050', ~pass_all)
 
-        # For events failing PFJet500 with a high leading jet pt
-        selection.add('leadak4_high_pt', (ak4.pt.max() > 600))
-        selection.add('fail_HLT_PFJet500', ~df['HLT_PFJet500'])
-
-        # HF jet cuts
-        high_pt_ak4 = ak4[ak4.pt>80]
-        seta_minus_sphi = high_pt_ak4.setaeta - high_pt_ak4.sphiphi
-
-        selection.add('seta_minus_sphi', (seta_minus_sphi < 0.02).all())
-        selection.add('central_strip_size', (high_pt_ak4.hfcentralstripsize < 3).all())
-
+        # Selection to pick tight offline muons
         df['is_tight_muon'] = muons.tightId \
                       & (muons.iso < cfg.MUON.CUTS.TIGHT.ISO) \
                       & (muons.pt > cfg.MUON.CUTS.TIGHT.PT) \
                       & (muons.abseta < cfg.MUON.CUTS.TIGHT.ETA)
 
-        dimuons = muons.distincts()
-        dimuon_charge = dimuons.i0['charge'] + dimuons.i1['charge']
-
-        # Single Muon CR
+        # W -> mu+nu region
         leadmuon_index=muons.pt.argmax()
         selection.add('one_muon', muons.counts==1)
         selection.add('muon_pt>30', muons.pt.max() > cfg.MUON.CUTS.TIGHT.PT)
         selection.add('at_least_one_tight_mu', df['is_tight_muon'].any())
 
+        selection.add('offline_ht_gt_1050', ht > 1050)
+        selection.add('fail_PFHT1050', ~df["HLT_PFHT1050"])
+
         # Recoil
         df['recoil_pt'], df['recoil_phi'] = metnomu(met_pt, met_phi, muons)
-        selection.add('recoil>250', df['recoil_pt'] > cfg.RECOIL.PT)
 
         for run_num in cfg.RUN.COMPARE:
             run_mask = df['run'] < run_num
             selection.add(f'run_bf_{run_num}', run_mask)
             selection.add(f'run_af_{run_num}', ~run_mask)
 
-        #Electron veto
-        selection.add('veto_ele', electrons.counts==0)
-
-        #Tau veto
-        selection.add('veto_tau', taus.counts==0)
-
-        #Photon Veto
-        selection.add('veto_pho', photons.counts==0)
-
         # MET filters
         selection.add('filt_met', mask_and(df, cfg.FILTERS.DATA)) 
         
-        # Delta(PFMET, CaloMET)
-        df["dPFCaloCR"] = (met_pt - df["CaloMET_pt"]) / df['recoil_pt']
-        selection.add('calo_diff', np.abs(df["dPFCaloCR"]) < cfg.DPFCALO)
-
         # Selection to get high PU (=60) fill
         selection.add("pu60_fill", (df["run"] >= 362613) & (df["run"] <= 362618))
 
@@ -257,7 +223,8 @@ class hltProcessor(processor.ProcessorABC):
 
             mask = selection.all(*cuts)
 
-            if cfg.RUN.SAVE.PASSING:
+            # Save (run,lumi,event) information for specified regions
+            if region in cfg.RUN.SAVE_PASSING.REGIONS:
                 output['selected_runs'][region] += list(df['run'][mask])
                 output['selected_lumis'][region] += list(df['luminosityBlock'][mask])
                 output['selected_events'][region] += list(df['event'][mask])
