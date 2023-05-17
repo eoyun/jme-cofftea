@@ -73,12 +73,12 @@ class hltProcessor(processor.ProcessorABC):
 
         # Create mask for events with good lumis (using the golden JSON)
         # If no golden JSON is ready yet (i.e. early 2023 data, do not apply any filtering)
-        if df["year"] == 2022:
-            json = jmecofftea_path("data/json/Cert_Collisions2022_355100_362760_Golden.json")
-            lumi_mask = LumiMask(json)(df['run'], df['luminosityBlock'])
-        elif df["year"] == 2018:
-            json = jmecofftea_path("data/json/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt")
-            lumi_mask = LumiMask(json)(df['run'], df['luminosityBlock'])
+        if df["year"] in cfg.LUMI_MASKS:
+            # Pick the correct golden JSON for this year
+            json = jmecofftea_path(cfg.LUMI_MASKS[df["year"]])
+            lumi_mask = LumiMask(json)(df["run"], df["luminosityBlock"])
+        
+        # Apply no lumi mask filtering
         else:
             lumi_mask = pass_all
 

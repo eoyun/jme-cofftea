@@ -74,9 +74,13 @@ default:
       apply: false
       tag: Winter22Run3_RunC_V2_DATA
 
+  # Lumi mask JSON files per year
+  lumi_masks:
+    2018: data/json/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt
+    2022: data/json/Cert_Collisions2022_355100_362760_Golden.json
 
-
-  filters: # MET filters on data and MC
+  # MET filters on data and MC
+  filters:
     data:
       - Flag_goodVertices
       - Flag_globalSuperTightHalo2016Filter
