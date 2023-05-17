@@ -10,7 +10,7 @@ from jmecofftea.hlt.definitions import hlt_accumulator, hlt_regions, setup_candi
 from jmecofftea.helpers import jmecofftea_path, recoil, metnomu, mask_and, mask_or, object_overlap
 from jmecofftea.helpers.dataset import extract_year
 from jmecofftea.helpers.paths import jmecofftea_path
-from jmecofftea.helpers.jme import get_jme_correctors
+from jmecofftea.helpers.jme import get_jme_correctors, propagate_jecs_to_met
 
 class hltProcessor(processor.ProcessorABC):
     def __init__(self):
@@ -45,30 +45,25 @@ class hltProcessor(processor.ProcessorABC):
 
         met_pt, met_phi, ak4, muons, electrons, taus, photons = setup_candidates(df, cfg)
 
-        # JECs
-        jme_correctors = get_jme_correctors()
+        # Re-apply offline JECs, if configured to do so
+        if cfg.JECS.OFFLINE.APPLY:
+            jme_correctors = get_jme_correctors(jecs_tag=cfg.JECS.OFFLINE.TAG)
 
-        rho = ak4.pt.ones_like() * df["Rho_fixedGridRhoFastjetAll"]
+            rho = ak4.pt.ones_like() * df["Rho_fixedGridRhoFastjetAll"]
 
-        # Apply the proper JECs, pre or post HCAL for data
-        # The getCorrection() call below changes ak4.pt IN PLACE (dangerous!)
-        jme_correctors["L1L2L3"].getCorrection(JetPt=ak4.pt, JetEta=ak4.eta, Rho=rho, JetA=ak4.area)
+            # Apply the proper JECs, pre or post HCAL for data
+            # The getCorrection() call below changes ak4.pt IN PLACE (dangerous!)
+            jme_correctors["L1L2L3"].getCorrection(JetPt=ak4.pt, JetEta=ak4.eta, Rho=rho, JetA=ak4.area)
 
-        # Keep a copy of uncorrected 4-momenta to fix MET
-        initial_p4 = copy.deepcopy(ak4.p4)
-        if re.match(".*2022[CDE]", df["dataset"]):
-            jme_correctors["L2L3Res"].getCorrection(JetPt=ak4.pt, JetEta=ak4.eta, Rho=rho, JetA=ak4.area)
-        elif re.match(".*2022[FG]", df["dataset"]):
-            jme_correctors["L2Res"].getCorrection(JetPt=ak4.pt, JetEta=ak4.eta, Rho=rho, JetA=ak4.area)
+            # Keep a copy of uncorrected 4-momenta to fix MET
+            initial_p4 = copy.deepcopy(ak4.p4)
+            if re.match(".*2022[CDE]", df["dataset"]):
+                jme_correctors["L2L3Res"].getCorrection(JetPt=ak4.pt, JetEta=ak4.eta, Rho=rho, JetA=ak4.area)
+            elif re.match(".*2022[FG]", df["dataset"]):
+                jme_correctors["L2Res"].getCorrection(JetPt=ak4.pt, JetEta=ak4.eta, Rho=rho, JetA=ak4.area)
 
-        # Update met_pt and met_phi
-        met_px_old = met_pt * np.cos(met_phi)
-        met_py_old = met_pt * np.sin(met_phi)
-        met_px_new = met_px_old - (initial_p4.x - ak4.p4.x).sum() 
-        met_py_new = met_py_old - (initial_p4.y - ak4.p4.y).sum() 
-
-        met_pt = np.hypot(met_px_new, met_py_new)
-        met_phi = np.arctan2(met_py_new, met_px_new)
+            # Update met_pt and met_phi with the new JECs
+            met_pt, met_phi = propagate_jecs_to_met(met_pt, met_phi, initial_p4, ak4.p4)
 
         # Implement selections
         selection = processor.PackedSelection()
