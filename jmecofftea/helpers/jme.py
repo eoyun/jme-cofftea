@@ -21,7 +21,8 @@ def get_jme_correctors(jecs_tag):
     
     evaluator = ext.make_evaluator()
 
-    # Define pre and post-HCAL update JEC correctors.
+    # Define correctors for different levels of JEC. These will be used to
+    # correct the raw jet pt (AK4 PF PUPPI jets) from NanoAOD.
     correctors = {}
 
     correctors["L1L2L3"] = FactorizedJetCorrector(
@@ -32,10 +33,6 @@ def get_jme_correctors(jecs_tag):
 
     correctors["L2L3Res"] = FactorizedJetCorrector(
         Winter22Run3_RunC_V2_DATA_L2L3Residual_AK4PFPuppi = evaluator[f"{jecs_tag}_L2L3Residual_AK4PFPuppi"]
-    )
-
-    correctors["L2Res"] = FactorizedJetCorrector(
-        Winter22Run3_RunC_V2_DATA_L2Residual_AK4PFPuppi = evaluator[f"{jecs_tag}_L2Residual_AK4PFPuppi"]
     )
 
     return correctors

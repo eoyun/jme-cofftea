@@ -71,8 +71,8 @@ default:
   # Configuration of JECs to be applied to offline jets
   jecs: 
     offline:
-      apply: false
-      tag: Winter22Run3_RunC_V2_DATA
+      apply: true
+      tag: Winter23Prompt23_RunA_V1_DATA
 
   # Lumi mask JSON files per year
   lumi_masks:

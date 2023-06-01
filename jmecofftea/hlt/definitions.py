@@ -76,8 +76,8 @@ def setup_candidates(df, cfg):
     """
     ak4 = JaggedCandidateArray.candidatesfromcounts(
         df['nJet'],
-        pt=df['Jet_pt']*(1-df['Jet_rawFactor']),
-        ptnano=df['Jet_pt'],
+        pt=df['Jet_pt']*(1-df['Jet_rawFactor']), # Raw jet pt from NanoAOD
+        ptnano=df['Jet_pt'],                     # Jet pt straight out of NanoAOD
         eta=df['Jet_eta'],
         abseta=np.abs(df['Jet_eta']),
         phi=df['Jet_phi'],

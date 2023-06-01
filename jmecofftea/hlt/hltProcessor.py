@@ -57,10 +57,7 @@ class hltProcessor(processor.ProcessorABC):
 
             # Keep a copy of uncorrected 4-momenta to fix MET
             initial_p4 = copy.deepcopy(ak4.p4)
-            if re.match(".*2022[CDE]", df["dataset"]):
-                jme_correctors["L2L3Res"].getCorrection(JetPt=ak4.pt, JetEta=ak4.eta, Rho=rho, JetA=ak4.area)
-            elif re.match(".*2022[FG]", df["dataset"]):
-                jme_correctors["L2Res"].getCorrection(JetPt=ak4.pt, JetEta=ak4.eta, Rho=rho, JetA=ak4.area)
+            jme_correctors["L2L3Res"].getCorrection(JetPt=ak4.pt, JetEta=ak4.eta, Rho=rho, JetA=ak4.area)
 
             # Update met_pt and met_phi with the new JECs
             met_pt, met_phi = propagate_jecs_to_met(met_pt, met_phi, initial_p4, ak4.p4)
