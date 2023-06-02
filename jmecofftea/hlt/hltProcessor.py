@@ -244,9 +244,6 @@ class hltProcessor(processor.ProcessorABC):
             ezfill('recoil_npv',       recoil=df["recoil_pt"][mask],  nvtx=df["PV_npvs"][mask])
             ezfill('recoil_npvgood',   recoil=df["recoil_pt"][mask],  nvtx=df["PV_npvsGood"][mask])
 
-            pt_ratio = (ak4[mask].pt / ak4[mask].ptnano).flatten()
-            ezfill('ak4_pt_jec_over_nano',   ratio=pt_ratio)
-
             if 'fail_jet500' in region:
                 ezfill('ak4_chf0',     frac=ak4[leadak4_index].chf[mask].flatten())
                 ezfill('ak4_nhf0',     frac=ak4[leadak4_index].nhf[mask].flatten())

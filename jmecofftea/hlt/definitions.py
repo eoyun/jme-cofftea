@@ -33,8 +33,6 @@ def hlt_accumulator():
     frac_ax = Bin('frac','Fraction', 50, 0, 1)
     nvtx_ax = Bin('nvtx','Number of vertices',100,-0.5,99.5)
 
-    ratio_ax = Bin('ratio', 'Ratio', 100, 0.5, 1.5)
-
     # Histogram definitions
     items = {}
     items["ak4_pt0"] = Hist("Counts", dataset_ax, region_ax, jet_pt_ax)
@@ -44,8 +42,6 @@ def hlt_accumulator():
     items["recoil"] = Hist("Counts", dataset_ax, region_ax, recoil_ax)
     items["met"] = Hist("Counts", dataset_ax, region_ax, met_ax)
     items["ht"] = Hist("Counts", dataset_ax, region_ax, ht_ax)
-
-    items["ak4_pt_jec_over_nano"] = Hist("Counts", dataset_ax, region_ax, ratio_ax)
 
     items["ak4_chf0"] = Hist("Counts", dataset_ax, region_ax, frac_ax)
     items["ak4_nhf0"] = Hist("Counts", dataset_ax, region_ax, frac_ax)
@@ -59,7 +55,7 @@ def hlt_accumulator():
     items["recoil_npv"] = Hist("Counts", dataset_ax, region_ax, recoil_ax, nvtx_ax)
     items["recoil_npvgood"] = Hist("Counts", dataset_ax, region_ax, recoil_ax, nvtx_ax)
 
-    # Keep track of events that fail PFJet500
+    # Keep track of events that pass specific regions
     items['selected_runs'] = processor.defaultdict_accumulator(list)  
     items['selected_lumis'] = processor.defaultdict_accumulator(list)  
     items['selected_events'] = processor.defaultdict_accumulator(list)  
@@ -74,10 +70,12 @@ def setup_candidates(df, cfg):
     Set up physics candidates as JaggedCandidateArray data structures, 
     from the given dataframe.
     """
+    # AK4 PF PUPPI jets
+    # If we are going to manually apply different JECs, take the raw pt from NanoAOD.
+    # Otherwise, get the jet pt straight out of NanoAOD.
     ak4 = JaggedCandidateArray.candidatesfromcounts(
         df['nJet'],
-        pt=df['Jet_pt']*(1-df['Jet_rawFactor']), # Raw jet pt from NanoAOD
-        ptnano=df['Jet_pt'],                     # Jet pt straight out of NanoAOD
+        pt=df['Jet_pt']*(1-df['Jet_rawFactor']) if cfg.JECS.OFFLINE.APPLY else df['Jet_pt'],
         eta=df['Jet_eta'],
         abseta=np.abs(df['Jet_eta']),
         phi=df['Jet_phi'],
@@ -94,10 +92,11 @@ def setup_candidates(df, cfg):
         hfcentralstripsize=df['Jet_hfcentralEtaStripSize'],
     )
 
-    met_pt = df['MET_pt']
-    met_phi = df['MET_phi']
+    # Offline MET, by default we use PUPPI.
+    met_pt = df['PuppiMET_pt']
+    met_phi = df['PuppiMET_phi']
  
-    #muons
+    # Muons
     muons = JaggedCandidateArray.candidatesfromcounts(
         df['nMuon'],
         pt=df['Muon_pt'],
