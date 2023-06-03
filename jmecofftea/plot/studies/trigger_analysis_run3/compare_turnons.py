@@ -12,19 +12,9 @@ from coffea import hist
 from klepto.archives import dir_archive
 from tqdm import tqdm
 
-from jmecofftea.plot.style import trigger_names, binnings, markers 
+from jmecofftea.plot.style import trigger_names, binnings, markers, trigger_labels
 
 pjoin = os.path.join
-
-plt.style.use(hep.style.CMS)
-
-TRIGGER_LABELS = {
-    'tr_jet'     : 'AK4PF jet with \n $p_T > 500 \ GeV$',
-    'tr_ht'      : '$H_T > 1050 \ GeV$',
-    'tr_metnomu' : '$p_{T,no-\mu}^{miss} > 120 \ GeV$ \n$H_{T,no-\mu}^{miss} > 120 \ GeV$',
-    'tr_metnomu_filterhf' : '$p_{T,no-\mu}^{miss} > 120 \ GeV$ \n$H_{T,no-\mu}^{miss} > 120 \ GeV$',
-}
-
 
 # Distributions to look at for each trigger
 DISTRIBUTIONS = {
@@ -70,23 +60,14 @@ def compare_turnons(acc, outdir, datasets, labels, region, use_cms_style=False):
     h_num_all = h.integrate('region', f'{region}_num')
     h_den_all = h.integrate('region', f'{region}_den')
 
-    fig, ax = plt.subplots()
-
     error_opts = markers("data")
-    
+
     # CMS plot styling
     if use_cms_style:
-        error_opts['markersize'] = 14
+        plt.style.use(hep.style.CMS)
+        error_opts["markersize"] = 14
 
-        hep.cms.label(year="2022", paper=True, llabel=" Preliminary", rlabel=r"(13.6 TeV)")
-        hep.cms.text()
-
-        ax.text(0.8, 0.05, TRIGGER_LABELS[region],
-            fontsize=24,
-            ha='center',
-            va='bottom',
-            transform=ax.transAxes,
-        )
+    fig, ax = plt.subplots()
 
     for dataset, label in zip(datasets, labels):
         h_num = h_num_all.integrate("dataset", re.compile(dataset))
@@ -107,7 +88,19 @@ def compare_turnons(acc, outdir, datasets, labels, region, use_cms_style=False):
     ax.legend()
     ax.grid(True, which="major")
 
-    if not use_cms_style:
+    # CMS plot styling
+    if use_cms_style:
+        hep.cms.label(year="2022", paper=True, llabel=" Preliminary", rlabel=r"(13.6 TeV)")
+        hep.cms.text()
+
+        ax.text(0.8, 0.05, trigger_labels()[region],
+            fontsize=24,
+            ha='center',
+            va='bottom',
+            transform=ax.transAxes,
+        )
+
+    else:
         ax.text(1,1,trigger_names()[region],
             fontsize=10,
             ha='right',

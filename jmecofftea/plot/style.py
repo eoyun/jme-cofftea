@@ -41,6 +41,14 @@ def binnings():
         'ht' : Bin("ht", r"Offline $H_{T}$ [GeV]", list(range(0,2000,80)) + list(range(2000,3200,200))),
     }
 
+def trigger_labels():
+    """Labels for different types of triggers."""
+    return {
+        'tr_jet'     : 'AK4PF jet with \n $p_T > 500 \ GeV$',
+        'tr_ht'      : '$H_T > 1050 \ GeV$',
+        'tr_metnomu' : '$p_{T,no-\mu}^{miss} > 120 \ GeV$ \n$H_{T,no-\mu}^{miss} > 120 \ GeV$',
+        'tr_metnomu_filterhf' : '$p_{T,no-\mu}^{miss} > 120 \ GeV$ \n$H_{T,no-\mu}^{miss} > 120 \ GeV$',
+    }
 
 from collections import defaultdict
 def plot_settings():
