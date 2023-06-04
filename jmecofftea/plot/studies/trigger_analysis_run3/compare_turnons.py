@@ -18,7 +18,7 @@ pjoin = os.path.join
 
 # Distributions to look at for each trigger
 DISTRIBUTIONS = {
-    'tr_met' : 'recoil',
+    'tr_met' : 'met',
     'tr_metnomu' : 'recoil',
     'tr_metnomu_filterhf' : 'recoil',
     'tr_jet' : 'ak4_pt0',
@@ -135,6 +135,7 @@ def main():
     regions = [
         "tr_jet",
         "tr_ht",
+        "tr_met",
         "tr_metnomu",
         "tr_metnomu_filterhf",
     ]
