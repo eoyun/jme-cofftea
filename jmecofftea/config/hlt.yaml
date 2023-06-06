@@ -66,7 +66,11 @@ default:
         - 492220275
     save_passing:
       regions: []       # Specify for which regions to save (run,lumi,event) info for passing events
-    compare: []         # Runs to compare before and after
+    ranges: # Run ranges to analyze
+      hltv1.0_noChange: [366400, 366898]
+      hltv1.0_offlineHCALUpdate: [366899, 367660]
+      hltv1.1_offlineHCALUpdate: [367661, 367764]
+      hltv1.1_offlineHCALGains: [367665, 368400]
   
   # Configuration of JECs to be applied to offline jets
   jecs: 

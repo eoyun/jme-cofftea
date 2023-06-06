@@ -20,15 +20,12 @@ def main():
     # Define the mapping between dataset name and the corresponding list of files we want to run on.
     # 
     fileset = {
-        "JetMET_2022C" : [
-            "root://cmsxrootd.fnal.gov//store/data/Run2022C/JetMET/NANOAOD/PromptNanoAODv10-v1/30000/11d5498c-2a79-4848-b22e-558e2850a81c.root"
-        ],
-        "Muon_2022F" : [
-            "root://cmsxrootd.fnal.gov//store/data/Run2022F/Muon/NANOAOD/PromptNanoAODv10_v1-v2/2530000/36220bbd-e1a5-4f68-a606-0b1da6682e41.root"
-        ],
         "Muon0_2023B" : [
-            "root://cmsxrootd.fnal.gov//store/data/Run2023B/Muon0/NANOAOD/PromptNanoAODv11p9_v1-v1/30000/76bdd785-b80d-4607-8dee-dc2aa806cc0b.root"
+            "root://cmsxrootd.fnal.gov//store/data/Run2023B/Muon0/NANOAOD/PromptNanoAODv11p9_v1-v2/2810000/1074b310-64e3-4ad4-90f0-443a3c80ad37.root"
         ],
+        "Muon0_2023C" : [
+            "root://cmsxrootd.fnal.gov//store/data/Run2023C/Muon0/NANOAOD/PromptNanoAODv11p9_v1-v1/70000/9d003698-9b74-40b5-b34c-24c33f4b8bef.root"
+        ]
     }
 
     # years = list(set(map(extract_year, fileset.keys())))

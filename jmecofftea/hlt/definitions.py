@@ -260,22 +260,26 @@ def hlt_regions(cfg):
         regions['tr_jet_highpu_num'] = cuts_for_ht_met + ['HLT_PFJet500', 'pu60_fill']
         regions['tr_jet_highpu_den'] = cuts_for_ht_met + ['pu60_fill']
 
-    # Before/after comparison for specific runs
-    for run_num in cfg.RUN.COMPARE:
+    # Regions with specific run ranges: The idea is to copy the numerator and denominator
+    # region for each trigger and apply the run range cut on top.
+    for label, run_range in cfg.RUN.RANGES.items():
         regions_to_clone = [
             'tr_jet_num',
             'tr_jet_den',
             'tr_ht_num',
             'tr_ht_den',
+            'tr_met_num',
+            'tr_met_den',
             'tr_metnomu_num',
             'tr_metnomu_den',
+            'tr_metnomu_filterhf_num',
+            'tr_metnomu_filterhf_den',
         ]
 
-        for base_region in regions_to_clone:
-            regions[f'{base_region}_bf_{run_num}'] = copy.deepcopy(regions[base_region])
-            regions[f'{base_region}_bf_{run_num}'].append(f'run_bf_{run_num}')
+        run_min, run_max = run_range
 
-            regions[f'{base_region}_af_{run_num}'] = copy.deepcopy(regions[base_region])
-            regions[f'{base_region}_af_{run_num}'].append(f'run_af_{run_num}')
+        for base_region in regions_to_clone:
+            regions[f"{base_region}_{label}"] = copy.deepcopy(regions[base_region])
+            regions[f"{base_region}_{label}"].append(f"cut_{label}")
 
     return regions

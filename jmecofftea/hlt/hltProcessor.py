@@ -166,10 +166,11 @@ class hltProcessor(processor.ProcessorABC):
         # Recoil
         df['recoil_pt'], df['recoil_phi'] = metnomu(met_pt, met_phi, muons)
 
-        for run_num in cfg.RUN.COMPARE:
-            run_mask = df['run'] < run_num
-            selection.add(f'run_bf_{run_num}', run_mask)
-            selection.add(f'run_af_{run_num}', ~run_mask)
+        # Cuts to pick specific run ranges as specified in the configuration
+        for label, run_range in cfg.RUN.RANGES.items():
+            run_min, run_max = run_range
+            run_mask = (df['run'] >= run_min) & (df['run'] <= run_max)
+            selection.add(f'cut_{label}', run_mask)
 
         # MET filters
         selection.add('filt_met', mask_and(df, cfg.FILTERS.DATA)) 
