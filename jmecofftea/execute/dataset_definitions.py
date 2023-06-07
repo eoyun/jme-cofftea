@@ -22,10 +22,10 @@ def short_name(dataset):
     name = name.replace("powheg","pow")
 
     # Detect extension
-    m=re.match(r".*(ext\d+).*",conditions);
+    m=re.match(r".*(ext\d+).*",conditions)
     if m:
         name = name + "_" + m.groups()[0]
-    m=re.match(r".*(ver\d+).*",conditions);
+    m=re.match(r".*(ver\d+).*",conditions)
     if m:
         name = name + "_" + m.groups()[0]
     m=re.match(r".*_(v\d+).*", conditions)
@@ -58,7 +58,7 @@ def load_lists():
         jmecofftea_path(f"data/datasets/datasets_nanoaod_v7_2018.txt"),
         jmecofftea_path(f"data/datasets/datasets_nanoaod_v9_2018.txt"),
         jmecofftea_path(f"data/datasets/datasets_nanoaod_v11_2022.txt"),
-        jmecofftea_path(f"data/datasets/datasets_nanoaod_v11_2023.txt"),
+        jmecofftea_path(f"data/datasets/datasets_nanoaod_2023.txt"),
     ]
     lines = []
     for fpath in files:
