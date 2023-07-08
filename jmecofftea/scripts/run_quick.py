@@ -25,7 +25,10 @@ def main():
         ],
         "Muon0_2023C" : [
             "root://cmsxrootd.fnal.gov//store/data/Run2023C/Muon0/NANOAOD/PromptNanoAODv11p9_v1-v1/70000/9d003698-9b74-40b5-b34c-24c33f4b8bef.root"
-        ]
+        ],
+        "Muon0_2023D": [
+            "root://cmsxrootd.fnal.gov//store/data/Run2023D/Muon0/NANOAOD/PromptReco-v1/000/369/956/00000/05056be2-5638-4f7f-b504-59365c0e570d.root"
+        ],
     }
 
     # years = list(set(map(extract_year, fileset.keys())))
