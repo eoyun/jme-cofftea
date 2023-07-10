@@ -67,8 +67,8 @@ default:
     save_passing:
       regions: []       # Specify for which regions to save (run,lumi,event) info for passing events
     ranges: # Run ranges to analyze
-      2023D_pixelInefficiency: [369864, 369873] # Fill 9007
-      2023D_noPixelInefficiency: [369874, 370129]
+      2023D_pixelInefficiency: [369864, 370197] # Problem starts at fill 9007
+      2023D_noPixelInefficiency: [367770, 369863]
   
   # Configuration of JECs to be applied to offline jets
   jecs: 
