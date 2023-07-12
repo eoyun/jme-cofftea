@@ -107,7 +107,7 @@ class hltProcessor(processor.ProcessorABC):
         selection.add('ak4_not_in_bad_trk', ~leading_ak4_in_bad_trk.any())
         selection.add('ak4_in_bad_trk', leading_ak4_in_bad_trk.any())
         # Pick out the runs where the tracker (BPIX) issue was present
-        selection.add('bpix_issue', ((df["run"] > 369864) & (df["run"] < 370197)))
+        selection.add('bpix_issue', df["run"] > 369864)
 
         # Trigger requirements: MET
         selection.add('HLT_PFMET120', df['HLT_PFMET120_PFMHT120_IDTight'])
