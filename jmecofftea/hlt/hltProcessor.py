@@ -99,6 +99,16 @@ class hltProcessor(processor.ProcessorABC):
         selection.add('ak4_not_in_water_leak', ~leading_ak4_in_water_leak.any())
         selection.add('ak4_in_water_leak', leading_ak4_in_water_leak.any())
 
+        # Selection for whether the leading jet is in the impacted tracker region
+        # -1.5 < eta < 0, -1.2 < phi < -0.8
+        leading_ak4_in_bad_trk = ((ak4[leadak4_index].eta > -1.5) & (ak4[leadak4_index].eta < 0) & \
+            (ak4[leadak4_index].phi > -1.2) & (ak4[leadak4_index].phi < -0.8))
+
+        selection.add('ak4_not_in_bad_trk', ~leading_ak4_in_bad_trk.any())
+        selection.add('ak4_in_bad_trk', leading_ak4_in_bad_trk.any())
+        # Pick out the runs where the tracker (BPIX) issue was present
+        selection.add('bpix_issue', ((df["run"] > 369864) & (df["run"] < 370197)))
+
         # Trigger requirements: MET
         selection.add('HLT_PFMET120', df['HLT_PFMET120_PFMHT120_IDTight'])
         selection.add('HLT_PFMETNoMu120', df['HLT_PFMETNoMu120_PFMHTNoMu120_IDTight'])

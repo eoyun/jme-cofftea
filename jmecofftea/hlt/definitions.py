@@ -260,6 +260,40 @@ def hlt_regions(cfg):
         regions['tr_jet_highpu_num'] = cuts_for_ht_met + ['HLT_PFJet500', 'pu60_fill']
         regions['tr_jet_highpu_den'] = cuts_for_ht_met + ['pu60_fill']
 
+    # Tracker BPIX issue. We will look at regions where:
+    # 1. The offline leading jet is inside the impacted region
+    # 2. The offline leading jet is NOT inside the impacted region
+    # For the purposes of this study, all the events considered are taken during the issue
+    # (i.e., there is a constraint on the run number.)
+    if cfg.STUDIES.TRK_BPIX_ISSUE:
+        regions_to_clone = [
+            'tr_jet',
+            'tr_ht',
+            'tr_met',
+            'tr_metnomu',
+            'tr_metnomu_filterhf',
+        ]
+
+        for base_region in regions_to_clone:
+            # Regions where the leading jet is in the impacted tracker region
+            regions[f"{base_region}_ak4_in_bad_bpix_num"] = copy.deepcopy(regions[f"{base_region}_num"])
+            regions[f"{base_region}_ak4_in_bad_bpix_num"].append("ak4_in_bad_trk")
+            regions[f"{base_region}_ak4_in_bad_bpix_num"].append("bpix_issue")
+            
+            regions[f"{base_region}_ak4_in_bad_bpix_den"] = copy.deepcopy(regions[f"{base_region}_den"])
+            regions[f"{base_region}_ak4_in_bad_bpix_den"].append("ak4_in_bad_trk")
+            regions[f"{base_region}_ak4_in_bad_bpix_den"].append("bpix_issue")
+
+            # Regions where the leading jet is NOT in the impacted tracker region
+            regions[f"{base_region}_ak4_not_in_bad_bpix_num"] = copy.deepcopy(regions[f"{base_region}_num"])
+            regions[f"{base_region}_ak4_not_in_bad_bpix_num"].append("ak4_not_in_bad_trk")
+            regions[f"{base_region}_ak4_not_in_bad_bpix_num"].append("bpix_issue")
+
+            regions[f"{base_region}_ak4_not_in_bad_bpix_den"] = copy.deepcopy(regions[f"{base_region}_den"])
+            regions[f"{base_region}_ak4_not_in_bad_bpix_den"].append("ak4_not_in_bad_trk")
+            regions[f"{base_region}_ak4_not_in_bad_bpix_den"].append("bpix_issue")
+
+
     # Regions with specific run ranges: The idea is to copy the numerator and denominator
     # region for each trigger and apply the run range cut on top.
     for label, run_range in cfg.RUN.RANGES.items():
