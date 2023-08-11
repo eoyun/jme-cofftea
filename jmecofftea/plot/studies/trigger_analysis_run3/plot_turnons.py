@@ -909,14 +909,14 @@ def main():
         print('Skipping PU=60 plots.')
 
     # Efficiency vs Nvtx plots for MET/METNoMu triggers
-    plot_efficiency_vs_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_metnomu', dataset='Muon.*2022.*')
+    #plot_efficiency_vs_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_metnomu', dataset='Muon.*2022.*')
     
     # plot_efficiency_vs_nvtx(acc, outdir, distribution='met_npvgood', region='tr_met')
     # plot_efficiency_vs_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_metnomu_filterhf')
     # plot_efficiency_vs_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_metnomu_L1ETMHF100')
 
     # plot_turnon_wrt_nvtx(acc, outdir, distribution='met_npvgood', region='tr_met', dataset='Muon.*2022.*')
-    plot_turnon_wrt_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_metnomu', dataset='Muon.*2022.*')
+    #plot_turnon_wrt_nvtx(acc, outdir, distribution='recoil_npvgood', region='tr_metnomu', dataset='Muon.*2022.*')
 
     # Turn-on comparisons between two regions
     regions_to_compare = {

@@ -41,6 +41,9 @@ def main():
     if args.processor == 'hlt':
         from jmecofftea.hlt.hltProcessor import hltProcessor
         processorInstance = hltProcessor()
+    if args.processor == 'hlt_dijet':
+        from jmecofftea.hlt.hltProcessor_dijet import hltProcessor
+        processorInstance = hltProcessor()
     else:
         raise ValueError(f"Unknown value given for the processor argument: {args.processor}")
 
