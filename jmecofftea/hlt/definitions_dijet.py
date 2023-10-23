@@ -93,105 +93,106 @@ def setup_candidates(df, cfg):
     )
 
     # Offline MET, by default we use PUPPI.
-    met_pt = df['PuppiMET_pt']
-    met_phi = df['PuppiMET_phi']
+    #met_pt = df['PuppiMET_pt']
+    #met_phi = df['PuppiMET_phi']
  
     # Muons
-    muons = JaggedCandidateArray.candidatesfromcounts(
-        df['nMuon'],
-        pt=df['Muon_pt'],
-        eta=df['Muon_eta'],
-        abseta=np.abs(df['Muon_eta']),
-        phi=df['Muon_phi'],
-        mass=0 * df['Muon_pt'],
-        charge=df['Muon_charge'],
-        looseId=df['Muon_looseId'],
-        tightId=df['Muon_tightId'],
-        iso=df["Muon_pfRelIso04_all"],
-        dxy=df['Muon_dxy'],
-        dz=df['Muon_dz'],
-        globalmu = df['Muon_isGlobal'],
-        pfcand = df['Muon_isPFcand']
-    ) 
+    #muons = JaggedCandidateArray.candidatesfromcounts(
+    #    df['nMuon'],
+    #    pt=df['Muon_pt'],
+    #    eta=df['Muon_eta'],
+    #    abseta=np.abs(df['Muon_eta']),
+    #    phi=df['Muon_phi'],
+    #    mass=0 * df['Muon_pt'],
+    #    charge=df['Muon_charge'],
+    #    looseId=df['Muon_looseId'],
+    #    tightId=df['Muon_tightId'],
+    #    iso=df["Muon_pfRelIso04_all"],
+    #    dxy=df['Muon_dxy'],
+    #    dz=df['Muon_dz'],
+    #    globalmu = df['Muon_isGlobal'],
+    #    pfcand = df['Muon_isPFcand']
+    #) 
 
-    # Pre-filter: All muons must be at least loose
-    muons = muons[muons.looseId \
-                    & (muons.iso < cfg.MUON.CUTS.LOOSE.ISO) \
-                    & (muons.pt > cfg.MUON.CUTS.LOOSE.PT) \
-                    & (muons.abseta < cfg.MUON.CUTS.LOOSE.ETA)
-                    ]
+    ## Pre-filter: All muons must be at least loose
+    #muons = muons[muons.looseId \
+    #                & (muons.iso < cfg.MUON.CUTS.LOOSE.ISO) \
+    #                & (muons.pt > cfg.MUON.CUTS.LOOSE.PT) \
+    #                & (muons.abseta < cfg.MUON.CUTS.LOOSE.ETA)
+    #                ]
 
-    #electrons
-    electrons = JaggedCandidateArray.candidatesfromcounts(
-        df['nElectron'],
-        pt=df['Electron_pt'],
-        eta=df['Electron_eta'],
-        abseta=np.abs(df['Electron_eta']),
-        etasc=df['Electron_eta']+df['Electron_deltaEtaSC'],
-        absetasc=np.abs(df['Electron_eta']+df['Electron_deltaEtaSC']),
-        phi=df['Electron_phi'],
-        mass=0 * df['Electron_pt'],
-        charge=df['Electron_charge'],
-        #looseId=(df[cfg.ELECTRON.BRANCH.ID]>=1),
-        #tightId=(df[cfg.ELECTRON.BRANCH.ID]==4),
-        dxy=np.abs(df['Electron_dxy']),
-        dz=np.abs(df['Electron_dz']),
-        barrel=np.abs(df['Electron_eta']+df['Electron_deltaEtaSC']) <= 1.4442
-    )
+    ##electrons
+    #electrons = JaggedCandidateArray.candidatesfromcounts(
+    #    df['nElectron'],
+    #    pt=df['Electron_pt'],
+    #    eta=df['Electron_eta'],
+    #    abseta=np.abs(df['Electron_eta']),
+    #    etasc=df['Electron_eta']+df['Electron_deltaEtaSC'],
+    #    absetasc=np.abs(df['Electron_eta']+df['Electron_deltaEtaSC']),
+    #    phi=df['Electron_phi'],
+    #    mass=0 * df['Electron_pt'],
+    #    charge=df['Electron_charge'],
+    #    #looseId=(df[cfg.ELECTRON.BRANCH.ID]>=1),
+    #    #tightId=(df[cfg.ELECTRON.BRANCH.ID]==4),
+    #    dxy=np.abs(df['Electron_dxy']),
+    #    dz=np.abs(df['Electron_dz']),
+    #    barrel=np.abs(df['Electron_eta']+df['Electron_deltaEtaSC']) <= 1.4442
+    #)
 
-    # All electrons must be at least loose
-    pass_dxy = (electrons.barrel & (np.abs(electrons.dxy) < cfg.ELECTRON.CUTS.LOOSE.DXY.BARREL)) \
-    | (~electrons.barrel & (np.abs(electrons.dxy) < cfg.ELECTRON.CUTS.LOOSE.DXY.ENDCAP))
+    ## All electrons must be at least loose
+    #pass_dxy = (electrons.barrel & (np.abs(electrons.dxy) < cfg.ELECTRON.CUTS.LOOSE.DXY.BARREL)) \
+    #| (~electrons.barrel & (np.abs(electrons.dxy) < cfg.ELECTRON.CUTS.LOOSE.DXY.ENDCAP))
 
-    pass_dz = (electrons.barrel & (np.abs(electrons.dz) < cfg.ELECTRON.CUTS.LOOSE.DZ.BARREL)) \
-    | (~electrons.barrel & (np.abs(electrons.dz) < cfg.ELECTRON.CUTS.LOOSE.DZ.ENDCAP))
+    #pass_dz = (electrons.barrel & (np.abs(electrons.dz) < cfg.ELECTRON.CUTS.LOOSE.DZ.BARREL)) \
+    #| (~electrons.barrel & (np.abs(electrons.dz) < cfg.ELECTRON.CUTS.LOOSE.DZ.ENDCAP))
 
-    electrons = electrons[(electrons.pt>cfg.ELECTRON.CUTS.LOOSE.PT) \
-                                    & (electrons.absetasc<cfg.ELECTRON.CUTS.LOOSE.ETA) \
-                                    & pass_dxy \
-                                    & pass_dz
-                                    ]
-    #taus
-    taus = JaggedCandidateArray.candidatesfromcounts(
-        df['nTau'],
-        pt=df['Tau_pt'],
-        eta=df['Tau_eta'],
-        abseta=np.abs(df['Tau_eta']),
-        phi=df['Tau_phi'],
-        mass=0 * df['Tau_pt'],
-        #decaymode=df[cfg.TAU.BRANCH.ID],
-        decaymode=df['Tau_idDecayModeOldDMs'],
-        iso=df['Tau_idDeepTau2017v2p1VSjet']
-    )
+    #electrons = electrons[(electrons.pt>cfg.ELECTRON.CUTS.LOOSE.PT) \
+    #                                & (electrons.absetasc<cfg.ELECTRON.CUTS.LOOSE.ETA) \
+    #                                & pass_dxy \
+    #                                & pass_dz
+    #                                ]
+    ##taus
+    #taus = JaggedCandidateArray.candidatesfromcounts(
+    #    df['nTau'],
+    #    pt=df['Tau_pt'],
+    #    eta=df['Tau_eta'],
+    #    abseta=np.abs(df['Tau_eta']),
+    #    phi=df['Tau_phi'],
+    #    mass=0 * df['Tau_pt'],
+    #    #decaymode=df[cfg.TAU.BRANCH.ID],
+    #    decaymode=df['Tau_idDecayModeOldDMs'],
+    #    iso=df['Tau_idDeepTau2017v2p1VSjet']
+    #)
 
-    taus = taus[ (taus.decaymode) \
-                & (taus.pt > cfg.TAU.CUTS.PT)\
-                & (taus.abseta < cfg.TAU.CUTS.ETA) \
-                & ((taus.iso&2)==2)]
+    #taus = taus[ (taus.decaymode) \
+    #            & (taus.pt > cfg.TAU.CUTS.PT)\
+    #            & (taus.abseta < cfg.TAU.CUTS.ETA) \
+    #            & ((taus.iso&2)==2)]
 
-    #photons
-    if cfg.PHOTON.BRANCH.ID in df.keys():
-        PHOTON_BRANCH_ID = cfg.PHOTON.BRANCH.ID
-    else:
-        PHOTON_BRANCH_ID = cfg.PHOTON.BRANCH.IDV7
-    photons = JaggedCandidateArray.candidatesfromcounts(
-        df['nPhoton'],
-        pt=df['Photon_pt'],
-        eta=df['Photon_eta'],
-        abseta=np.abs(df['Photon_eta']),
-        phi=df['Photon_phi'],
-        mass=0*df['Photon_pt'],
-        #looseId= (df[PHOTON_BRANCH_ID]>=1) & df['Photon_electronVeto'],
-        #mediumId=(df[PHOTON_BRANCH_ID]>=2) & df['Photon_electronVeto'],
-        r9=df['Photon_r9'],
-        barrel=df['Photon_isScEtaEB'],
-    )
-    photons = photons[(photons.pt > cfg.PHOTON.CUTS.LOOSE.pt) \
-              & (photons.abseta < cfg.PHOTON.CUTS.LOOSE.eta)
-              ]
+    ##photons
+    #if cfg.PHOTON.BRANCH.ID in df.keys():
+    #    PHOTON_BRANCH_ID = cfg.PHOTON.BRANCH.ID
+    #else:
+    #    PHOTON_BRANCH_ID = cfg.PHOTON.BRANCH.IDV7
+    #photons = JaggedCandidateArray.candidatesfromcounts(
+    #    df['nPhoton'],
+    #    pt=df['Photon_pt'],
+    #    eta=df['Photon_eta'],
+    #    abseta=np.abs(df['Photon_eta']),
+    #    phi=df['Photon_phi'],
+    #    mass=0*df['Photon_pt'],
+    #    #looseId= (df[PHOTON_BRANCH_ID]>=1) & df['Photon_electronVeto'],
+    #    #mediumId=(df[PHOTON_BRANCH_ID]>=2) & df['Photon_electronVeto'],
+    #    r9=df['Photon_r9'],
+    #    barrel=df['Photon_isScEtaEB'],
+    #)
+    #photons = photons[(photons.pt > cfg.PHOTON.CUTS.LOOSE.pt) \
+    #          & (photons.abseta < cfg.PHOTON.CUTS.LOOSE.eta)
+    #          ]
 
 
-    return met_pt, met_phi, ak4, muons, electrons, taus, photons
+    #return met_pt, met_phi, ak4, muons, electrons, taus, photons
+    return ak4
 
 def hlt_regions(cfg):
     """

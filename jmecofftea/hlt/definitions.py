@@ -202,11 +202,14 @@ def hlt_regions(cfg):
 
     common_cuts = [
         'leadak4_id', 
+        'subleadak4_id', 
+        #'leadak4_pt', 
+        #'subleadak4_pt', 
         'lumi_mask',
-        'at_least_one_tight_mu', 
-        'one_muon',
-        'HLT_IsoMu27',
-        'muon_pt>30',
+        #'at_least_one_tight_mu', 
+        #'one_muon',
+        #'HLT_IsoMu27',
+        #'muon_pt>30',
         # 'filt_met',
         ]
 
@@ -308,6 +311,8 @@ def hlt_regions(cfg):
             'tr_metnomu_den',
             'tr_metnomu_filterhf_num',
             'tr_metnomu_filterhf_den',
+            'leadak4_Id',
+            'subleadak4_Id',
         ]
 
         run_min, run_max = run_range

@@ -6,6 +6,7 @@ from jmecofftea.helpers.cutflow import print_cutflow
 from coffea.util import save
 import coffea.processor as processor
 import argparse
+import os
 
 def parse_commandline():
 
@@ -23,12 +24,12 @@ def main():
         "Muon0_2023B" : [
             "root://cmsxrootd.fnal.gov//store/data/Run2023B/Muon0/NANOAOD/PromptNanoAODv11p9_v1-v2/2810000/1074b310-64e3-4ad4-90f0-443a3c80ad37.root"
         ],
-        "Muon0_2023C" : [
-            "root://cmsxrootd.fnal.gov//store/data/Run2023C/Muon0/NANOAOD/PromptNanoAODv11p9_v1-v1/70000/9d003698-9b74-40b5-b34c-24c33f4b8bef.root"
-        ],
-        "Muon0_2023D": [
-            "root://cmsxrootd.fnal.gov//store/data/Run2023D/Muon0/NANOAOD/PromptReco-v1/000/369/956/00000/05056be2-5638-4f7f-b504-59365c0e570d.root"
-        ],
+       "Muon0_2023C" : [
+           "root://cmsxrootd.fnal.gov//store/data/Run2023C/Muon0/NANOAOD/PromptNanoAODv11p9_v1-v1/70000/9d003698-9b74-40b5-b34c-24c33f4b8bef.root"
+       ],
+       "Muon0_2023D": [
+           "root://cmsxrootd.fnal.gov//store/data/Run2023D/Muon0/NANOAOD/PromptReco-v1/000/369/956/00000/05056be2-5638-4f7f-b504-59365c0e570d.root"
+       ],
     }
 
     # years = list(set(map(extract_year, fileset.keys())))
@@ -54,7 +55,9 @@ def main():
                 newlist.append("root://cms-xrd-global.cern.ch//" + file)
             else: newlist.append(file)
         fileset[dataset] = newlist
-
+    path = './dijet'
+    if not os.path.exists(path) :
+        os.mkdir(path)
     for dataset, filelist in fileset.items():
         print(f"Running on dataset: {dataset}")
         print(f"Number of files: {len(filelist)}")
@@ -66,10 +69,10 @@ def main():
                                     executor_args={'workers': 4, 'flatten': True},
                                     chunksize=500000,
                                     )
-        save(output, f"{processor_class}_{dataset}.coffea")
+        save(output, f"./dijet/{processor_class}_{dataset}.coffea")
         # Debugging / testing output
         # debug_plot_output(output)
-        print_cutflow(output, outfile=f'{processor_class}_cutflow_{dataset}.txt')
+        print_cutflow(output, outfile=f'./dijet/{processor_class}_cutflow_{dataset}.txt')
 
 if __name__ == "__main__":
     main()
