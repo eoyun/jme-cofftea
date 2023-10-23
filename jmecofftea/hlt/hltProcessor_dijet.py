@@ -143,8 +143,8 @@ class hltProcessor(processor.ProcessorABC):
         leadak4_index = ak4.pt.argmax()
         #leadak4_index = []
         subleadak4_index = []
-        print(type(leadak4_index))
-        print(type(subleadak4_index))
+        #print(type(leadak4_index))
+        #print(type(subleadak4_index))
         for i in range(len(ak4.pt)) :
             max_in_pt=0
             lead_index=0
@@ -165,7 +165,9 @@ class hltProcessor(processor.ProcessorABC):
             #leadak4_index.append([lead_index])       
         #print(subleadak4_index)
         #print(leadak4_index)
-        print(subleadak4_index)                       
+        print("subleading")
+        print(ak4[subleadak4_index].pt)                       
+        print("leading")
         print(ak4[leadak4_index].pt)                       
         leadak4_pt_eta = (ak4.pt.max() > cfg.AK4.PT) & (ak4.abseta[leadak4_index] < cfg.AK4.ABSETA)
         selection.add('leadak4_pt_eta', leadak4_pt_eta.any())
@@ -354,7 +356,7 @@ class hltProcessor(processor.ProcessorABC):
                     **kwargs
                     )
 
-            print(ak4[leadak4_index].eta[mask].flatten())
+            #print(ak4[leadak4_index].eta[mask].flatten())
             ezfill('ak4_eta0',   jeteta=ak4[leadak4_index].eta[mask].flatten())
             ezfill('ak4_phi0',   jetphi=ak4[leadak4_index].phi[mask].flatten())
             ezfill('ak4_pt0',    jetpt=ak4[leadak4_index].pt[mask].flatten())
