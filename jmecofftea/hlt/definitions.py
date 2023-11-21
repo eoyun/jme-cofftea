@@ -38,6 +38,9 @@ def hlt_accumulator():
     items["ak4_pt0"] = Hist("Counts", dataset_ax, region_ax, jet_pt_ax)
     items["ak4_eta0"] = Hist("Counts", dataset_ax, region_ax, jet_eta_ax)
     items["ak4_phi0"] = Hist("Counts", dataset_ax, region_ax, jet_phi_ax)
+    items["subak4_pt0"] = Hist("Counts", dataset_ax, region_ax, jet_pt_ax)
+    items["subak4_eta0"] = Hist("Counts", dataset_ax, region_ax, jet_eta_ax)
+    items["subak4_phi0"] = Hist("Counts", dataset_ax, region_ax, jet_phi_ax)
     items["dimu_mass"] = Hist("Counts", dataset_ax, region_ax, dimu_mass_ax)
     items["recoil"] = Hist("Counts", dataset_ax, region_ax, recoil_ax)
     items["met"] = Hist("Counts", dataset_ax, region_ax, met_ax)
@@ -213,7 +216,7 @@ def hlt_regions(cfg):
         # 'filt_met',
         ]
 
-    regions['tr_jet_num'] = common_cuts + ['HLT_PFJet500']
+    regions['tr_jet_num'] = common_cuts + ['HLT_PFJet40']
     regions['tr_jet_den'] = common_cuts
 
     # Jet500 regions where the leading jet is in water leak region
@@ -234,16 +237,16 @@ def hlt_regions(cfg):
     # Additional jet requirement for the HT and MET triggers
     cuts_for_ht_met = common_cuts + ['leadak4_pt_eta']
 
-    regions['tr_ht_num'] = cuts_for_ht_met + ['HLT_PFHT1050']
+    regions['tr_ht_num'] = cuts_for_ht_met# + ['HLT_PFHT1050']
     regions['tr_ht_den'] = cuts_for_ht_met
 
-    regions['tr_met_num'] = cuts_for_ht_met + ['HLT_PFMET120']
+    regions['tr_met_num'] = cuts_for_ht_met# + ['HLT_PFMET120']
     regions['tr_met_den'] = cuts_for_ht_met
 
-    regions['tr_metnomu_num'] = cuts_for_ht_met + ['HLT_PFMETNoMu120']
+    regions['tr_metnomu_num'] = cuts_for_ht_met# + ['HLT_PFMETNoMu120']
     regions['tr_metnomu_den'] = cuts_for_ht_met
 
-    regions['tr_metnomu_filterhf_num'] = cuts_for_ht_met + ["HLT_PFMETNoMu120_FilterHF"]
+    regions['tr_metnomu_filterhf_num'] = cuts_for_ht_met# + ["HLT_PFMETNoMu120_FilterHF"]
     regions['tr_metnomu_filterhf_den'] = cuts_for_ht_met
 
     # Studies for the L1 turn-on for HT1050
@@ -251,16 +254,16 @@ def hlt_regions(cfg):
         regions['tr_l1_ht_num'] = cuts_for_ht_met + ['L1_pass_HT1050']
         regions['tr_l1_ht_den'] = cuts_for_ht_met
 
-    regions['tr_fail_ht1050'] = cuts_for_ht_met + ['offline_ht_gt_1050', 'fail_PFHT1050']
+    regions['tr_fail_ht1050'] = cuts_for_ht_met# + ['offline_ht_gt_1050', 'fail_PFHT1050']
 
     if cfg.STUDIES.HIGH_PU_FILL:
-        regions['tr_metnomu_highpu_num'] = cuts_for_ht_met + ['HLT_PFMETNoMu120', 'pu60_fill']
+        regions['tr_metnomu_highpu_num'] = cuts_for_ht_met# + ['HLT_PFMETNoMu120', 'pu60_fill']
         regions['tr_metnomu_highpu_den'] = cuts_for_ht_met + ['pu60_fill']
 
-        regions['tr_ht_highpu_num'] = cuts_for_ht_met + ['HLT_PFHT1050', 'pu60_fill']
+        regions['tr_ht_highpu_num'] = cuts_for_ht_met# + ['HLT_PFHT1050', 'pu60_fill']
         regions['tr_ht_highpu_den'] = cuts_for_ht_met + ['pu60_fill']
 
-        regions['tr_jet_highpu_num'] = cuts_for_ht_met + ['HLT_PFJet500', 'pu60_fill']
+        regions['tr_jet_highpu_num'] = cuts_for_ht_met# + ['HLT_PFJet500', 'pu60_fill']
         regions['tr_jet_highpu_den'] = cuts_for_ht_met + ['pu60_fill']
 
     # Tracker BPIX issue. We will look at regions where:

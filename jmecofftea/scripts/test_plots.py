@@ -5,11 +5,11 @@ import numpy as np
 from coffea import hist
 import os
 
-directory = "test3"
+directory = "test5"
 acc = dir_archive("./"+directory+"") # Same as the -o argument to jmerge
 
 # Let's say we want to access the MET histogram which we named as "met"
-distribution = "met"
+distribution = "subak4_eta0"
 
 acc.load(distribution)
 print(acc)

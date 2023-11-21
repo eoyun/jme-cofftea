@@ -143,8 +143,8 @@ class hltProcessor(processor.ProcessorABC):
         leadak4_index = ak4.pt.argmax()
         #leadak4_index = []
         subleadak4_index = []
-        #print(type(leadak4_index))
-        #print(type(subleadak4_index))
+        #print(ak4.pt[:,0])
+        #print(ak4.pt[:,1])
         for i in range(len(ak4.pt)) :
             max_in_pt=0
             lead_index=0
@@ -165,10 +165,10 @@ class hltProcessor(processor.ProcessorABC):
             #leadak4_index.append([lead_index])       
         #print(subleadak4_index)
         #print(leadak4_index)
-        print("subleading")
-        print(ak4[subleadak4_index].pt)                       
-        print("leading")
-        print(ak4[leadak4_index].pt)                       
+        #print("ak4[subleading_index].pt :")
+        #print(ak4[subleadak4_index].pt)                       
+        #print("ak4[leading_index].pt :")
+        #print(ak4[leadak4_index].pt)                       
         leadak4_pt_eta = (ak4.pt.max() > cfg.AK4.PT) & (ak4.abseta[leadak4_index] < cfg.AK4.ABSETA)
         selection.add('leadak4_pt_eta', leadak4_pt_eta.any())
 
@@ -191,49 +191,51 @@ class hltProcessor(processor.ProcessorABC):
         run = run[ ak4_clone[ak4_clone.pt > 30].counts > 2 ]
         selection.add('bpix_issue', run > 369864)
         #selection.add('bpix_issue', df["run"] > 369864)
-        HLT_PFMET120 = df.HLT_PFMET120_PFMHT120_IDTight
-        HLT_PFMET120=HLT_PFMET120[ ak4_clone[ak4_clone.pt > 30].counts > 2 ]          
-        HLT_PFMETNoMu120 = df.HLT_PFMETNoMu120_PFMHTNoMu120_IDTight
-        HLT_PFMETNoMu120=HLT_PFMETNoMu120[ ak4_clone[ak4_clone.pt > 30].counts > 2 ]          
+        #HLT_PFMET120 = df.HLT_PFMET120_PFMHT120_IDTight
+        #HLT_PFMET120=HLT_PFMET120[ ak4_clone[ak4_clone.pt > 30].counts > 2 ]          
+        #HLT_PFMETNoMu120 = df.HLT_PFMETNoMu120_PFMHTNoMu120_IDTight
+        #HLT_PFMETNoMu120=HLT_PFMETNoMu120[ ak4_clone[ak4_clone.pt > 30].counts > 2 ]          
 
         # Trigger requirements: MET
         #selection.add('HLT_PFMET120', df['HLT_PFMET120_PFMHT120_IDTight'])
-        selection.add('HLT_PFMET120',HLT_PFMET120)
+       # selection.add('HLT_PFMET120',HLT_PFMET120)
         #selection.add('HLT_PFMETNoMu120', df['HLT_PFMETNoMu120_PFMHTNoMu120_IDTight'])
-        selection.add('HLT_PFMETNoMu120', HLT_PFMETNoMu120)
+        #selection.add('HLT_PFMETNoMu120', HLT_PFMETNoMu120)
         # Jet500 + HT1050 triggers
-        HLT_PFJet500 = df.HLT_PFJet500
-        HLT_PFJet500=HLT_PFJet500[ ak4_clone[ak4_clone.pt > 30].counts > 2 ]          
-        HLT_PFHT1050 = df.HLT_PFHT1050
-        HLT_PFHT1050=HLT_PFHT1050[ ak4_clone[ak4_clone.pt > 30].counts > 2 ]          
+        HLT_PFJet40 = df.HLT_PFJet40
+        
+        HLT_PFJet40=HLT_PFJet40[ ak4_clone[ak4_clone.pt > 30].counts > 2 ]          
+        print(HLT_PFJet40)
+        #HLT_PFHT1050 = df.HLT_PFHT1050
+        #HLT_PFHT1050=HLT_PFHT1050[ ak4_clone[ak4_clone.pt > 30].counts > 2 ]          
         
         #selection.add('HLT_PFJet500', df['HLT_PFJet500'])
-        selection.add('HLT_PFJet500', HLT_PFJet500)
+        selection.add('HLT_PFJet40', HLT_PFJet40)
         #selection.add('HLT_PFHT1050', df['HLT_PFHT1050'])
-        selection.add('HLT_PFHT1050', HLT_PFHT1050)
+        #selection.add('HLT_PFHT1050', HLT_PFHT1050)
         ## Single Muon trigger
         #selection.add('HLT_IsoMu27', df['HLT_IsoMu27'])
 
         ## HF-filtered METNoMu120 trigger - available starting from 2022 data taking
-        HLT_PFMETNoMu120_FilterHF = df.HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_FilterHF
-        HLT_PFMETNoMu120_FilterHF = HLT_PFMETNoMu120_FilterHF[ ak4_clone[ak4_clone.pt > 30].counts > 2 ]          
-        HLT_PFMETNoMu130_FilterHF = df.HLT_PFMETNoMu130_PFMHTNoMu130_IDTight_FilterHF
-        HLT_PFMETNoMu130_FilterHF = HLT_PFMETNoMu130_FilterHF[ ak4_clone[ak4_clone.pt > 30].counts > 2 ]          
-        HLT_PFMETNoMu140_FilterHF = df.HLT_PFMETNoMu140_PFMHTNoMu140_IDTight_FilterHF
-        HLT_PFMETNoMu140_FilterHF = HLT_PFMETNoMu140_FilterHF[ ak4_clone[ak4_clone.pt > 30].counts > 2 ]          
-        HLT_PFMETNoMu110_FilterHF = df.HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_FilterHF
-        HLT_PFMETNoMu110_FilterHF = HLT_PFMETNoMu110_FilterHF[ ak4_clone[ak4_clone.pt > 30].counts > 2 ]          
+        #HLT_PFMETNoMu120_FilterHF = df.HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_FilterHF
+        #HLT_PFMETNoMu120_FilterHF = HLT_PFMETNoMu120_FilterHF[ ak4_clone[ak4_clone.pt > 30].counts > 2 ]          
+        #HLT_PFMETNoMu130_FilterHF = df.HLT_PFMETNoMu130_PFMHTNoMu130_IDTight_FilterHF
+        #HLT_PFMETNoMu130_FilterHF = HLT_PFMETNoMu130_FilterHF[ ak4_clone[ak4_clone.pt > 30].counts > 2 ]          
+        #HLT_PFMETNoMu140_FilterHF = df.HLT_PFMETNoMu140_PFMHTNoMu140_IDTight_FilterHF
+        #HLT_PFMETNoMu140_FilterHF = HLT_PFMETNoMu140_FilterHF[ ak4_clone[ak4_clone.pt > 30].counts > 2 ]          
+        #HLT_PFMETNoMu110_FilterHF = df.HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_FilterHF
+        #HLT_PFMETNoMu110_FilterHF = HLT_PFMETNoMu110_FilterHF[ ak4_clone[ak4_clone.pt > 30].counts > 2 ]          
         
-        if df['year'] >= 2022:        
-            selection.add('HLT_PFMETNoMu110_FilterHF', HLT_PFMETNoMu110_FilterHF)
-            selection.add('HLT_PFMETNoMu120_FilterHF', HLT_PFMETNoMu120_FilterHF)
-            selection.add('HLT_PFMETNoMu130_FilterHF', HLT_PFMETNoMu130_FilterHF)
-            selection.add('HLT_PFMETNoMu140_FilterHF', HLT_PFMETNoMu140_FilterHF)
-        else:
-            selection.add('HLT_PFMETNoMu110_FilterHF', ~pass_all)
-            selection.add('HLT_PFMETNoMu120_FilterHF', ~pass_all)
-            selection.add('HLT_PFMETNoMu130_FilterHF', ~pass_all)
-            selection.add('HLT_PFMETNoMu140_FilterHF', ~pass_all)
+      # if df['year'] >= 2022:        
+      #     selection.add('HLT_PFMETNoMu110_FilterHF', HLT_PFMETNoMu110_FilterHF)
+      #     selection.add('HLT_PFMETNoMu120_FilterHF', HLT_PFMETNoMu120_FilterHF)
+      #     selection.add('HLT_PFMETNoMu130_FilterHF', HLT_PFMETNoMu130_FilterHF)
+      #     selection.add('HLT_PFMETNoMu140_FilterHF', HLT_PFMETNoMu140_FilterHF)
+      # else:
+      #     selection.add('HLT_PFMETNoMu110_FilterHF', ~pass_all)
+      #     selection.add('HLT_PFMETNoMu120_FilterHF', ~pass_all)
+      #     selection.add('HLT_PFMETNoMu130_FilterHF', ~pass_all)
+      #     selection.add('HLT_PFMETNoMu140_FilterHF', ~pass_all)
         #selection.add('HLT_PFMETNoMu110_FilterHF', ~pass_all)
         #selection.add('HLT_PFMETNoMu120_FilterHF', ~pass_all)
         #selection.add('HLT_PFMETNoMu130_FilterHF', ~pass_all)
@@ -281,7 +283,7 @@ class hltProcessor(processor.ProcessorABC):
 
         ht = ht[ ak4_clone[ak4_clone.pt > 30].counts > 2 ]
         selection.add('offline_ht_gt_1050', ht > 1050)
-        selection.add('fail_PFHT1050', ~HLT_PFHT1050)
+       # selection.add('fail_PFHT1050', ~HLT_PFHT1050)
 
         ## Recoil
         df['recoil_pt'], df['recoil_phi'] = metnomu(met_pt, met_phi, muons)
@@ -317,9 +319,15 @@ class hltProcessor(processor.ProcessorABC):
 
                 output['kinematics']['event'] += [event]
 
-                output['kinematics']['ak4_pt0'] += [ak4[leadak4_index][event_mask].pt]            
-                output['kinematics']['ak4_eta0'] += [ak4[leadak4_index][event_mask].eta]            
-                output['kinematics']['ak4_phi0'] += [ak4[leadak4_index][event_mask].phi]            
+                #output['kinematics']['ak4_pt0'] += [ak4[leadak4_index][event_mask].pt]            
+                output['kinematics']['ak4_pt0'] += [ak4.pt[:,0]]            
+                output['kinematics']['ak4_eta0'] += [ak4.eta[:,0]]            
+                output['kinematics']['ak4_phi0'] += [ak4.phi[:,0]]            
+                output['kinematics']['subak4_pt0'] += [ak4.pt[:,1]]            
+                output['kinematics']['subak4_eta0'] += [ak4.eta[:,1]]            
+                output['kinematics']['subak4_phi0'] += [ak4.phi[:,1]]            
+                #output['kinematics']['ak4_eta0'] += [ak4[leadak4_index][event_mask].eta]            
+                #output['kinematics']['ak4_phi0'] += [ak4[leadak4_index][event_mask].phi]            
                 output['kinematics']['ak4_tightId0'] += [ak4[leadak4_index][event_mask].looseId]            
                 
                 output['kinematics']['ak4_nhf0'] += [ak4[leadak4_index][event_mask].nhf]
@@ -357,9 +365,12 @@ class hltProcessor(processor.ProcessorABC):
                     )
 
             #print(ak4[leadak4_index].eta[mask].flatten())
-            ezfill('ak4_eta0',   jeteta=ak4[leadak4_index].eta[mask].flatten())
-            ezfill('ak4_phi0',   jetphi=ak4[leadak4_index].phi[mask].flatten())
-            ezfill('ak4_pt0',    jetpt=ak4[leadak4_index].pt[mask].flatten())
+            ezfill('ak4_eta0',   jeteta=ak4.eta[:,0].flatten())
+            ezfill('ak4_phi0',   jetphi=ak4.phi[:,0].flatten())
+            ezfill('ak4_pt0',    jetpt=ak4.pt[:,0].flatten())
+            ezfill('subak4_eta0',   jeteta=ak4.eta[:,1].flatten())
+            ezfill('subak4_phi0',   jetphi=ak4.phi[:,1].flatten())
+            ezfill('subak4_pt0',    jetpt=ak4.pt[:,1].flatten())
             #ezfill('recoil',     recoil=df['recoil_pt'][mask])                      
             ezfill('recoil',     recoil=recoil_pt[mask])                      
             ezfill('met',        met=met_pt[mask])
