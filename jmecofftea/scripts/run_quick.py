@@ -6,11 +6,13 @@ from jmecofftea.helpers.cutflow import print_cutflow
 from coffea.util import save
 import coffea.processor as processor
 import argparse
+import os
 
 def parse_commandline():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('processor', type=str, help='The processor to be run. (monojet or vbfhinv)')
+    parser.add_argument('output', type=str, help='output directory')
     args = parser.parse_args()
 
     return args
@@ -23,21 +25,26 @@ def main():
         "Muon0_2023B" : [
             "root://cmsxrootd.fnal.gov//store/data/Run2023B/Muon0/NANOAOD/PromptNanoAODv11p9_v1-v2/2810000/1074b310-64e3-4ad4-90f0-443a3c80ad37.root"
         ],
-        "Muon0_2023C" : [
-            "root://cmsxrootd.fnal.gov//store/data/Run2023C/Muon0/NANOAOD/PromptNanoAODv11p9_v1-v1/70000/9d003698-9b74-40b5-b34c-24c33f4b8bef.root"
-        ],
-        "Muon0_2023D": [
-            "root://cmsxrootd.fnal.gov//store/data/Run2023D/Muon0/NANOAOD/PromptReco-v1/000/369/956/00000/05056be2-5638-4f7f-b504-59365c0e570d.root"
-        ],
+       "Muon0_2023C" : [
+           "root://cmsxrootd.fnal.gov//store/data/Run2023C/Muon0/NANOAOD/PromptNanoAODv11p9_v1-v1/70000/9d003698-9b74-40b5-b34c-24c33f4b8bef.root"
+       ],
+       "Muon0_2023D": [
+           "root://cmsxrootd.fnal.gov//store/data/Run2023D/Muon0/NANOAOD/PromptReco-v1/000/369/956/00000/05056be2-5638-4f7f-b504-59365c0e570d.root"
+       ],
     }
 
     # years = list(set(map(extract_year, fileset.keys())))
     # assert(len(years)==1)
 
     args = parse_commandline()
+    print(args)
+    output = args.output
     processor_class = args.processor
+    outdir = './output/'+output
+    if not os.path.exists(outdir) :
+        os.mkdir(outdir)
 
-    # Currently, we only support hlt processor.
+    # Currently, we only support parse_commandlinehlt processor.
     if args.processor == 'hlt':
         from jmecofftea.hlt.hltProcessor import hltProcessor
         processorInstance = hltProcessor()
@@ -63,7 +70,7 @@ def main():
                                     executor_args={'workers': 4, 'flatten': True},
                                     chunksize=500000,
                                     )
-        save(output, f"{processor_class}_{dataset}.coffea")
+        save(output, f"{outdir}/{processor_class}_{dataset}.coffea")
         # Debugging / testing output
         # debug_plot_output(output)
         print_cutflow(output, outfile=f'{processor_class}_cutflow_{dataset}.txt')
