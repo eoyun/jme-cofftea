@@ -12,7 +12,7 @@ parser.add_argument('distribution', type=str, help='The processor to be run. (mo
 parser.add_argument('output', type=str, help='output directory')
 args = parser.parse_args()
 
-
+print(args)
 directory = "output/"+args.output
 acc = dir_archive("./"+directory+"") # Same as the -o argument to jmerge
 
@@ -38,7 +38,7 @@ for region in regions :
 
 	#num = h_num.integrate('dataset',re.compile("Muon.*2023[C]"))
 	#den = h_den.integrate('dataset',re.compile("Muon.*2023[C]"))
-	plot = h_plot.integrate('dataset',re.compile("Muon.*2023*"))
+	plot = h_plot.integrate('dataset',re.compile("JetMET.*2023*"))
 
 	centers = plot.axes()[0].centers()
 	if region.name == 'tr_fail_ht1050' :

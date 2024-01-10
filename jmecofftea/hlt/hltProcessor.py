@@ -95,7 +95,7 @@ class hltProcessor(processor.ProcessorABC):
 
         # Compute HT, follow the computation recipe of HLT_PFHT1050
         ht = filtered_ak4[(filtered_ak4.pt > cfg.HT.JETPT) & (filtered_ak4.abseta < cfg.HT.ABSETA)].pt.sum()
-
+        
         # Tight ID on leading AK4 jet
         #selection.add('leadak4_id', (ak4.tightIdLepVeto[leadak4_index].any()))
         selection.add('leadak4_id', (filtered_ak4[:,0].tightIdLepVeto))
@@ -103,10 +103,10 @@ class hltProcessor(processor.ProcessorABC):
         # Selection for leading jet - whether it is within the water leak region or not
         leading_ak4_in_water_leak = ((filtered_ak4[leadak4_index].eta > 1.4) & (filtered_ak4[leadak4_index].eta < 2.2) & \
             (filtered_ak4[leadak4_index].phi > 1.8) & (filtered_ak4[leadak4_index].phi < 2.6))
-
+        print(filtered_ak4.phi)
         selection.add('ak4_not_in_water_leak', ~leading_ak4_in_water_leak.any())
         selection.add('ak4_in_water_leak', leading_ak4_in_water_leak.any())
-
+        delta_phi = filtered_ak4.phi[:,0] - filtered_ak4.phi[:,1]
         # Selection for whether the leading jet is in the impacted tracker region
         # -1.5 < eta < 0, -1.2 < phi < -0.8
         leading_ak4_in_bad_trk = ((filtered_ak4[leadak4_index].eta > -1.5) & (filtered_ak4[leadak4_index].eta < 0) & \
@@ -304,6 +304,7 @@ class hltProcessor(processor.ProcessorABC):
             ezfill('sub_ak4_eta0',   jeteta=filtered_ak4.eta[:,1][mask].flatten())
             ezfill('sub_ak4_phi0',   jetphi=filtered_ak4.phi[:,1][mask].flatten())
             ezfill('sub_ak4_pt0',    jetpt=filtered_ak4.pt[:,1][mask].flatten())
+            ezfill('delta_phi0',   deltaphi=delta_phi[mask].flatten())
         #   ezfill('recoil',     recoil=df['recoil_pt'][mask])                      
         #   ezfill('met',        met=met_pt[mask])
         #   ezfill('ht',         ht=ht[mask])

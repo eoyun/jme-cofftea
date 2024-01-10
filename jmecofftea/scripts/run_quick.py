@@ -22,14 +22,14 @@ def main():
     # Define the mapping between dataset name and the corresponding list of files we want to run on.
     # 
     fileset = {
-        "Muon0_2023B" : [
-            "root://cmsxrootd.fnal.gov//store/data/Run2023B/Muon0/NANOAOD/PromptNanoAODv11p9_v1-v2/2810000/1074b310-64e3-4ad4-90f0-443a3c80ad37.root"
-        ],
-       "Muon0_2023C" : [
-           "root://cmsxrootd.fnal.gov//store/data/Run2023C/Muon0/NANOAOD/PromptNanoAODv11p9_v1-v1/70000/9d003698-9b74-40b5-b34c-24c33f4b8bef.root"
-       ],
-       "Muon0_2023D": [
-           "root://cmsxrootd.fnal.gov//store/data/Run2023D/Muon0/NANOAOD/PromptReco-v1/000/369/956/00000/05056be2-5638-4f7f-b504-59365c0e570d.root"
+        #"JetMET0_2023B" : [
+        #    "root://xrootd-cms.infn.it//store/data/Run2023B/JetMET0/NANOAOD/22Sep2023-v1/2540000/060eed3c-d114-4135-b3f6-2cc6c8cf4c19.root"
+        #],
+       #"JetMET0_2023C" : [
+       #    "root://xrootd-cms.infn.it//store/data/Run2023C/JetMET0/NANOAOD/22Sep2023_v1-v1/30000/1c01b41c-efc4-4170-91f2-a6e866a60ea7.root"
+       #],
+       "JetMET0_2023D": [
+           "root://xrootd-cms.infn.it//store/data/Run2023D/JetMET0/NANOAOD/22Sep2023_v1-v1/2530000/90b4ce31-2fb1-4822-8ca4-aef2c302761d.root"
        ],
     }
 

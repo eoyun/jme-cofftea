@@ -41,6 +41,7 @@ def hlt_accumulator():
     items["sub_ak4_pt0"] = Hist("Counts", dataset_ax, region_ax, jet_pt_ax)
     items["sub_ak4_eta0"] = Hist("Counts", dataset_ax, region_ax, jet_eta_ax)
     items["sub_ak4_phi0"] = Hist("Counts", dataset_ax, region_ax, jet_phi_ax)
+    items["delta_phi0"] = Hist("Counts", dataset_ax, region_ax, jet_phi_ax)
     items["dimu_mass"] = Hist("Counts", dataset_ax, region_ax, dimu_mass_ax)
     items["recoil"] = Hist("Counts", dataset_ax, region_ax, recoil_ax)
     items["met"] = Hist("Counts", dataset_ax, region_ax, met_ax)
