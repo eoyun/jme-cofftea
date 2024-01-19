@@ -22,10 +22,12 @@ def hlt_accumulator():
 
     # Numerical axes
     jet_pt_ax = Bin("jetpt", r"Jet $p_{T}$ (GeV)", 50, 0, 1000)
+    jet_pt_abs_ax = Bin("jetpt", r"Jet $p_{T}$ (GeV)", 100, 0, 1)
     jet_eta_ax = Bin("jeteta", r"Jet $\eta$", 50, -5, 5)
     jet_abseta_ax = Bin("jeteta", r"Jet $\eta$", 50, 0, 5)
     jet_phi_ax = Bin("jetphi", "Jet $\phi$", 50, -3.14, 3.14)
-    dimu_mass_ax = Bin("dimumass", "Dimuon Mass (GeV)", 50, 60, 120) 
+    jet_phi_abs_ax = Bin("jetphi", "Jet $\phi$", 50, 0, 3.14)
+    dijet_mass_ax = Bin("dijetmass", "Dijet Mass (GeV)", 50, 60, 120) 
     recoil_ax = Bin("recoil", "Recoil (GeV)", 50, 0, 1000)
     met_ax = Bin("met", "MET (GeV)", 50, 0, 1000)
     ht_ax = Bin("ht", r"$H_{T}$ (GeV)", 200, 0, 4000)
@@ -41,8 +43,10 @@ def hlt_accumulator():
     items["sub_ak4_pt0"] = Hist("Counts", dataset_ax, region_ax, jet_pt_ax)
     items["sub_ak4_eta0"] = Hist("Counts", dataset_ax, region_ax, jet_eta_ax)
     items["sub_ak4_phi0"] = Hist("Counts", dataset_ax, region_ax, jet_phi_ax)
-    items["delta_phi0"] = Hist("Counts", dataset_ax, region_ax, jet_phi_ax)
-    items["dimu_mass"] = Hist("Counts", dataset_ax, region_ax, dimu_mass_ax)
+    items["delta_phi0"] = Hist("Counts", dataset_ax, region_ax, jet_phi_abs_ax)
+    items["pt_diff0"] = Hist("Counts", dataset_ax, region_ax, jet_pt_abs_ax)
+    items["alpha0"] = Hist("Counts", dataset_ax, region_ax, jet_pt_abs_ax)
+    items["dijet_mass0"] = Hist("Counts", dataset_ax, region_ax, dijet_mass_ax)
     items["recoil"] = Hist("Counts", dataset_ax, region_ax, recoil_ax)
     items["met"] = Hist("Counts", dataset_ax, region_ax, met_ax)
     items["ht"] = Hist("Counts", dataset_ax, region_ax, ht_ax)
@@ -83,7 +87,8 @@ def setup_candidates(df, cfg):
         eta=df['Jet_eta'],
         abseta=np.abs(df['Jet_eta']),
         phi=df['Jet_phi'],
-        mass=np.zeros_like(df['Jet_pt']),
+        #mass=np.zeros_like(df['Jet_pt']),
+        mass=df['Jet_mass'],
         tightIdLepVeto=(df['Jet_jetId'] & 4) == 4, # bitmask: 1 = loose, 2 = tight, 3 = tight + lep veto
         area=df['Jet_area'],
         cef=df['Jet_chEmEF'],
@@ -207,6 +212,9 @@ def hlt_regions(cfg):
     common_cuts = [
         'leadak4_id', 
         'subleadak4_id', 
+        #'bpix_issue',
+        #'delta_phi_cut',
+        #'alpha_cut',
         #'lumi_mask',
         #'at_least_one_tight_mu', 
         #'one_muon',
@@ -219,6 +227,7 @@ def hlt_regions(cfg):
     regions['tr_jet_40'] = common_cuts + ['HLT_PFJet40']
     regions['tr_jet_60'] = common_cuts + ['HLT_PFJet60']
     regions['tr_jet_80'] = common_cuts + ['HLT_PFJet80']
+    regions['tr_jet_110'] = common_cuts + ['HLT_PFJet110']
     regions['tr_jet_140'] = common_cuts + ['HLT_PFJet140']
     regions['tr_jet_200'] = common_cuts + ['HLT_PFJet200']
     regions['tr_jet_260'] = common_cuts + ['HLT_PFJet260']
@@ -226,8 +235,20 @@ def hlt_regions(cfg):
     regions['tr_jet_400'] = common_cuts + ['HLT_PFJet400']
     regions['tr_jet_450'] = common_cuts + ['HLT_PFJet450']
     regions['tr_jet_500'] = common_cuts + ['HLT_PFJet500']
-   # regions['tr_dijet'] = common_cuts + ['dijet']
     regions['tr_jet_den'] = common_cuts
+    regions['tr_dphi_alpha_jet_40']  = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] + ['HLT_PFJet40']
+    regions['tr_dphi_alpha_jet_60']  = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] + ['HLT_PFJet60']
+    regions['tr_dphi_alpha_jet_80']  = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] + ['HLT_PFJet80']
+    regions['tr_dphi_alpha_jet_110'] = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] + ['HLT_PFJet110']
+    regions['tr_dphi_alpha_jet_140'] = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] + ['HLT_PFJet140']
+    regions['tr_dphi_alpha_jet_200'] = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] + ['HLT_PFJet200']
+    regions['tr_dphi_alpha_jet_260'] = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] + ['HLT_PFJet260']
+    regions['tr_dphi_alpha_jet_320'] = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] + ['HLT_PFJet320']
+    regions['tr_dphi_alpha_jet_400'] = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] + ['HLT_PFJet400']
+    regions['tr_dphi_alpha_jet_450'] = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] + ['HLT_PFJet450']
+    regions['tr_dphi_alpha_jet_500'] = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] + ['HLT_PFJet500']
+    regions['tr_dphi_alpha_jet_den'] = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] 
+   # regions['tr_dijet'] = common_cuts + ['dijet']
 
     # Jet500 regions where the leading jet is in water leak region
     # vs. NOT in the water leak region

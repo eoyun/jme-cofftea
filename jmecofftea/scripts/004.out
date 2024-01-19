@@ -1,0 +1,9 @@
+nohup: ignoring input
+Namespace(output='004', processor='hlt')
+Running on dataset: JetMET0_2023D
+Number of files: 1
+Preprocessing:   0%|          | 0/1 [00:00<?, ?file/s]Unable to load sec.protocol plugin libXrdSecztn.so
+Preprocessing: 100%|██████████| 1/1 [00:26<00:00, 26.03s/file]Preprocessing: 100%|██████████| 1/1 [00:26<00:00, 26.53s/file]
+Processing:   0%|          | 0/1 [00:00<?, ?chunk/s]Processing: 100%|██████████| 1/1 [2:11:53<00:00, 7913.84s/chunk]Processing: 100%|██████████| 1/1 [2:11:54<00:00, 7914.34s/chunk]['abseta', 'tightIdLepVeto', 'area', 'cef', 'chf', 'nef', 'nhf', 'mufrac', 'setaeta', 'sphiphi', 'hfcentralstripsize', 'p4', '__fast_pt', '__fast_eta', '__fast_phi', '__fast_mass']
+[[-2.4433594 0.79382324 1.017334 -0.37023926] [-2.6479492 0.30303955 0.64819336 ... -2.6713867 1.371582 2.0073242] [0.24768066 -2.8637695] ... [2.2319336 -2.541504 -0.31170654 0.2368164] [-2.678711 0.93896484 0.11027527 -2.1503906 1.3100586] [1.8530273 -1.6062012 -0.2871704 0.015237808 -0.4260254]]
+

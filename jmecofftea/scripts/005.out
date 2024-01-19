@@ -1,0 +1,8 @@
+nohup: ignoring input
+Namespace(output='005', processor='hlt')
+Running on dataset: JetMET0_2023D
+Number of files: 1
+Preprocessing:   0%|          | 0/1 [00:00<?, ?file/s]Preprocessing: 100%|██████████| 1/1 [00:18<00:00, 18.02s/file]Preprocessing: 100%|██████████| 1/1 [00:18<00:00, 18.52s/file]
+Processing:   0%|          | 0/1 [00:00<?, ?chunk/s]Processing: 100%|██████████| 1/1 [3:23:48<00:00, 12228.76s/chunk]Processing: 100%|██████████| 1/1 [3:23:49<00:00, 12229.29s/chunk]['abseta', 'tightIdLepVeto', 'area', 'cef', 'chf', 'nef', 'nhf', 'mufrac', 'setaeta', 'sphiphi', 'hfcentralstripsize', 'p4', '__fast_pt', '__fast_eta', '__fast_phi', '__fast_mass']
+[[-2.4433594 0.79382324 1.017334 -0.37023926] [-2.6479492 0.30303955 0.64819336 ... -2.6713867 1.371582 2.0073242] [0.24768066 -2.8637695] ... [2.2319336 -2.541504 -0.31170654 0.2368164] [-2.678711 0.93896484 0.11027527 -2.1503906 1.3100586] [1.8530273 -1.6062012 -0.2871704 0.015237808 -0.4260254]]
+

@@ -9,6 +9,8 @@ __pycache__
 monitor_log.txt
 submission/
 pkl/
+jmecofftea/scripts/output/*
+jmecofftea/scripts/pngs/*
 
 # Ignore build products from setup.py
 build/

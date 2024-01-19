@@ -43,7 +43,7 @@ for region in regions :
 	centers = plot.axes()[0].centers()
 	if region.name == 'tr_fail_ht1050' :
 		continue
-	x = np.linspace(min(centers),max(centers),200)
+	x = np.linspace(min(centers),max(centers),100)
 #	print(x)
 	fig, ax = plt.subplots()
 #print("############# print histo ################")
@@ -56,6 +56,11 @@ for region in regions :
 #print(num.values())
 #print("############# print denominator ################")
 #print(den.values())
-	#print(ax)
+	#print(plot.integrate("jetpt",slice(0.01,1)))
+	#print(type(plot.values()))
+	#print(sum(plot.values()[()]))
+	#print(plot.values()[()][0])
+	#print(sum(plot.values()[()][1:100]))
+
 	hist.plot1d(plot)
 	fig.savefig('./pngs/'+directory+'/'+distribution+"_"+region.name+'.png')

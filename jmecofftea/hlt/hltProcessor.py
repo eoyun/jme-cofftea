@@ -7,7 +7,7 @@ from dynaconf import settings as cfg
 from coffea.lumi_tools import LumiMask
 
 from jmecofftea.hlt.definitions import hlt_accumulator, hlt_regions, setup_candidates
-from jmecofftea.helpers import jmecofftea_path, recoil, metnomu, mask_and, mask_or, object_overlap
+from jmecofftea.helpers import jmecofftea_path, recoil, metnomu, mask_and, mask_or, object_overlap, dphi
 from jmecofftea.helpers.dataset import extract_year
 from jmecofftea.helpers.paths import jmecofftea_path
 from jmecofftea.helpers.jme import get_jme_correctors, propagate_jecs_to_met
@@ -86,8 +86,15 @@ class hltProcessor(processor.ProcessorABC):
         #selection.add('dijet',mask_dijet)
         # apply the mask
         filtered_ak4 = ak4[mask_dijet]
+        #print(filtered_ak4[:])
         # Requirements on the leading jet
-        print(filtered_ak4.columns)
+        #print("###########################")
+        #print(len(filtered_ak4.pt[1]))
+       	dijet = filtered_ak4[:,0] + filtered_ak4[:,1]
+        #print(filtered_ak4.p4)
+        #print(filtered_ak4.mass[:,0])
+        #print(filtered_ak4.mass[:,1])
+        print(dijet.p4.mass)
         leadak4_index = filtered_ak4.pt.argmax()
         #print(type(ak4.pt))
         leadak4_pt_eta = (filtered_ak4.pt.max() > cfg.AK4.PT) & (filtered_ak4.abseta[leadak4_index] < cfg.AK4.ABSETA)
@@ -103,10 +110,24 @@ class hltProcessor(processor.ProcessorABC):
         # Selection for leading jet - whether it is within the water leak region or not
         leading_ak4_in_water_leak = ((filtered_ak4[leadak4_index].eta > 1.4) & (filtered_ak4[leadak4_index].eta < 2.2) & \
             (filtered_ak4[leadak4_index].phi > 1.8) & (filtered_ak4[leadak4_index].phi < 2.6))
-        print(filtered_ak4.phi)
+        #print(filtered_ak4.phi)
         selection.add('ak4_not_in_water_leak', ~leading_ak4_in_water_leak.any())
         selection.add('ak4_in_water_leak', leading_ak4_in_water_leak.any())
-        delta_phi = filtered_ak4.phi[:,0] - filtered_ak4.phi[:,1]
+        # delta phi
+        delta_phi = dphi(filtered_ak4.phi[:,0] , filtered_ak4.phi[:,1])
+        # ratio pt diff & sum
+        pt_diff = abs(filtered_ak4.pt[:,0] - filtered_ak4.pt[:,1])/(filtered_ak4.pt[:,0] + filtered_ak4.pt[:,1])
+        #alpha 
+        alpha = np.zeros(len(filtered_ak4))
+        #print(len(filtered_ak4))
+        #print(alpha)
+        for i in range(len(filtered_ak4)) :
+            if len(filtered_ak4[i]) > 2 :
+                #print(filtered_ak4[i][0])
+                alpha[i] = filtered_ak4.pt[i][2] * 2 / (filtered_ak4.pt[i][0] + filtered_ak4.pt[i][1])
+            else :
+                alpha[i] = 0
+            #print(alpha[i])
         # Selection for whether the leading jet is in the impacted tracker region
         # -1.5 < eta < 0, -1.2 < phi < -0.8
         leading_ak4_in_bad_trk = ((filtered_ak4[leadak4_index].eta > -1.5) & (filtered_ak4[leadak4_index].eta < 0) & \
@@ -118,7 +139,12 @@ class hltProcessor(processor.ProcessorABC):
         run = df.run
         run = run[ak4.counts>1]
         selection.add('bpix_issue', run > 369864)
-
+        selection.add('delta_phi_cut', delta_phi > 2.7)
+        selection.add('alpha_cut', alpha < 0.1)
+        print('pt_diff')
+        print(pt_diff)
+        print('alpha')
+        print(alpha)
         # Trigger requirements: MET
 
         #HLT_PFMET120 = df.HLT_PFMET120
@@ -133,6 +159,7 @@ class hltProcessor(processor.ProcessorABC):
         HLT_PFJet40 = df.HLT_PFJet40
         HLT_PFJet60 = df.HLT_PFJet60
         HLT_PFJet80 = df.HLT_PFJet80
+        HLT_PFJet110 = df.HLT_PFJet110
         HLT_PFJet140 = df.HLT_PFJet140
         HLT_PFJet200 = df.HLT_PFJet200
         HLT_PFJet260 = df.HLT_PFJet260
@@ -144,6 +171,7 @@ class hltProcessor(processor.ProcessorABC):
         HLT_PFJet40 = HLT_PFJet40[ak4.counts>1]
         HLT_PFJet60 = HLT_PFJet60[ak4.counts>1]
         HLT_PFJet80 = HLT_PFJet80[ak4.counts>1]
+        HLT_PFJet110 = HLT_PFJet110[ak4.counts>1]
         HLT_PFJet140 = HLT_PFJet140[ak4.counts>1]
         HLT_PFJet200 = HLT_PFJet200[ak4.counts>1]
         HLT_PFJet260 = HLT_PFJet260[ak4.counts>1]
@@ -154,6 +182,7 @@ class hltProcessor(processor.ProcessorABC):
         selection.add('HLT_PFJet40', HLT_PFJet40)
         selection.add('HLT_PFJet60', HLT_PFJet60)
         selection.add('HLT_PFJet80', HLT_PFJet80)
+        selection.add('HLT_PFJet110', HLT_PFJet110)
         selection.add('HLT_PFJet140', HLT_PFJet140)
         selection.add('HLT_PFJet200', HLT_PFJet200)
         selection.add('HLT_PFJet260', HLT_PFJet260)
@@ -297,14 +326,17 @@ class hltProcessor(processor.ProcessorABC):
                     dataset=dataset, 
                     **kwargs
                     )
-
+        
             ezfill('ak4_eta0',   jeteta=filtered_ak4.eta[:,0][mask].flatten())
             ezfill('ak4_phi0',   jetphi=filtered_ak4.phi[:,0][mask].flatten())
             ezfill('ak4_pt0',    jetpt=filtered_ak4.pt[:,0][mask].flatten())
             ezfill('sub_ak4_eta0',   jeteta=filtered_ak4.eta[:,1][mask].flatten())
             ezfill('sub_ak4_phi0',   jetphi=filtered_ak4.phi[:,1][mask].flatten())
             ezfill('sub_ak4_pt0',    jetpt=filtered_ak4.pt[:,1][mask].flatten())
-            ezfill('delta_phi0',   deltaphi=delta_phi[mask].flatten())
+            ezfill('delta_phi0',   jetphi=delta_phi[mask].flatten())
+            ezfill('pt_diff0',   jetpt=pt_diff[mask].flatten())
+            ezfill('alpha0',   jetpt=alpha[mask].flatten())
+            ezfill('dijet_mass0',    dijetmass=dijet[mask].p4.mass.flatten())
         #   ezfill('recoil',     recoil=df['recoil_pt'][mask])                      
         #   ezfill('met',        met=met_pt[mask])
         #   ezfill('ht',         ht=ht[mask])
