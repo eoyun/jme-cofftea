@@ -37,6 +37,7 @@ def hlt_accumulator():
 
     # Histogram definitions
     items = {}
+    items["trig_pt0"] = Hist("Counts", dataset_ax, region_ax, jet_pt_ax)
     items["ak4_pt0"] = Hist("Counts", dataset_ax, region_ax, jet_pt_ax)
     items["ak4_eta0"] = Hist("Counts", dataset_ax, region_ax, jet_eta_ax)
     items["ak4_phi0"] = Hist("Counts", dataset_ax, region_ax, jet_phi_ax)
@@ -81,6 +82,16 @@ def setup_candidates(df, cfg):
     # AK4 PF PUPPI jets
     # If we are going to manually apply different JECs, take the raw pt from NanoAOD.
     # Otherwise, get the jet pt straight out of NanoAOD.
+    trig_obj = JaggedCandidateArray.candidatesfromcounts(
+        df['nTrigObj'],
+        pt=df['TrigObj_pt'],
+        eta=df['TrigObj_eta'],
+        phi=df['TrigObj_phi'],
+        id_trig=df['TrigObj_id'],
+        filter_bit=df['TrigObj_filterBits'],
+        mass= 0 * df['TrigObj_pt']
+    )
+
     ak4 = JaggedCandidateArray.candidatesfromcounts(
         df['nJet'],
         pt=df['Jet_pt']*(1-df['Jet_rawFactor']) if cfg.JECS.OFFLINE.APPLY else df['Jet_pt'],
@@ -200,7 +211,8 @@ def setup_candidates(df, cfg):
               ]
 
 
-    return met_pt, met_phi, ak4, muons, electrons, taus, photons
+    return met_pt, met_phi, ak4, muons, electrons, taus, photons, trig_obj
+    #return met_pt, met_phi, ak4, muons, electrons, taus, photons
 
 def hlt_regions(cfg):
     """
@@ -235,6 +247,15 @@ def hlt_regions(cfg):
     regions['tr_jet_400'] = common_cuts + ['HLT_PFJet400']
     regions['tr_jet_450'] = common_cuts + ['HLT_PFJet450']
     regions['tr_jet_500'] = common_cuts + ['HLT_PFJet500']
+    regions['tr_dijet_40'] = common_cuts +  ['HLT_DiPFJetAve40']
+    regions['tr_dijet_60'] = common_cuts +  ['HLT_DiPFJetAve60']
+    regions['tr_dijet_80'] = common_cuts +  ['HLT_DiPFJetAve80']
+    regions['tr_dijet_140'] = common_cuts + ['HLT_DiPFJetAve140']
+    regions['tr_dijet_200'] = common_cuts + ['HLT_DiPFJetAve200']
+    regions['tr_dijet_260'] = common_cuts + ['HLT_DiPFJetAve260']
+    regions['tr_dijet_320'] = common_cuts + ['HLT_DiPFJetAve320']
+    regions['tr_dijet_400'] = common_cuts + ['HLT_DiPFJetAve400']
+    regions['tr_dijet_500'] = common_cuts + ['HLT_DiPFJetAve500']
     regions['tr_jet_den'] = common_cuts
     regions['tr_dphi_alpha_jet_40']  = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] + ['HLT_PFJet40']
     regions['tr_dphi_alpha_jet_60']  = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] + ['HLT_PFJet60']
@@ -248,6 +269,15 @@ def hlt_regions(cfg):
     regions['tr_dphi_alpha_jet_450'] = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] + ['HLT_PFJet450']
     regions['tr_dphi_alpha_jet_500'] = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] + ['HLT_PFJet500']
     regions['tr_dphi_alpha_jet_den'] = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] 
+    regions['tr_dphi_alpha_dijet_40']  = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] + ['HLT_DiPFJetAve40']
+    regions['tr_dphi_alpha_dijet_60']  = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] + ['HLT_DiPFJetAve60']
+    regions['tr_dphi_alpha_dijet_80']  = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] + ['HLT_DiPFJetAve80']
+    regions['tr_dphi_alpha_dijet_140'] = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] + ['HLT_DiPFJetAve140']
+    regions['tr_dphi_alpha_dijet_200'] = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] + ['HLT_DiPFJetAve200']
+    regions['tr_dphi_alpha_dijet_260'] = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] + ['HLT_DiPFJetAve260']
+    regions['tr_dphi_alpha_dijet_320'] = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] + ['HLT_DiPFJetAve320']
+    regions['tr_dphi_alpha_dijet_400'] = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] + ['HLT_DiPFJetAve400']
+    regions['tr_dphi_alpha_dijet_500'] = common_cuts + ['delta_phi_cut'] + ['alpha_cut'] + ['HLT_DiPFJetAve500']
    # regions['tr_dijet'] = common_cuts + ['dijet']
 
     # Jet500 regions where the leading jet is in water leak region

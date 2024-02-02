@@ -11,6 +11,7 @@ submission/
 pkl/
 jmecofftea/scripts/output/*
 jmecofftea/scripts/pngs/*
+jmecofftea/scripts/*.root
 
 # Ignore build products from setup.py
 build/

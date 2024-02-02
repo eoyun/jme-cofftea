@@ -35,7 +35,9 @@ def main():
        #    "root://xrootd-cms.infn.it//store/data/Run2023D/JetMET0/NANOAOD/22Sep2023_v1-v1/2530000/90b4ce31-2fb1-4822-8ca4-aef2c302761d.root"
        #],
        "JetMET0_2023D" : [
-           "root://cluster142.knu.ac.kr//store/user/yeo/coffea/JetMET/90b4ce31-2fb1-4822-8ca4-aef2c302761d.root"
+           #"root://cluster142.knu.ac.kr//store/user/yeo/coffea/JetMET/90b4ce31-2fb1-4822-8ca4-aef2c302761d.root"
+           "/pnfs/knu.ac.kr/data/cms/store/user/yeo/coffea/JetMET/90b4ce31-2fb1-4822-8ca4-aef2c302761d.root"
+           #"./90b4ce31-2fb1-4822-8ca4-aef2c302761d.root"
        ],
     }
 

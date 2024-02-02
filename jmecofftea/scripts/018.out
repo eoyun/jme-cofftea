@@ -1,0 +1,42 @@
+nohup: ignoring input
+Namespace(output='018', processor='hlt')
+Running on dataset: JetMET0_2023D
+Number of files: 1
+Preprocessing:   0%|          | 0/1 [00:00<?, ?file/s]Preprocessing: 100%|██████████| 1/1 [00:02<00:00,  2.50s/file]Preprocessing: 100%|██████████| 1/1 [00:03<00:00,  3.01s/file]
+Processing:   0%|          | 0/1 [00:00<?, ?chunk/s]Processing:   0%|          | 0/1 [05:09<?, ?chunk/s]
+concurrent.futures.process._RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/cvmfs/sft.cern.ch/lcg/releases/Python/3.6.5-54b64/x86_64-centos7-gcc8-opt/lib/python3.6/concurrent/futures/process.py", line 175, in _process_worker
+    r = call_item.fn(*call_item.args, **call_item.kwargs)
+  File "/u/user/eoyun/scratch/coffea/24.01.11/jmecoffteaenv/lib/python3.6/site-packages/coffea/processor/executor.py", line 134, in __call__
+    out = self.function(*args, **kwargs)
+  File "/d0/scratch/eoyun/coffea/24.01.11/jme-cofftea/jmecofftea/processor/executor.py", line 166, in _work_function_nanoaod
+    raise e
+  File "/d0/scratch/eoyun/coffea/24.01.11/jme-cofftea/jmecofftea/processor/executor.py", line 127, in _work_function_nanoaod
+    out = processor_instance.process(df)
+  File "/d0/scratch/eoyun/coffea/24.01.11/jme-cofftea/jmecofftea/hlt/hltProcessor.py", line 155, in process
+    trig_obj_jet = trig_obj_jet[ak4.coutns>1]
+  File "/u/user/eoyun/scratch/coffea/24.01.11/jmecoffteaenv/lib/python3.6/site-packages/coffea/analysis_objects/JaggedCandidateMethods.py", line 481, in __getattr__
+    thewhat = getattr(super(JaggedCandidateMethods, self), what)
+AttributeError: 'super' object has no attribute 'coutns'
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "./run_quick.py", line 85, in <module>
+    main()
+  File "./run_quick.py", line 77, in main
+    chunksize=500000,
+  File "/d0/scratch/eoyun/coffea/24.01.11/jme-cofftea/jmecofftea/processor/executor.py", line 337, in run_uproot_job_nanoaod
+    executor(chunks, closure, wrapped_out, **exe_args)
+  File "/u/user/eoyun/scratch/coffea/24.01.11/jmecoffteaenv/lib/python3.6/site-packages/coffea/processor/executor.py", line 299, in futures_executor
+    _futures_handler(futures, accumulator, status, unit, desc, add_fn, tailtimeout)
+  File "/u/user/eoyun/scratch/coffea/24.01.11/jmecoffteaenv/lib/python3.6/site-packages/coffea/processor/executor.py", line 192, in _futures_handler
+    add_fn(output, finished.pop().result())
+  File "/cvmfs/sft.cern.ch/lcg/releases/Python/3.6.5-54b64/x86_64-centos7-gcc8-opt/lib/python3.6/concurrent/futures/_base.py", line 425, in result
+    return self.__get_result()
+  File "/cvmfs/sft.cern.ch/lcg/releases/Python/3.6.5-54b64/x86_64-centos7-gcc8-opt/lib/python3.6/concurrent/futures/_base.py", line 384, in __get_result
+    raise self._exception
+AttributeError: 'super' object has no attribute 'coutns'

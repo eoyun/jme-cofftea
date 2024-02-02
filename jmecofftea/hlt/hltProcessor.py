@@ -3,6 +3,8 @@ import coffea.processor as processor
 import re
 import numpy as np
 from dynaconf import settings as cfg
+import random
+from jmecofftea.hlt.functions import match_Jet
 
 from coffea.lumi_tools import LumiMask
 
@@ -17,6 +19,8 @@ class hltProcessor(processor.ProcessorABC):
         self._accumulator = hlt_accumulator()
 
     @property
+
+
     def accumulator(self):
         return self._accumulator
 
@@ -43,7 +47,8 @@ class hltProcessor(processor.ProcessorABC):
 
         self._configure(df)
 
-        met_pt, met_phi, ak4, muons, electrons, taus, photons = setup_candidates(df, cfg)
+        met_pt, met_phi, ak4, muons, electrons, taus, photons, trig_obj = setup_candidates(df, cfg)
+        #met_pt, met_phi, ak4, muons, electrons, taus, photons = setup_candidates(df, cfg)
 
         # Re-apply offline JECs, if configured to do so
         if cfg.JECS.OFFLINE.APPLY:
@@ -94,7 +99,37 @@ class hltProcessor(processor.ProcessorABC):
         #print(filtered_ak4.p4)
         #print(filtered_ak4.mass[:,0])
         #print(filtered_ak4.mass[:,1])
-        print(dijet.p4.mass)
+        #print(ak4.columns)
+        #print("area")
+        #print(ak4.area)
+        #print("cef")
+        #print(ak4.cef)
+        #print("chf")
+        #print(ak4.chf)
+        #print("nef")
+        #print(ak4.nef)
+        #print("nhf")
+        #print(ak4.nhf)
+        #print("mufrac")
+        #print(ak4.mufrac)
+        #print("setaeta")
+        #print(ak4.setaeta)
+        #print("sphiphi")
+        #print(ak4.sphiphi)
+        #print("hfcentralstripsize")
+        #print(ak4.hfcentralstripsize)
+
+        #print(df.nTrigObj)
+        #print(trig_obj.pt)
+        #print(trig_obj.eta)
+        #print(trig_obj.phi)
+        #print(trig_obj.id_trig)
+        #print(trig_obj.filter_bit)
+        
+
+        trig_obj_jet = trig_obj[trig_obj.id_trig == 1 ]
+        trig_obj_jet = trig_obj_jet[ak4.counts>1]
+        print(trig_obj_jet.pt)
         leadak4_index = filtered_ak4.pt.argmax()
         #print(type(ak4.pt))
         leadak4_pt_eta = (filtered_ak4.pt.max() > cfg.AK4.PT) & (filtered_ak4.abseta[leadak4_index] < cfg.AK4.ABSETA)
@@ -119,8 +154,12 @@ class hltProcessor(processor.ProcessorABC):
         pt_diff = abs(filtered_ak4.pt[:,0] - filtered_ak4.pt[:,1])/(filtered_ak4.pt[:,0] + filtered_ak4.pt[:,1])
         #alpha 
         alpha = np.zeros(len(filtered_ak4))
+        match_jet_index = match_Jet(filtered_ak4, trig_obj_jet)
+        print(match_jet_index)
         #print(len(filtered_ak4))
         #print(alpha)
+        tag_jet = np.zeros(len(filtered_ak4))
+        probe_jet = np.zeros(len(filtered_ak4))
         for i in range(len(filtered_ak4)) :
             if len(filtered_ak4[i]) > 2 :
                 #print(filtered_ak4[i][0])
@@ -146,7 +185,7 @@ class hltProcessor(processor.ProcessorABC):
         print('alpha')
         print(alpha)
         # Trigger requirements: MET
-
+        
         #HLT_PFMET120 = df.HLT_PFMET120
         #HLT_PFMETNoMu120 = df.HLT_PFMETNoMu120
 
@@ -168,6 +207,16 @@ class hltProcessor(processor.ProcessorABC):
         HLT_PFJet450 = df.HLT_PFJet450
         HLT_PFJet500 = df.HLT_PFJet500
 
+        HLT_DiPFJetAve40 =  df.HLT_DiPFJetAve40
+        HLT_DiPFJetAve60 =  df.HLT_DiPFJetAve60
+        HLT_DiPFJetAve80 =  df.HLT_DiPFJetAve80
+        HLT_DiPFJetAve140 = df.HLT_DiPFJetAve140
+        HLT_DiPFJetAve200 = df.HLT_DiPFJetAve200
+        HLT_DiPFJetAve260 = df.HLT_DiPFJetAve260
+        HLT_DiPFJetAve320 = df.HLT_DiPFJetAve320
+        HLT_DiPFJetAve400 = df.HLT_DiPFJetAve400
+        HLT_DiPFJetAve500 = df.HLT_DiPFJetAve500
+
         HLT_PFJet40 = HLT_PFJet40[ak4.counts>1]
         HLT_PFJet60 = HLT_PFJet60[ak4.counts>1]
         HLT_PFJet80 = HLT_PFJet80[ak4.counts>1]
@@ -179,9 +228,20 @@ class hltProcessor(processor.ProcessorABC):
         HLT_PFJet400 = HLT_PFJet400[ak4.counts>1]
         HLT_PFJet450 = HLT_PFJet450[ak4.counts>1]
         HLT_PFJet500 = HLT_PFJet500[ak4.counts>1]
-        selection.add('HLT_PFJet40', HLT_PFJet40)
-        selection.add('HLT_PFJet60', HLT_PFJet60)
-        selection.add('HLT_PFJet80', HLT_PFJet80)
+
+        HLT_DiPFJetAve40 =  HLT_DiPFJetAve40[ak4.counts>1]
+        HLT_DiPFJetAve60 =  HLT_DiPFJetAve60[ak4.counts>1]
+        HLT_DiPFJetAve80 =  HLT_DiPFJetAve80[ak4.counts>1]
+        HLT_DiPFJetAve140 = HLT_DiPFJetAve140[ak4.counts>1]
+        HLT_DiPFJetAve200 = HLT_DiPFJetAve200[ak4.counts>1]
+        HLT_DiPFJetAve260 = HLT_DiPFJetAve260[ak4.counts>1]
+        HLT_DiPFJetAve320 = HLT_DiPFJetAve320[ak4.counts>1]
+        HLT_DiPFJetAve400 = HLT_DiPFJetAve400[ak4.counts>1]
+        HLT_DiPFJetAve500 = HLT_DiPFJetAve500[ak4.counts>1]
+
+        selection.add('HLT_PFJet40',  HLT_PFJet40)
+        selection.add('HLT_PFJet60',  HLT_PFJet60)
+        selection.add('HLT_PFJet80',  HLT_PFJet80)
         selection.add('HLT_PFJet110', HLT_PFJet110)
         selection.add('HLT_PFJet140', HLT_PFJet140)
         selection.add('HLT_PFJet200', HLT_PFJet200)
@@ -190,6 +250,16 @@ class hltProcessor(processor.ProcessorABC):
         selection.add('HLT_PFJet400', HLT_PFJet400)
         selection.add('HLT_PFJet450', HLT_PFJet450)
         selection.add('HLT_PFJet500', HLT_PFJet500)
+
+        selection.add('HLT_DiPFJetAve40',  HLT_DiPFJetAve40)
+        selection.add('HLT_DiPFJetAve60',  HLT_DiPFJetAve60)
+        selection.add('HLT_DiPFJetAve80',  HLT_DiPFJetAve80)
+        selection.add('HLT_DiPFJetAve140', HLT_DiPFJetAve140)
+        selection.add('HLT_DiPFJetAve200', HLT_DiPFJetAve200)
+        selection.add('HLT_DiPFJetAve260', HLT_DiPFJetAve260)
+        selection.add('HLT_DiPFJetAve320', HLT_DiPFJetAve320)
+        selection.add('HLT_DiPFJetAve400', HLT_DiPFJetAve400)
+        selection.add('HLT_DiPFJetAve500', HLT_DiPFJetAve500)
 
         HLT_PFHT1050 = df.HLT_PFHT1050
         HLT_PFHT1050 = HLT_PFHT1050[ak4.counts>1]
@@ -272,7 +342,7 @@ class hltProcessor(processor.ProcessorABC):
         # Fill histograms
         output = self.accumulator.identity()
 
-        # Save kinematics for specific events
+	# Save kinematics for specific events 
         if cfg.RUN.KINEMATICS.SAVE:
             for event in cfg.RUN.KINEMATICS.EVENTS:
                 event_mask = df['event'] == event
@@ -280,8 +350,7 @@ class hltProcessor(processor.ProcessorABC):
                 if not event_mask.any():
                     continue
 
-                output['kinematics']['event'] += [event]
-
+                output['kinematics']['event'] += [event] 
                 output['kinematics']['ak4_pt0'] += [ak4[leadak4_index][event_mask].pt]            
                 output['kinematics']['ak4_eta0'] += [ak4[leadak4_index][event_mask].eta]            
                 output['kinematics']['ak4_phi0'] += [ak4[leadak4_index][event_mask].phi]            
@@ -327,6 +396,9 @@ class hltProcessor(processor.ProcessorABC):
                     **kwargs
                     )
         
+            #ezfill('trig_eta0',   jeteta=trig_obj.eta[:,0][mask].flatten())
+            #ezfill('trig_phi0',   jetphi=trig_obj.phi[:,0][mask].flatten())
+            ezfill('trig_pt0',    jetpt= trig_obj_jet.pt[mask].flatten())
             ezfill('ak4_eta0',   jeteta=filtered_ak4.eta[:,0][mask].flatten())
             ezfill('ak4_phi0',   jetphi=filtered_ak4.phi[:,0][mask].flatten())
             ezfill('ak4_pt0',    jetpt=filtered_ak4.pt[:,0][mask].flatten())
